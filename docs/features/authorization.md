@@ -39,6 +39,59 @@ flowchart TB
     style owner fill:#ede9fe,stroke:#7c3aed,color:#5b21b6
 ```
 
+## BFFless Auth as identity provider
+
+BFFless Auth is the identity provider for every site you host on a BFFless workspace. **One account works across every site you're a member of**, the same way "Sign in with Apple" or Auth0 work — sites consume that identity rather than minting their own.
+
+```mermaid
+flowchart TB
+    subgraph identity["Your BFFless Auth account"]
+        direction LR
+        email["you@example.com"]
+    end
+
+    subgraph sites["Sites you're a member of"]
+        site1["Real-estate site<br/>www.example-realestate.com"]
+        site2["Wedding site<br/>jane-and-james.com"]
+        site3["Salon site<br/>salon.sites.bffless.app"]
+    end
+
+    identity -->|"role: guest"| site1
+    identity -->|"role: admin"| site2
+    identity -->|"role: guest"| site3
+
+    style email fill:#ede9fe,stroke:#7c3aed,color:#5b21b6
+```
+
+### My Sites — the central account hub
+
+Visit `https://admin.sites.bffless.app/account` (or `https://admin.<your-workspace>/account` on self-hosted CE) to see and manage your identity. The page shows:
+
+- The account you're signed in as
+- Change Password, MFA, and connected sign-in methods (Google, etc.)
+- **My Sites** — every site you currently belong to, with the role you hold there
+
+`<AuthDialog>` on consumer sites links here via the "Powered by BFFless Auth · Manage account" footer.
+
+### Leaving a site
+
+Each card on the My Sites page has a **Leave** button. Leaving:
+
+- Revokes your project membership immediately
+- Does **not** delete or change your BFFless Auth account
+- Is reversible only by the site owner re-inviting you
+
+You **cannot leave a site you own** — the Leave button is disabled, and the API rejects the request with a 400. Transfer ownership to another member first (see [Transferring Ownership](#transferring-ownership)), then leave.
+
+### One identity, scoped per project
+
+Authentication (your credentials) is workspace-wide; **authorization (your access to a specific site) is per-project**. A user signed in via BFFless Auth still needs an explicit project membership to access a site's user features. New site visitors join via:
+
+- An invitation from a site admin (always available)
+- Self-signup, when the site owner has enabled `allowPublicSignup` for that project
+
+Visiting a private site you have no membership in returns a 403 page that links you back to your account hub — so it's always clear which identity you're signed in as and where to manage it.
+
 ## Global Roles
 
 Global roles determine system-wide capabilities. Every user has exactly one global role.
