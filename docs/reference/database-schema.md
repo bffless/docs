@@ -162,6 +162,7 @@ Repository projects that contain deployments.
 | `isPublic` | BOOLEAN | No | `false` | Whether assets are publicly accessible |
 | `unauthorizedBehavior` | VARCHAR(20) | No | `'not_found'` | `'not_found'` or `'redirect_login'` |
 | `requiredRole` | VARCHAR(20) | No | `'authenticated'` | Minimum role for access |
+| `allowPublicSignup` | BOOLEAN | No | `false` | Allow visitors to self-register on this site (only consulted when workspace flag `REQUIRE_PROJECT_MEMBERSHIP` is on — see [Project membership gate](../features/authorization.md#project-membership-gate)) |
 | `settings` | JSONB | Yes | - | Extensible settings object |
 | `defaultProxyRuleSetId` | UUID | Yes | - | Default proxy rules for this project |
 | `createdBy` | UUID | No | - | FK to users.id |
@@ -242,7 +243,7 @@ System-wide configuration (singleton table).
 | `cacheConfig` | TEXT | Yes | - | Encrypted cache config |
 | `jwtSecret` | TEXT | Yes | - | JWT signing secret |
 | `apiKeySalt` | TEXT | Yes | - | API key hashing salt |
-| `allowPublicSignups` | BOOLEAN | No | `false` | Allow public registration |
+| `allowPublicSignups` | BOOLEAN | No | `false` | Workspace-wide flag: allow anyone to register an account at the admin domain. Distinct from per-project `projects.allowPublicSignup` (no trailing `s`). |
 | `createdAt` | TIMESTAMP | No | now() | Creation timestamp |
 | `updatedAt` | TIMESTAMP | No | now() | Last update timestamp |
 
