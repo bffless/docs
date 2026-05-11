@@ -92,6 +92,87 @@ Authentication (your credentials) is workspace-wide; **authorization (your acces
 
 Visiting a private site you have no membership in returns a 403 page that links you back to your account hub — so it's always clear which identity you're signed in as and where to manage it.
 
+:::info Workspace opt-in
+The per-project membership enforcement described above is gated by a workspace-level master switch, `REQUIRE_PROJECT_MEMBERSHIP`, which **defaults to off** for back-compat. Without it, any workspace user can sign in on any site under the workspace. See [Project membership gate](#project-membership-gate) below to enable it.
+:::
+
+## Project membership gate
+
+A workspace-level master switch controls whether having a project role is sufficient to use a BFFless-hosted site, or whether the user must *also* have an explicit project-membership row for the project the hostname maps to.
+
+This is effectively a third layer on top of the existing [global roles](#global-roles) and [project roles](#project-roles):
+
+```
+┌────────────────────────────────────────────────────────┐
+│ L1 · Global role         Admin / User / Member         │
+│ L2 · Project role        Owner ... Guest               │
+│ L3 · Project membership  row present? yes / no   (new) │
+└────────────────────────────────────────────────────────┘
+```
+
+L1 and L2 describe *what* a user can do once they're recognized. L3 is the precondition that decides whether they're recognized as a user on this site at all. When L3 fails, the user is treated as anonymous on that specific site regardless of their global role.
+
+### The master switch: `REQUIRE_PROJECT_MEMBERSHIP`
+
+| Property | Value |
+|---|---|
+| Type | Workspace-level feature flag |
+| Default | `false` (back-compat — current behavior preserved) |
+| Toggle UI | `admin.<your-workspace>/admin/settings/auth` → **Project Membership** card |
+| Env override | `FEATURE_REQUIRE_PROJECT_MEMBERSHIP=true` |
+
+When **`false`**, every membership check in this section is skipped and BFFless authenticates exactly as documented above — credentials valid against the workspace user pool is enough.
+
+When **`true`**:
+
+- `POST /signin` rejects the request if the user has no membership in the project that maps to the request hostname.
+- `GET /session` returns `{ user: null }` for an authenticated user without project membership — this is what closes the cross-subdomain cookie bleed (SuperTokens cookies live on the workspace parent domain).
+- Authenticated data routes are gated by a global `ProjectMembershipGuard`. Routes that should remain reachable for non-members (auth endpoints themselves, public-content serving) opt out with a `@PublicProjectAccess()` decorator.
+- The admin domain (`admin.<your-workspace>`) bypasses the gate so admin and staff workflows still work as before.
+
+### Who should turn it on
+
+| Workspace shape | Recommendation |
+|---|---|
+| Single owner, all internal projects | Leave off — SSO across your own sites is convenient. |
+| Multi-customer or whitelabel hosting | Turn on — each customer's site needs independent auth; cookie bleeds between sister sites are a security and UX issue. |
+| Mixed (some internal, some public-facing) | Turn on, then use `allowPublicSignup` per project to decide which sites accept self-signup. |
+
+### Per-project signup: `projects.allowPublicSignup`
+
+When the master switch is on, the signup endpoint is gated per project. The boolean column `projects.allowPublicSignup` (default `false`) controls whether visitors can self-register on a given site:
+
+- **`false`** — signup is disabled; only users invited via the Members tab can join. The endpoint returns `PUBLIC_SIGNUP_DISABLED`.
+- **`true`** — anyone can sign up; the user is auto-granted the `guest` role on first signup. Existing-email collisions receive a friendly "account exists — sign in instead" response.
+
+Toggle it in **Project Settings → Members → Allow public signup**. The toggle is disabled with an explainer when the workspace master switch is off (the per-project flag has no effect in that state).
+
+:::note Two different `allowPublicSignup*` flags
+The per-project `projects.allowPublicSignup` (this section) is distinct from the workspace-wide `system_config.allowPublicSignups` (note the trailing `s`), which controls whether anyone can register an account at the admin domain at all. Both default to `false`.
+:::
+
+### Behavior matrix
+
+With `REQUIRE_PROJECT_MEMBERSHIP = true`, on a hostname that resolves to a project:
+
+| Endpoint | User state | `allowPublicSignup` | Outcome |
+|---|---|---|---|
+| `POST /signin` | Has membership | n/a | Sign in, mint cookies |
+| `POST /signin` | No membership | n/a | Reject with opaque `WRONG_CREDENTIALS_ERROR` |
+| `POST /signup` | Already a member | n/a | Treated as signin (no role downgrade) |
+| `POST /signup` | Not a member | `false` | Reject with `PUBLIC_SIGNUP_DISABLED` |
+| `POST /signup` | New email | `true` | Create user, auto-grant `guest`, mint cookies |
+| `POST /signup` | Email exists, password matches | `true` | Auto-grant `guest` on this project, mint cookies |
+| `POST /signup` | Email exists, password wrong | `true` | "Account exists — sign in instead" hint |
+| `GET /session` | Has membership | n/a | Return current user |
+| `GET /session` | No membership | n/a | Return `{ user: null }`; cookie is left intact |
+
+The admin domain (`admin.<your-workspace>`) skips this entire matrix — auth there is workspace-level so admins can manage projects they aren't members of.
+
+### Effect on the identity-provider model
+
+When `REQUIRE_PROJECT_MEMBERSHIP` is on, the [identity-provider model](#bffless-auth-as-identity-provider) becomes load-bearing: a user has one BFFless Auth account workspace-wide, but their *presence* on any given site is decided entirely by project membership. The **My Sites** hub at `admin.<your-workspace>/account` becomes the canonical listing of sites the user can actually use, and the "Powered by BFFless Auth" footer on `<AuthDialog>` makes the cross-site identity explicit.
+
 ## Global Roles
 
 Global roles determine system-wide capabilities. Every user has exactly one global role.
