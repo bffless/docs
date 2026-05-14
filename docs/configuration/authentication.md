@@ -99,67 +99,19 @@ FRONTEND_URL=https://www.yourdomain.com
 
 ---
 
-## Google OAuth
+## Single Sign-On (Google / Okta / Azure AD / OIDC)
 
-Allow users to sign in with their Google account alongside email/password authentication.
+BFFless supports pluggable single sign-on alongside email/password. Admins add providers from **Settings → Authentication** in the admin UI — each enabled provider renders a button on `/login`.
 
-### Prerequisites
+Supported provider kinds:
+- **Google** (also auto-configured from `GOOGLE_OAUTH_CLIENT_ID` + `_SECRET` env vars on first boot)
+- **Okta** (multiple tenants supported — one row per tenant)
+- **Azure AD / Microsoft Entra**
+- **Generic OIDC** (any IdP with a discovery endpoint)
 
-- A Google Cloud project with OAuth 2.0 credentials
-- Access to the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+The master switch is the `FEATURE_OIDC_PROVIDERS` flag (defaults to `true`); set it to `false` to force email/password only across the workspace. The legacy `FEATURE_GOOGLE_OAUTH` flag is still accepted as a deprecated alias for one minor version.
 
-### Step 1: Create Google OAuth Credentials
-
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. Create a new **OAuth 2.0 Client ID** (type: Web application)
-3. Under **Authorized redirect URIs**, add:
-   ```
-   https://admin.yourdomain.com/auth/callback/google
-   ```
-4. Copy the **Client ID** and **Client Secret**
-
-### Step 2: Configure SuperTokens
-
-Google OAuth credentials are configured in SuperTokens via its tenant configuration. Add these environment variables to your `.env` file:
-
-```env
-GOOGLE_OAUTH_CLIENT_ID=your-client-id.apps.googleusercontent.com
-GOOGLE_OAUTH_CLIENT_SECRET=your-client-secret
-```
-
-Then restart your services:
-
-```bash
-docker compose restart backend
-```
-
-The backend will register the Google OAuth provider with SuperTokens on startup when these environment variables are set.
-
-### Step 3: Enable Google OAuth
-
-After configuring credentials and restarting, enable Google OAuth using either method:
-
-**Option A: Admin UI**
-1. Navigate to **Settings** > **Authentication** in the admin panel
-2. Toggle **Google OAuth** to enabled
-
-**Option B: Environment variable**
-```env
-FEATURE_GOOGLE_OAUTH=true
-```
-
-This uses the built-in feature flag system — the `FEATURE_*` env vars are already supported for all flags.
-
-### How It Works
-
-- Google OAuth credentials are configured at the **infrastructure level** (SuperTokens)
-- The **ENABLE_GOOGLE_OAUTH** feature flag controls whether the Google sign-in button appears on login/signup pages
-- Workspace admins can toggle the feature flag on or off without affecting credentials
-- The first time a user signs in with Google, an account is automatically created
-
-:::tip
-On BFFless Cloud, Google OAuth credentials are pre-configured. Workspace admins only need to toggle the feature flag.
-:::
+See **[SSO / OIDC Providers](/configuration/oidc-providers)** for full per-provider walkthroughs (Google Cloud Console, Okta dev tenant, Azure AD app registration, and a Dex-based local example), plus troubleshooting.
 
 ---
 
@@ -328,7 +280,7 @@ docker compose ps supertokens
 - [ ] Set `COOKIE_DOMAIN=.yourdomain.com`
 - [ ] Use HTTPS for all traffic
 - [ ] Generate strong `JWT_SECRET` and `API_KEY_SALT`
-- [ ] Configure Google OAuth credentials (optional)
+- [ ] Configure SSO providers if needed (see [OIDC Providers](/configuration/oidc-providers))
 - [ ] Consider rate limiting for auth endpoints
 - [ ] Enable access logging for security audits
 - [ ] Back up SuperTokens data (in PostgreSQL)
