@@ -109,7 +109,7 @@ Supported provider kinds:
 - **Azure AD / Microsoft Entra**
 - **Generic OIDC** (any IdP with a discovery endpoint)
 
-The master switch is the `FEATURE_OIDC_PROVIDERS` flag (defaults to `true`); set it to `false` to force email/password only across the workspace. The legacy `FEATURE_GOOGLE_OAUTH` flag is still accepted as a deprecated alias for one minor version.
+The master switch is the `FEATURE_OIDC_PROVIDERS` flag (defaults to `true`); set it to `false` to force email/password only across the workspace.
 
 See **[SSO / OIDC Providers](/configuration/oidc-providers)** for full per-provider walkthroughs (Google Cloud Console, Okta dev tenant, Azure AD app registration, and a Dex-based local example), plus troubleshooting.
 

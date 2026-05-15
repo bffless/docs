@@ -154,8 +154,6 @@ FEATURE_OIDC_PROVIDERS=false   # email/password only; ignore all rows
 
 Defaults to `true`. With no providers configured the login screen still only shows email/password — the flag is for hard-disabling the entire OIDC seam without deleting rows.
 
-The legacy `FEATURE_GOOGLE_OAUTH` / `ENABLE_GOOGLE_OAUTH` flag is kept as a deprecated alias for one minor version. New deployments should use `FEATURE_OIDC_PROVIDERS`.
-
 ---
 
 ## Troubleshooting
