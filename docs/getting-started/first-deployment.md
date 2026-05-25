@@ -127,9 +127,11 @@ jobs:
           api-key: ${{ secrets.BFFLESS_API_KEY }}
           alias: pr-${{ github.event.pull_request.number }}
           description: 'Preview for PR #${{ github.event.pull_request.number }}'
+          pr-comment: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-The action will create the `pr-<number>` alias on first run and update it on every subsequent push to the PR. It also posts a comment on the PR with the preview URL.
+The action will create the `pr-<number>` alias on first run and update it on every subsequent push to the PR. With `pr-comment: true` (defaults to `false`) and `github-token` wired in, it also posts/updates a comment on the PR with the preview URL. `permissions: pull-requests: write` alone isn't enough — you must pass the token explicitly.
 
 ### Add Secrets and Variables to GitHub
 
