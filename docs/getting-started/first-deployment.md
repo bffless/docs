@@ -51,11 +51,11 @@ name: Deploy to BFFless
 on:
   push:
     branches: [main]
-  workflow_dispatch:  # Allow manual triggers
+  workflow_dispatch: # Allow manual triggers
 
 concurrency:
   group: deploy
-  cancel-in-progress: false  # Ensure deployments run in order
+  cancel-in-progress: false # Ensure deployments run in order
 
 jobs:
   build-and-deploy:
@@ -85,6 +85,52 @@ jobs:
 
 👉 **[View full example workflow](https://github.com/bffless/demo/blob/main/.github/workflows/main-deploy.yml)** - See the complete demo deployment workflow
 
+### Add a PR Preview Workflow
+
+Add a second workflow to deploy a preview build for every pull request. Each PR gets its own alias (e.g. `pr-42`) so reviewers can open the live changes before merging.
+
+Create `.github/workflows/pr-preview.yml`:
+
+```yaml
+name: Preview to BFFless
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write # Allow the action to comment the preview URL on the PR
+
+jobs:
+  build-and-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy preview to BFFless
+        uses: bffless/upload-artifact@v1
+        with:
+          path: dist
+          api-url: ${{ vars.BFFLESS_URL }}
+          api-key: ${{ secrets.BFFLESS_API_KEY }}
+          alias: pr-${{ github.event.pull_request.number }}
+          description: 'Preview for PR #${{ github.event.pull_request.number }}'
+```
+
+The action will create the `pr-<number>` alias on first run and update it on every subsequent push to the PR. It also posts a comment on the PR with the preview URL.
+
 ### Add Secrets and Variables to GitHub
 
 :::warning Required Configuration
@@ -95,6 +141,7 @@ You must configure both a secret and a variable in your GitHub repository for th
 2. Navigate to **Settings > Secrets and variables > Actions**
 
 **Add the Secret** (for your API key):
+
 1. Click the **Secrets** tab
 2. Click **New repository secret**
 3. Name: `BFFLESS_API_KEY`
@@ -102,6 +149,7 @@ You must configure both a secret and a variable in your GitHub repository for th
 5. Click **Add secret**
 
 **Add the Variable** (for your BFFless URL):
+
 1. Click the **Variables** tab
 2. Click **New repository variable**
 3. Name: `BFFLESS_URL`
