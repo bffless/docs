@@ -1,41 +1,43 @@
 ---
 sidebar_position: 10
-title: Claude Code Plugin
-description: Install the BFFless plugin for Claude Code to get guided workflows, domain knowledge, and MCP tool assistance when managing your BFFless instance.
+title: Skills
+description: Install the BFFless skills to give your AI assistant guided workflows, domain knowledge, and MCP tool assistance when managing your BFFless instance.
 ---
 
-# Claude Code Plugin
+# Skills
 
-The BFFless plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) gives your AI assistant deep knowledge of the BFFless platform — deployments, pipelines, proxy rules, domains, chat, and more. Instead of reading docs yourself, just describe what you want and Claude handles the rest.
+The BFFless skills give your AI assistant deep knowledge of the BFFless platform — deployments, pipelines, proxy rules, domains, chat, and more. Instead of reading docs yourself, just describe what you want and the assistant handles the rest.
+
+Skills were originally built for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and are distributed as a Claude Code plugin, but they're plain markdown — also compatible with the open-source [`skills`](https://www.npmjs.com/package/skills) CLI, which lets you install them into any agent that reads from a `.skills/` (or similar) directory.
 
 ```mermaid
 flowchart LR
-    A[You] -->|"/bffless"| B[Claude Code + Plugin]
+    A[You] -->|"/bffless"| B[Agent + Skills]
     B -->|MCP Tools| C[BFFless Instance]
 
     style B fill:#e0f2fe,stroke:#333,stroke-width:2px
 ```
 
-## Why Use the Plugin?
+## Why Use the Skills?
 
-The [MCP Server](/features/mcp-server) gives Claude Code access to BFFless tools (create projects, manage deployments, etc.), but the tools alone don't teach Claude _how_ to use them effectively. The plugin adds:
+The [MCP Server](/features/mcp-server) gives your agent access to BFFless tools (create projects, manage deployments, etc.), but the tools alone don't teach _how_ to use them effectively. The skills add:
 
-- **Domain knowledge** — Claude understands BFFless concepts like aliases, pipeline handlers, proxy rule sets, and traffic splitting
-- **Guided workflows** — Ask for "a contact form with email notifications" and Claude knows the exact handler chain to build
-- **Best practices** — The plugin encodes patterns like "all proxy rules must go in a single rule set per project" and "assign rule sets to aliases for them to take effect"
+- **Domain knowledge** — Concepts like aliases, pipeline handlers, proxy rule sets, and traffic splitting
+- **Guided workflows** — Ask for "a contact form with email notifications" and the agent knows the exact handler chain to build
+- **Best practices** — Patterns like "all proxy rules must go in a single rule set per project" and "assign rule sets to aliases for them to take effect"
 - **Reference for every feature** — Chat setup, auth patterns, the `use-bff-state` React hook, GitHub Actions CI/CD, and more
 
 ## Prerequisites
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
+- An AI coding agent (Claude Code, or any agent that supports the `skills` CLI format)
 - A BFFless instance with an API key (see [MCP Server — Setup](/features/mcp-server#setup))
-- The BFFless MCP server connected to Claude Code
+- The BFFless MCP server connected to your agent
 
 If you haven't set up the MCP server yet, see the [MCP Server](/features/mcp-server) page first.
 
 ## Installation
 
-### Via Claude Code Plugin Marketplace
+### Claude Code (plugin marketplace)
 
 From within Claude Code, add the marketplace and install:
 
@@ -44,7 +46,7 @@ From within Claude Code, add the marketplace and install:
 /plugin install bffless
 ```
 
-### Via CLI
+Or via CLI:
 
 ```bash
 claude plugin install bffless --scope user
@@ -56,11 +58,43 @@ Then reload plugins to activate:
 /reload-plugins
 ```
 
-That's it. The plugin is now available in all your Claude Code sessions.
+### Any agent (via `npx skills`)
 
-## Usage
+The same repo works with the open-source [`skills`](https://www.npmjs.com/package/skills) CLI. From your project root:
 
-Invoke the plugin with the `/bffless` slash command:
+```bash
+# List available BFFless skills
+npx skills add bffless/skills --list
+
+# Install all skills
+npx skills add bffless/skills
+
+# Install a specific skill
+npx skills add bffless/skills --skill chat
+```
+
+This clones the [`bffless/skills`](https://github.com/bffless/skills) repo and copies the selected skills into your project so any compatible agent can read them.
+
+## Available Skills
+
+| Skill                 | Description                                                                                          |
+| --------------------- | ---------------------------------------------------------------------------------------------------- |
+| **authentication**    | Cross-domain authentication using the admin login relay pattern, built-in `/_bffless/auth` endpoints, and cookie-based sessions |
+| **authorization**     | Two-level permission system with global and project roles                                            |
+| **bffless**           | Knowledge about the BFFless platform, features, and setup                                            |
+| **cache-and-storage** | Cache rules for HTTP caching headers, storage backends, API keys for CI/CD, and user roles          |
+| **chat**              | Adding AI chat to a site with full-page or popup widget layouts, skills, streaming, and message persistence |
+| **pipelines**         | Backend automation without code using handler chains                                                 |
+| **proxy-rules**       | Forward requests to backend APIs without CORS                                                        |
+| **repository**        | Browse deployments, manage aliases, view branches                                                    |
+| **share-links**       | Token-based sharing for private deployments                                                          |
+| **traffic-splitting** | Distribute traffic across aliases with weights and rules                                             |
+| **upload-artifact**   | GitHub Action for uploading build artifacts to BFFless                                               |
+| **use-bff-state**     | React hook for managing server-side state with BFFless Data Tables and Pipelines                     |
+
+## Usage (Claude Code)
+
+Invoke the skill bundle with the `/bffless` slash command:
 
 ```
 /bffless
@@ -76,11 +110,11 @@ This loads BFFless domain knowledge into your current conversation. From there, 
 
 > "Build a pipeline that validates a contact form, saves it to a DB Record, and sends an email"
 
-Claude will use the MCP tools to execute each step, applying the correct patterns automatically.
+The agent will use the MCP tools to execute each step, applying the correct patterns automatically.
 
-### When to Use `/bffless`
+### When to load BFFless skills
 
-Use the slash command when you're about to do BFFless-related work:
+Load them when you're about to do BFFless-related work:
 
 | Task                  | Example Prompt                                                              |
 | --------------------- | --------------------------------------------------------------------------- |
@@ -94,46 +128,30 @@ Use the slash command when you're about to do BFFless-related work:
 
 You don't need to invoke `/bffless` for every message — once loaded, the knowledge persists for the rest of the conversation.
 
-## What the Plugin Knows
-
-The plugin includes reference material for every major BFFless feature:
-
-| Topic                     | Coverage                                                                                  |
-| ------------------------- | ----------------------------------------------------------------------------------------- |
-| **Deployments & Aliases** | Immutable deployments, alias types, promotion, rollbacks                                  |
-| **Domains**               | Subdomains, custom domains, redirects, primary content, SPA mode                          |
-| **Pipelines**             | Schema field types, handler types, expression syntax, data CRUD                           |
-| **Proxy Rules**           | Rule sets, pipeline rules, handler chains, state management                               |
-| **Chat**                  | AI handler config, streaming, message persistence, skills, AI SDK v3 integration          |
-| **Auth**                  | Session endpoints, login flow, cross-subdomain auth, React hook patterns                  |
-| **use-bff-state**         | React hook setup, API, guest ID, type safety                                              |
-| **GitHub Actions**        | `bffless/upload-artifact` and `bffless/download-artifact` inputs, outputs, CI/CD patterns |
-| **Cache & Storage**       | Cache rules, storage backends, API keys                                                   |
-
 ## Example Session
 
-Here's what a typical interaction looks like after loading the plugin:
+Here's what a typical interaction looks like:
 
 ```
 You:  /bffless
       I want to add a contact form to my project "acme/website" that saves
       submissions and emails me
 
-Claude: I'll set that up. Let me:
-        1. Create a "contacts" DB Record with name, email, and message fields
-        2. Create a proxy rule set for the project
-        3. Add a POST /api/contact pipeline with form_handler → data_create → email_handler
-        4. Assign the rule set to your production alias
+Agent: I'll set that up. Let me:
+       1. Create a "contacts" DB Record with name, email, and message fields
+       2. Create a proxy rule set for the project
+       3. Add a POST /api/contact pipeline with form_handler → data_create → email_handler
+       4. Assign the rule set to your production alias
 
-        [executes each step via MCP tools]
+       [executes each step via MCP tools]
 
-        Done! Your contact form endpoint is live at POST /api/contact.
-        Here's a React component to use it: ...
+       Done! Your contact form endpoint is live at POST /api/contact.
+       Here's a React component to use it: ...
 ```
 
-## Updating the Plugin
+## Updating
 
-To update to the latest version:
+**Claude Code:**
 
 ```
 /plugin uninstall bffless
@@ -141,20 +159,22 @@ To update to the latest version:
 /reload-plugins
 ```
 
+**`npx skills`:** re-run `npx skills add bffless/skills` to pull the latest version.
+
 ## Troubleshooting
 
-**Plugin not found after install?**
+**Plugin not found after install (Claude Code)?**
 Run `/reload-plugins` to activate newly installed plugins.
 
 **MCP tools not working?**
-The plugin provides knowledge but relies on the MCP server for tool execution. Verify your MCP connection:
+Skills provide knowledge but rely on the MCP server for tool execution. Verify your MCP connection:
 
-1. Check that the `bffless` MCP server is configured in `~/.claude.json`
+1. Check that the `bffless` MCP server is configured in your agent
 2. Ensure your API key is valid and has appropriate permissions
 3. See [MCP Server — Setup](/features/mcp-server#setup) for connection details
 
-**Plugin not loading domain knowledge?**
-Make sure you invoke `/bffless` at the start of your conversation. The plugin loads context on demand, not automatically.
+**Domain knowledge not loading?**
+In Claude Code, make sure you invoke `/bffless` at the start of your conversation — the plugin loads context on demand, not automatically. With the `npx skills` CLI, confirm the skill files were copied into your project directory.
 
 ## Related Features
 
