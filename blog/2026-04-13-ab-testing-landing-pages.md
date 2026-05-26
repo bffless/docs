@@ -36,7 +36,7 @@ Drag-and-drop builders are great at what they do. But when you scale landing pag
 
 - **A/B testing is a premium feature.** Unbounce's Smart Traffic, Instapage's experimentation suite, and Leadpages' split testing all sit on plans that run $200–$600/month per seat before you're testing at any real volume.
 - **Templates cap what you can ship.** Custom components, design systems, and anything your frontend team has already built in React or Astro tend not to survive the round-trip through a WYSIWYG editor.
-- **Client approval is its own product.** Sending a stakeholder a preview of variant B without showing them the live split usually means upgrading *again* to the tier with share links.
+- **Client approval is its own product.** Sending a stakeholder a preview of variant B without showing them the live split usually means upgrading _again_ to the tier with share links.
 - **Page speed is the hidden tax.** Google Ads Quality Score punishes slow LCPs. Every builder layers its own runtime on top of your page; static HTML doesn't.
 
 None of these are fatal on their own. Stack them together and you end up paying a premium tool to do a job that mostly consists of serving HTML.
@@ -154,21 +154,21 @@ Turn on **sticky sessions** so return visitors stay on the same variant, and add
 Now anyone can preview a specific variant by appending `?version=headline-outcome` to the URL — which is exactly the "share a preview with the client" workflow that enterprise builders charge extra for. Send the three links to your PM, let them pick, done.
 
 :::tip Skip the admin panel
-If you use Claude Code, the [BFFless plugin](/features/claude-code-plugin) ships a `traffic-splitting` skill that knows this whole configuration shape — weights, sticky sessions, query-param rules, alias naming. It pairs with the [BFFless MCP server](https://docs.bffless.app/features/mcp-server/), which is what actually executes the API calls — the plugin teaches Claude *how* to configure things, the MCP server gives it the tools to do it. You'll need both.
+If you use Claude Code, the [BFFless plugin](/features/claude-code-plugin) ships a `traffic-splitting` skill that knows this whole configuration shape — weights, sticky sessions, query-param rules, alias naming. It pairs with the [BFFless MCP server](https://docs.bffless.app/features/mcp-server/), which is what actually executes the API calls — the plugin teaches Claude _how_ to configure things, the MCP server gives it the tools to do it. You'll need both.
 
 Connect the MCP server once (see [MCP Server — Setup](https://docs.bffless.app/features/mcp-server/#setup) for the API key and config), then install the plugin:
 
 ```
-/plugin marketplace add bffless/claude-skills
+/plugin marketplace add bffless/skills
 /plugin install bffless
 ```
 
-Then just describe the test: *"split landing.clientname.com 34/33/33 across landing-main, landing-headline-outcome, and landing-headline-urgency, sticky sessions on, with ?version= query-param rules for each."* Claude handles the API calls. Source: [claude-skills/plugins/bffless/skills/traffic-splitting](https://github.com/bffless/claude-skills/tree/main/plugins/bffless/skills/traffic-splitting).
+Then just describe the test: _"split landing.clientname.com 34/33/33 across landing-main, landing-headline-outcome, and landing-headline-urgency, sticky sessions on, with ?version= query-param rules for each."_ Claude handles the API calls. Source: [claude-skills/plugins/bffless/skills/traffic-splitting](https://github.com/bffless/claude-skills/tree/main/plugins/bffless/skills/traffic-splitting).
 :::
 
 ### 3. Read the cookie and attribute conversions
 
-Your frontend doesn't need to know *which* variant it is at build time. At runtime, read the cookie:
+Your frontend doesn't need to know _which_ variant it is at build time. At runtime, read the cookie:
 
 ```javascript
 function getVariant() {
@@ -195,7 +195,7 @@ When the test is conclusive, flip the winner to 100% in the traffic splitting pa
 
 ## What you get that the builders don't
 
-This isn't a full replacement for Unbounce or Instapage — BFFless is not a drag-and-drop page builder, and if your team doesn't have a dev who can ship HTML, you probably want one of those tools. But if you *do* have a dev, you get a handful of things that stop being hypothetical:
+This isn't a full replacement for Unbounce or Instapage — BFFless is not a drag-and-drop page builder, and if your team doesn't have a dev who can ship HTML, you probably want one of those tools. But if you _do_ have a dev, you get a handful of things that stop being hypothetical:
 
 - **Any framework, any CI.** React, Astro, plain HTML, an internal design system — whatever builds into a static folder works.
 - **Branches are variants.** Git is your variant manager, code review is your QA process, `git revert` is your rollback.

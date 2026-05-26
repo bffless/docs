@@ -18,7 +18,7 @@ flowchart LR
 
 ## Why Use the Plugin?
 
-The [MCP Server](/features/mcp-server) gives Claude Code access to BFFless tools (create projects, manage deployments, etc.), but the tools alone don't teach Claude *how* to use them effectively. The plugin adds:
+The [MCP Server](/features/mcp-server) gives Claude Code access to BFFless tools (create projects, manage deployments, etc.), but the tools alone don't teach Claude _how_ to use them effectively. The plugin adds:
 
 - **Domain knowledge** — Claude understands BFFless concepts like aliases, pipeline handlers, proxy rule sets, and traffic splitting
 - **Guided workflows** — Ask for "a contact form with email notifications" and Claude knows the exact handler chain to build
@@ -40,7 +40,7 @@ If you haven't set up the MCP server yet, see the [MCP Server](/features/mcp-ser
 From within Claude Code, add the marketplace and install:
 
 ```
-/plugin marketplace add bffless/claude-skills
+/plugin marketplace add bffless/skills
 /plugin install bffless
 ```
 
@@ -82,15 +82,15 @@ Claude will use the MCP tools to execute each step, applying the correct pattern
 
 Use the slash command when you're about to do BFFless-related work:
 
-| Task | Example Prompt |
-|------|---------------|
-| **Deploy & promote** | "Show my latest deployments and promote the newest to production" |
-| **Build APIs** | "Create GET and POST endpoints for a todos schema at /api/todos" |
-| **Set up chat** | "Add AI chat to my project with Anthropic and message persistence" |
-| **Configure domains** | "Map blog.example.com to my blog project's production alias" |
-| **Manage data** | "Query the last 10 records from my contacts schema" |
-| **CI/CD setup** | "Show me a GitHub Actions workflow that deploys to BFFless on push to main" |
-| **Debug pipelines** | "Enable debug logging on /api/contacts and show recent logs" |
+| Task                  | Example Prompt                                                              |
+| --------------------- | --------------------------------------------------------------------------- |
+| **Deploy & promote**  | "Show my latest deployments and promote the newest to production"           |
+| **Build APIs**        | "Create GET and POST endpoints for a todos schema at /api/todos"            |
+| **Set up chat**       | "Add AI chat to my project with Anthropic and message persistence"          |
+| **Configure domains** | "Map blog.example.com to my blog project's production alias"                |
+| **Manage data**       | "Query the last 10 records from my contacts schema"                         |
+| **CI/CD setup**       | "Show me a GitHub Actions workflow that deploys to BFFless on push to main" |
+| **Debug pipelines**   | "Enable debug logging on /api/contacts and show recent logs"                |
 
 You don't need to invoke `/bffless` for every message — once loaded, the knowledge persists for the rest of the conversation.
 
@@ -98,17 +98,17 @@ You don't need to invoke `/bffless` for every message — once loaded, the knowl
 
 The plugin includes reference material for every major BFFless feature:
 
-| Topic | Coverage |
-|-------|----------|
-| **Deployments & Aliases** | Immutable deployments, alias types, promotion, rollbacks |
-| **Domains** | Subdomains, custom domains, redirects, primary content, SPA mode |
-| **Pipelines** | Schema field types, handler types, expression syntax, data CRUD |
-| **Proxy Rules** | Rule sets, pipeline rules, handler chains, state management |
-| **Chat** | AI handler config, streaming, message persistence, skills, AI SDK v3 integration |
-| **Auth** | Session endpoints, login flow, cross-subdomain auth, React hook patterns |
-| **use-bff-state** | React hook setup, API, guest ID, type safety |
-| **GitHub Actions** | `bffless/upload-artifact` and `bffless/download-artifact` inputs, outputs, CI/CD patterns |
-| **Cache & Storage** | Cache rules, storage backends, API keys |
+| Topic                     | Coverage                                                                                  |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| **Deployments & Aliases** | Immutable deployments, alias types, promotion, rollbacks                                  |
+| **Domains**               | Subdomains, custom domains, redirects, primary content, SPA mode                          |
+| **Pipelines**             | Schema field types, handler types, expression syntax, data CRUD                           |
+| **Proxy Rules**           | Rule sets, pipeline rules, handler chains, state management                               |
+| **Chat**                  | AI handler config, streaming, message persistence, skills, AI SDK v3 integration          |
+| **Auth**                  | Session endpoints, login flow, cross-subdomain auth, React hook patterns                  |
+| **use-bff-state**         | React hook setup, API, guest ID, type safety                                              |
+| **GitHub Actions**        | `bffless/upload-artifact` and `bffless/download-artifact` inputs, outputs, CI/CD patterns |
+| **Cache & Storage**       | Cache rules, storage backends, API keys                                                   |
 
 ## Example Session
 
@@ -148,6 +148,7 @@ Run `/reload-plugins` to activate newly installed plugins.
 
 **MCP tools not working?**
 The plugin provides knowledge but relies on the MCP server for tool execution. Verify your MCP connection:
+
 1. Check that the `bffless` MCP server is configured in `~/.claude.json`
 2. Ensure your API key is valid and has appropriate permissions
 3. See [MCP Server — Setup](/features/mcp-server#setup) for connection details
