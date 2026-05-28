@@ -8,6 +8,19 @@ description: Deploy BFFless on Umbrel with Cloudflare Tunnel
 
 Deploy BFFless on your [Umbrel](https://umbrel.com/) home server with Cloudflare Tunnel for secure external access.
 
+## Video Walkthrough
+
+<div style={{position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '8px', marginBottom: '1.5rem'}}>
+  <iframe
+    style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0}}
+    src="https://www.youtube.com/embed/TZzXtZk2wzE"
+    title="BFFless on Umbrel - Setup Guide"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerPolicy="strict-origin-when-cross-origin"
+    allowFullScreen
+  ></iframe>
+</div>
+
 ## How It Works
 
 BFFless on Umbrel uses Cloudflare Tunnel to securely expose your home server to the internet without opening ports on your router.
