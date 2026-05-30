@@ -290,6 +290,25 @@ Access coverage values in subsequent steps:
 
 Available outputs: `statements`, `branches`, `functions`, `lines`, and their `-delta` variants. The `result` output is `pass`, `fail`, or `improved`.
 
+### Sharing an Alias with Other Content
+
+The recipe above uses a dedicated `coverage-production` alias so the action can find `lcov.info` at the alias root. If you'd rather host the coverage report alongside other artifacts (a build, screenshots, a Playwright report, etc.) under a single alias, point the action at the right subpath with `baseline-path`:
+
+```yaml
+- name: Compare coverage
+  uses: bffless/compare-coverage@v1
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  with:
+    path: ./coverage/lcov.info
+    baseline-alias: production
+    baseline-path: coverage/lcov.info
+    api-url: ${{ vars.BFFLESS_URL }}
+    api-key: ${{ secrets.BFFLESS_API_KEY }}
+```
+
+`baseline-path` accepts either a file (used directly) or a directory (searched for a known coverage filename), so it works for any of the supported formats.
+
 ### Custom Comment Header
 
 Customize the PR comment identifier (useful if you have multiple coverage reports):

@@ -367,6 +367,25 @@ Customize the PR comment identifier (useful if you have multiple screenshot comp
     comment-header: '## Mobile Visual Regression'
 ```
 
+### Sharing an Alias with Other Content
+
+The recipe above uses a dedicated `screenshots-production` alias so the action can find the baseline screenshots at the alias root. If you want to host screenshots alongside other artifacts (a build, a coverage report, etc.) under a single alias, point the action at the right subpath with `baseline-path`:
+
+```yaml
+- name: Compare screenshots
+  uses: bffless/compare-screenshots@v1
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  with:
+    path: ./screenshots
+    baseline-alias: production
+    baseline-path: screenshots
+    api-url: ${{ vars.BFFLESS_URL }}
+    api-key: ${{ secrets.BFFLESS_API_KEY }}
+```
+
+Only files under `<baseline-path>/` in the downloaded baseline are considered, so PNGs elsewhere in the alias (e.g. icons inside a coverage HTML report) don't pollute the comparison.
+
 ### Disable Result Upload
 
 By default, PR screenshots and diff images are uploaded to BFFless. To disable:
