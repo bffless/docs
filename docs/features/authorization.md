@@ -6,6 +6,10 @@ description: User roles, permissions, and access control in BFFless
 
 # Authorization
 
+Watch the walkthrough (jumps to the Authorization section):
+
+<YouTubeEmbed id="v9Xh1G_y8yM" title="BFFless: Authorization Walkthrough" start={65} />
+
 BFFless uses a two-level permission system: **global roles** for system-wide access and **project roles** for per-project permissions.
 
 ## Overview

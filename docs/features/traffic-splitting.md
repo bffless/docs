@@ -6,6 +6,10 @@ description: A/B testing and canary deployments with traffic splitting
 
 # Traffic Splitting
 
+Watch the walkthrough (jumps to the Traffic Splitting section):
+
+<YouTubeEmbed id="v9Xh1G_y8yM" title="BFFless: Traffic Splitting Walkthrough" start={160} />
+
 Split traffic across multiple deployment aliases for A/B testing, canary deployments, or personalized content delivery.
 
 <img src="/img/traffic-splitting-settings.png" alt="Traffic splitting configuration showing production and red aliases at 50% each" className="screenshot" />

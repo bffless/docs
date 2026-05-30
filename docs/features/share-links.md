@@ -6,6 +6,10 @@ description: Share private content with specific people without authentication
 
 # Share Links
 
+Watch the walkthrough (jumps to the Share Links section):
+
+<YouTubeEmbed id="v9Xh1G_y8yM" title="BFFless: Share Links Walkthrough" start={105} />
+
 Share private content with specific people without requiring them to create an account—like sharing a Google Doc with "anyone with the link."
 
 <img src="/img/share-links.png" alt="Share Links management UI showing links for Recruiter, victor, optimizely, and netflix with usage counts" className="screenshot" />
