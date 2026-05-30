@@ -6,6 +6,8 @@ description: Create your first repository, generate an API key, and deploy your 
 
 # First Deployment
 
+<YouTubeEmbed id="fGYmvUqhGYk" title="BFFless: First Deployment Walkthrough" />
+
 After completing the setup wizard, follow these steps to deploy your first site.
 
 ## 1. Create Your First Repository

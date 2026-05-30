@@ -7,17 +7,7 @@ pagination_next: getting-started/setup-wizard
 
 # Cloudflare Setup
 
-<div style={{textAlign: 'center', marginBottom: '2rem'}}>
-  <div style={{position: 'relative', paddingBottom: '56.25%', height: 0, maxWidth: '720px', margin: '0 auto', borderRadius: '4px', overflow: 'hidden'}}>
-    <iframe
-      src="https://www.youtube.com/embed/m1rtyt2fg_o"
-      title="Cloudflare Setup Walkthrough"
-      style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0}}
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowFullScreen
-    />
-  </div>
-</div>
+<YouTubeEmbed id="m1rtyt2fg_o" title="Cloudflare Setup Walkthrough" />
 
 **Cloudflare is the recommended approach for self-hosted deployments.** It provides:
 
