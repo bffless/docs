@@ -6,6 +6,10 @@ description: Manage your BFFless instance programmatically from AI coding assist
 
 # MCP Server
 
+Watch the walkthrough (jumps to the Install MCP Server section):
+
+<YouTubeEmbed id="SgUtqbSge6o" title="BFFless: Using Skills and MCP to Update Pipelines" start={140} />
+
 Manage your BFFless instance directly from AI coding assistants using the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). The built-in MCP server exposes all admin operations as tools — projects, deployments, aliases, domains, pipelines, proxy rules, cache rules, and more — so your AI assistant can create, update, and query resources on your behalf.
 
 ```mermaid

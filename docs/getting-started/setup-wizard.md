@@ -6,6 +6,10 @@ description: Complete the setup wizard to configure your BFFless instance
 
 # Setup Wizard
 
+Watch the walkthrough (jumps to the "Onboarding setup" section):
+
+<YouTubeEmbed id="m1rtyt2fg_o" title="BFFless: Setup Wizard Walkthrough" start={504} />
+
 After installing BFFless, you'll complete a setup wizard to configure your instance. This guide walks you through each step.
 
 ## Accessing the Setup Wizard

@@ -6,6 +6,10 @@ description: Forward API requests to backend services without CORS
 
 # Proxy Rules
 
+Watch the walkthrough (jumps to the "Attaching proxy sets to alias" section):
+
+<YouTubeEmbed id="H-gKiRTRhUI" title="BFFless: Contact Form with Uploads — Proxy Sets" start={690} />
+
 Forward specific paths from your deployed content to external backend APIs, eliminating the need for CORS configuration.
 
 <img src="/img/proxy.png" alt="Proxy Rules configuration showing /api/* forwarding to jsonplaceholder.typicode.com" className="screenshot" />

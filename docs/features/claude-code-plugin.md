@@ -6,6 +6,10 @@ description: Install the BFFless skills to give your AI assistant guided workflo
 
 # Skills
 
+Watch the walkthrough (jumps to the Install Skills section):
+
+<YouTubeEmbed id="SgUtqbSge6o" title="BFFless: Using Skills and MCP to Update Pipelines" start={70} />
+
 The BFFless skills give your AI assistant deep knowledge of the BFFless platform — deployments, pipelines, proxy rules, domains, chat, and more. Instead of reading docs yourself, just describe what you want and the assistant handles the rest.
 
 Skills were originally built for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and are distributed as a Claude Code plugin, but they're plain markdown — also compatible with the open-source [`skills`](https://www.npmjs.com/package/skills) CLI, which lets you install them into any agent that reads from a `.skills/` (or similar) directory.

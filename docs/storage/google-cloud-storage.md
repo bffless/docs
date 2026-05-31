@@ -31,7 +31,62 @@ This guide explains how to configure Google Cloud Storage (GCS) as your storage 
 6. **Access control**: Choose **Uniform** (recommended)
 7. Click **Create**
 
-## Step 2: Create Service Account Credentials
+## Step 2: Configure Bucket CORS
+
+BFFless uploads files from the browser directly to GCS using **pre-signed URLs**. The browser sends a `PUT` request to the bucket from your BFFless admin origin (e.g. `https://admin.your-domain.com`), so the bucket must permit cross-origin requests from that origin — otherwise the upload will fail with a CORS error in the browser console even though the credentials and IAM are correct.
+
+### Apply CORS via `gcloud`
+
+1. Create a file `cors.json`:
+
+   ```json
+   [
+     {
+       "origin": ["https://admin.toshimoto.dev", "https://toshimoto.dev"],
+       "method": ["GET", "HEAD", "PUT", "POST"],
+       "responseHeader": [
+         "Content-Type",
+         "Content-MD5",
+         "Content-Disposition",
+         "x-goog-resumable",
+         "x-goog-content-length-range",
+         "x-goog-meta-*"
+       ],
+       "maxAgeSeconds": 3600
+     }
+   ]
+   ```
+
+2. Apply it to your bucket:
+
+   ```bash
+   gcloud storage buckets update gs://YOUR_BUCKET_NAME --cors-file=cors.json
+   ```
+
+3. Verify it was applied:
+
+   ```bash
+   gcloud storage buckets describe gs://YOUR_BUCKET_NAME --format="default(cors_config)"
+   ```
+
+### Apply CORS via `gsutil` (legacy)
+
+```bash
+gsutil cors set cors.json gs://YOUR_BUCKET_NAME
+gsutil cors get gs://YOUR_BUCKET_NAME
+```
+
+:::tip Origin matching
+List every origin you serve the admin UI from — including any custom domain, www/non-www variants, and your localhost dev URL if you upload from there. Wildcards like `https://*.your-domain.com` are not supported by GCS; list each origin explicitly.
+
+You can use `"*"` to allow any origin during testing, but **don't leave it that way in production** — anyone could upload to your bucket via a leaked pre-signed URL from any site.
+:::
+
+:::caution CORS changes can take a few minutes to propagate
+If you still see a CORS error after updating, wait 1–2 minutes and hard-refresh the browser (Cmd/Ctrl-Shift-R) to clear any cached preflight response.
+:::
+
+## Step 3: Create Service Account Credentials
 
 ### Option A: Service Account Key File (Recommended for non-GCP deployments)
 
@@ -41,7 +96,14 @@ Use this when BFFless runs outside GCP (e.g., AWS, DigitalOcean, self-hosted).
 2. Click **Create Service Account**
 3. Enter a name (e.g., `bffless-storage-sa`)
 4. Click **Create and Continue**
-5. Add the role: **Storage Object Admin** (or custom role below)
+5. Add the role: **Storage Admin** (`roles/storage.admin`)
+
+   :::note Why Storage Admin?
+   BFFless's connection test reads bucket metadata (`storage.buckets.get`) before reading/writing objects. **Storage Object Admin** alone is not sufficient — it grants `storage.objects.*` but not `storage.buckets.get`, so the test connection will fail with a permission denied error.
+
+   If you need least-privilege, use **Storage Object User** (`roles/storage.objectUser`) instead — it includes both `storage.buckets.get` and object read/write.
+   :::
+
 6. Click **Continue** → **Done**
 7. Click on the created service account
 8. Go to **Keys** tab → **Add Key** → **Create new key**
@@ -55,7 +117,7 @@ Use this when BFFless runs on Google Kubernetes Engine.
 
 1. Enable Workload Identity on your GKE cluster
 2. Create a Kubernetes service account
-3. Create a GCP service account with Storage Object Admin role
+3. Create a GCP service account with **Storage Admin** role (see note above on why Object Admin alone isn't enough)
 4. Bind the accounts:
    ```bash
    gcloud iam service-accounts add-iam-policy-binding \
@@ -68,11 +130,11 @@ Use this when BFFless runs on Google Kubernetes Engine.
 
 Use this when BFFless runs on Google Compute Engine or Cloud Run.
 
-1. Create a service account with Storage Object Admin role
+1. Create a service account with **Storage Admin** role (see note above on why Object Admin alone isn't enough)
 2. Attach the service account to your GCE instance or Cloud Run service
 3. BFFless will automatically use the attached credentials
 
-## Step 3: Configure in BFFless
+## Step 4: Configure in BFFless
 
 ### Via Setup Wizard
 
@@ -111,21 +173,32 @@ GCS_CREDENTIALS='{"type":"service_account","project_id":"...","private_key":"...
 
 GCS offers different storage classes for cost optimization:
 
-| Class | Use Case | Minimum Storage | Retrieval Cost |
-|-------|----------|-----------------|----------------|
-| **Standard** | Frequently accessed | None | Free |
-| **Nearline** | Monthly access | 30 days | $0.01/GB |
-| **Coldline** | Quarterly access | 90 days | $0.02/GB |
-| **Archive** | Yearly access | 365 days | $0.05/GB |
+| Class        | Use Case            | Minimum Storage | Retrieval Cost |
+| ------------ | ------------------- | --------------- | -------------- |
+| **Standard** | Frequently accessed | None            | Free           |
+| **Nearline** | Monthly access      | 30 days         | $0.01/GB       |
+| **Coldline** | Quarterly access    | 90 days         | $0.02/GB       |
+| **Archive**  | Yearly access       | 365 days        | $0.05/GB       |
 
 ## Troubleshooting
 
 ### "Permission Denied" Error
 
-- Verify the service account has the correct role
+- Verify the service account has **Storage Admin** (or **Storage Object User**) — **Storage Object Admin alone is not sufficient** because it does not include `storage.buckets.get`
 - Check that the bucket name matches exactly
 - Ensure the service account is in the correct project
 - Verify the key file is valid and not expired
+
+If the error mentions `storage.buckets.get`, the role is the cause — upgrade Object Admin to **Storage Admin**.
+
+### "CORS error" / "Access-Control-Allow-Origin" in browser console on upload
+
+Pre-signed URL uploads are sent directly from the browser to GCS. If the bucket's CORS policy doesn't include your admin origin, the browser blocks the response.
+
+- Confirm Step 2 (Configure Bucket CORS) was applied: `gcloud storage buckets describe gs://YOUR_BUCKET --format="default(cors_config)"`
+- The origin in the error message must appear exactly in the CORS `origin` list (scheme + host + port, no trailing slash)
+- After updating CORS, wait 1–2 minutes and hard-refresh — preflight responses are cached
+- For multi-domain setups, list every origin explicitly (GCS doesn't support wildcards in the host part)
 
 ### "Bucket Not Found" Error
 

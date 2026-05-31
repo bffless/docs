@@ -8,6 +8,14 @@ description: Deploy BFFless in under 5 minutes using the automated installer
 
 Deploy BFFless in under 5 minutes using the automated installer.
 
+:::tip New to BFFless?
+Watch the 4-minute [Anatomy of a Website explainer](#background-how-the-web-works) below to see where BFFless fits in the request flow — DNS, the edge, the server, and the BFF. Already familiar? Skip to **Prerequisites**.
+:::
+
+## Background — How the Web Works
+
+<YouTubeEmbed id="luQMEUYzsUQ" title="BFFless: Anatomy of a Website — How the Web Actually Works" />
+
 ## Prerequisites
 
 - A Linux server (Ubuntu 22.04+ recommended)

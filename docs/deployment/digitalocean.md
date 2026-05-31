@@ -6,6 +6,10 @@ description: Deploy BFFless to a DigitalOcean Droplet
 
 # DigitalOcean Deployment
 
+Watch the walkthrough (jumps to the "Creating Droplet on Digital Ocean" section):
+
+<YouTubeEmbed id="m1rtyt2fg_o" title="BFFless: Installing on DigitalOcean with Cloudflare" start={150} />
+
 Deploy BFFless to a DigitalOcean Droplet.
 
 **Cost:** $6-12/month

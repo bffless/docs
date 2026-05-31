@@ -6,6 +6,10 @@ description: Compare screenshots between PRs and production using BFFless artifa
 
 # Visual Regression Testing
 
+Watch the walkthrough (jumps to the "Playwright screenshot compare" section):
+
+<YouTubeEmbed id="-E8VEMvg6-A" title="BFFless: Compare Test Coverage and Playwright Screenshots" start={280} />
+
 This recipe demonstrates how to compare screenshots between your pull requests and production, posting visual diffs as a PR comment. It uses the [`bffless/upload-artifact`](https://github.com/bffless/upload-artifact) action to store baseline screenshots and the [`bffless/compare-screenshots`](https://github.com/bffless/compare-screenshots) action to compare and report results.
 
 ```mermaid

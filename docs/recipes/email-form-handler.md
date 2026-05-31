@@ -6,6 +6,14 @@ description: Receive form submissions via email without any backend code
 
 # Email Form Handler
 
+Watch the walkthrough:
+
+<YouTubeEmbed id="H-gKiRTRhUI" title="BFFless: Contact Form with Uploads" />
+
+:::caution Outdated — prefer Pipelines
+This recipe documents the original proxy-rule email handler. For new projects we recommend building contact forms with [Pipelines](/features/pipelines) instead — they support file uploads, database persistence, conditional logic, and richer email templates. The video above walks through the pipeline-based approach end-to-end.
+:::
+
 This recipe demonstrates how to receive form submissions via email directly from your static site — no backend code required. BFFless captures the form data and emails it to your configured address with built-in spam protection and rate limiting.
 
 ## Overview

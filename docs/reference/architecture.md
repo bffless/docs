@@ -6,6 +6,10 @@ description: System architecture overview for BFFless
 
 # Architecture
 
+Watch the explainer for a guided tour of how a request traverses DNS, the edge, and the server:
+
+<YouTubeEmbed id="luQMEUYzsUQ" title="BFFless: Anatomy of a Website — How the Web Actually Works" />
+
 System architecture for BFFless.
 
 ## Overview

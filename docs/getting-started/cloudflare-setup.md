@@ -9,6 +9,8 @@ pagination_next: getting-started/setup-wizard
 
 <YouTubeEmbed id="m1rtyt2fg_o" title="Cloudflare Setup Walkthrough" />
 
+Chapters: [Domains on Cloudflare](https://youtu.be/m1rtyt2fg_o?t=22) · [Pointing name servers](https://youtu.be/m1rtyt2fg_o?t=60) · [Creating a Droplet](https://youtu.be/m1rtyt2fg_o?t=150) · [Installing BFFless](https://youtu.be/m1rtyt2fg_o?t=208) · [Origin certs](https://youtu.be/m1rtyt2fg_o?t=316) · [DNS A records](https://youtu.be/m1rtyt2fg_o?t=390) · [Onboarding](https://youtu.be/m1rtyt2fg_o?t=504)
+
 **Cloudflare is the recommended approach for self-hosted deployments.** It provides:
 
 - SSL certificates with up to 15 years validity (no renewal needed)

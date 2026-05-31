@@ -6,6 +6,10 @@ description: Compare test coverage between PRs and production using BFFless arti
 
 # Coverage Comparison
 
+Watch the walkthrough (jumps to the "Compare coverage on PR" section):
+
+<YouTubeEmbed id="-E8VEMvg6-A" title="BFFless: Compare Test Coverage and Playwright Screenshots" start={145} />
+
 This recipe demonstrates how to compare test coverage between your pull requests and production, posting the difference as a PR comment. It uses the [`bffless/upload-artifact`](https://github.com/bffless/upload-artifact) action to store baseline coverage and the [`bffless/compare-coverage`](https://github.com/bffless/compare-coverage) action to compare and report results.
 
 ```mermaid

@@ -6,6 +6,12 @@ description: Build backend automation workflows by chaining handlers together wi
 
 # Pipelines
 
+Watch the walkthrough:
+
+<YouTubeEmbed id="fERJjwsLnSI" title="BFFless: Pipelines Walkthrough" />
+
+Chapters: [Overview](https://youtu.be/fERJjwsLnSI?t=0) · [Create a Schema](https://youtu.be/fERJjwsLnSI?t=58) · [Proxy Rules](https://youtu.be/fERJjwsLnSI?t=100) · [Create a Rule](https://youtu.be/fERJjwsLnSI?t=185) · [Test with Postman](https://youtu.be/fERJjwsLnSI?t=480) · [Debugging](https://youtu.be/fERJjwsLnSI?t=600)
+
 Build backend automation workflows by chaining handlers together. Pipelines let you create APIs, process forms, store data, and send emails—all without writing server code.
 
 <img src="/img/pipelines-config-overview.png" alt="Pipeline editor showing a contact form workflow with Form Handler, Data Create, and Email handlers" className="screenshot" />
