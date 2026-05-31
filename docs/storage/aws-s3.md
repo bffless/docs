@@ -32,7 +32,94 @@ After creation, configure these optional settings:
 - **Lifecycle Rules**: Set expiration for old versions if versioning is enabled
 - **Encryption**: Enable server-side encryption (SSE-S3 or SSE-KMS)
 
-## Step 2: Create IAM Credentials
+## Step 2: Configure Bucket CORS
+
+BFFless uploads files from the browser directly to S3 (or your S3-compatible bucket) using **pre-signed URLs**. The browser sends a `PUT` request to the bucket from your BFFless admin origin (e.g. `https://admin.your-domain.com`), so the bucket must permit cross-origin requests from that origin — otherwise the upload will fail with a CORS error in the browser console even though the credentials and IAM are correct.
+
+### Apply CORS via the AWS CLI
+
+1. Create a file `cors.json`:
+
+   ```json
+   {
+     "CORSRules": [
+       {
+         "AllowedOrigins": [
+           "https://admin.YOUR-DOMAIN.COM",
+           "https://YOUR-DOMAIN.COM"
+         ],
+         "AllowedMethods": ["GET", "HEAD", "PUT", "POST"],
+         "AllowedHeaders": [
+           "Content-Type",
+           "Content-MD5",
+           "Content-Disposition",
+           "Authorization",
+           "x-amz-*"
+         ],
+         "ExposeHeaders": ["ETag"],
+         "MaxAgeSeconds": 3600
+       }
+     ]
+   }
+   ```
+
+2. Apply it to your bucket:
+
+   ```bash
+   aws s3api put-bucket-cors --bucket YOUR-BUCKET-NAME --cors-configuration file://cors.json
+   ```
+
+3. Verify it was applied:
+
+   ```bash
+   aws s3api get-bucket-cors --bucket YOUR-BUCKET-NAME
+   ```
+
+### Apply CORS via the S3 Console
+
+1. Open your bucket in the [S3 Console](https://s3.console.aws.amazon.com/)
+2. Go to **Permissions** → scroll down to **Cross-origin resource sharing (CORS)**
+3. Click **Edit** and paste the `CORSRules` JSON above
+4. Click **Save changes**
+
+:::tip Origin matching
+List every origin you serve the admin UI from — including any custom domain, www/non-www variants, and your localhost dev URL if you upload from there. Wildcards in the host part (e.g. `https://*.your-domain.com`) are not supported; list each origin explicitly.
+
+You can use `"*"` as the origin during testing, but **don't leave it that way in production** — anyone could upload to your bucket via a leaked pre-signed URL from any site.
+:::
+
+:::caution CORS changes can take a few minutes to propagate
+If you still see a CORS error after updating, wait 1–2 minutes and hard-refresh the browser (Cmd/Ctrl-Shift-R) to clear any cached preflight response.
+:::
+
+### DigitalOcean Spaces
+
+The DigitalOcean control panel doesn't accept a CORS JSON — you add one rule at a time via the UI. Repeat the steps below for every origin (admin domain, public domain, localhost dev URL, etc.).
+
+1. Open your Space in the [DigitalOcean control panel](https://cloud.digitalocean.com/spaces)
+2. Go to **Settings** → scroll down to **CORS Configurations** → click **Add**
+3. Fill in the **Advanced CORS Options** dialog:
+   - **Origin**: a single origin, e.g. `https://admin.your-domain.com` (no trailing slash, exact scheme + host + port)
+   - **Allowed Methods**: check `GET`, `PUT`, `POST`, `HEAD` (also `DELETE` only if you need browser-side deletes)
+   - **Allowed Headers**: click **+ Add Header** and enter `*` — or, to be explicit, add `Content-Type`, `Content-MD5`, `Content-Disposition`, `Authorization`, and `x-amz-*` as separate headers
+   - **Access Control Max Age**: `3600`
+4. Click **Save CORS Configuration**
+5. Click **Add** again to create a rule for each additional origin
+
+:::note Why `x-amz-*` and not `x-goog-*`?
+DigitalOcean Spaces speaks the S3 protocol, so pre-signed PUTs carry `x-amz-*` headers. (The `x-goog-*` headers in the [GCS guide](/storage/google-cloud-storage) only apply to Google Cloud Storage.)
+:::
+
+### Other S3-Compatible Providers
+
+| Provider | How to apply CORS |
+|----------|-------------------|
+| **Cloudflare R2** | Dashboard → R2 → your bucket → **Settings** → **CORS Policy** → paste the `CORSRules` JSON above |
+| **Backblaze B2** | `b2 update-bucket --corsRules '[{...}]' YOUR-BUCKET allPrivate` (B2 uses a slightly different rule schema — see [B2 docs](https://www.backblaze.com/docs/cloud-storage-cross-origin-resource-sharing-rules)) |
+| **Wasabi** | Use the AWS CLI command above with `--endpoint-url https://s3.{region}.wasabisys.com` |
+| **MinIO** | `mc anonymous set-json cors.json myminio/YOUR-BUCKET` — or configure via the MinIO console |
+
+## Step 3: Create IAM Credentials
 
 ### Option A: IAM User (Recommended for non-AWS deployments)
 
@@ -100,7 +187,7 @@ Minimum required permissions for BFFless:
 
 Replace `YOUR-BUCKET-NAME` with your actual bucket name.
 
-## Step 3: Configure in BFFless
+## Step 4: Configure in BFFless
 
 ### Via Setup Wizard
 
@@ -150,6 +237,10 @@ Access Key ID: (from DO API settings)
 Secret Access Key: (from DO API settings)
 Force Path Style: No
 ```
+
+:::tip Don't forget CORS
+DigitalOcean Spaces requires CORS rules configured via the control panel UI (one rule per origin) before browser uploads will work. See [Step 2 → DigitalOcean Spaces](#digitalocean-spaces).
+:::
 
 ### Example: Cloudflare R2
 
