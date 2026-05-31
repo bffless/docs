@@ -6,6 +6,8 @@ description: Configure Google Cloud Storage as your storage provider
 
 # Google Cloud Storage Setup
 
+<YouTubeEmbed id="xDlPZQ_dVCo" title="BFFless: Migrate Local Storage to Google Cloud Storage on DigitalOcean" />
+
 This guide explains how to configure Google Cloud Storage (GCS) as your storage provider for BFFless.
 
 ## Prerequisites
