@@ -44,76 +44,22 @@ This guide explains how to configure Azure Blob Storage as your storage provider
 5. **Public access level**: Private (BFFless uses SAS URLs)
 6. Click **Create**
 
-## Step 3: Get Authentication Credentials
-
-### Option A: Account Key (Simple, for development)
+## Step 3: Get the Account Key
 
 1. Open your storage account
 2. Go to **Security + networking** → **Access keys**
 3. Click **Show** next to key1
 4. Copy the **Storage account name** and **Key**
 
-:::warning
-Account keys provide full access to your storage account. Use Managed Identity or SAS tokens in production.
-:::
-
-### Option B: Connection String
-
-1. Open your storage account
-2. Go to **Security + networking** → **Access keys**
-3. Copy the **Connection string** for key1
-
-### Option C: Managed Identity (Recommended for Azure deployments)
-
-Use this when BFFless runs on Azure (VMs, App Service, AKS, Container Apps).
-
-1. Enable system-assigned managed identity on your Azure resource:
-   - **App Service**: Settings → Identity → System assigned → On
-   - **VM**: Settings → Identity → System assigned → On
-   - **AKS**: Use workload identity or pod identity
-
-2. Grant the identity access to storage:
-   ```bash
-   az role assignment create \
-     --assignee <managed-identity-object-id> \
-     --role "Storage Blob Data Contributor" \
-     --scope /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<account>
-   ```
-
 ## Step 4: Configure in BFFless
 
-### Via Setup Wizard
-
-1. Navigate to the BFFless setup wizard
-2. Select **Azure Blob Storage** as storage provider
-3. Enter your configuration:
+1. In the BFFless admin, select **Azure Blob Storage** as the storage provider
+2. Enter your configuration:
    - **Account Name**: Your storage account name
    - **Container Name**: Your container name
-   - **Authentication Method**: Choose one:
-     - **Account Key**: Paste the storage account key
-     - **Connection String**: Paste the full connection string
-     - **Managed Identity**: For Azure-hosted BFFless
-4. Click **Test Connection & Save**
-
-### Via Environment Variables
-
-```bash
-# Storage provider type
-STORAGE_TYPE=azure
-
-# Azure Blob Storage Configuration
-AZURE_STORAGE_ACCOUNT=bfflessstorage123
-AZURE_STORAGE_CONTAINER=bffless-assets
-
-# Option 1: Account Key
-AZURE_STORAGE_KEY=your-storage-account-key
-
-# Option 2: Connection String
-AZURE_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...;EndpointSuffix=core.windows.net"
-
-# Option 3: Managed Identity (no additional config needed)
-# Just don't set AZURE_STORAGE_KEY or AZURE_STORAGE_CONNECTION_STRING
-```
+   - **Account Key**: Paste the storage account key
+   - **Access Tier**: Hot (recommended for deployment assets)
+3. Click **Test Connection & Save**
 
 ## Access Tiers
 
@@ -130,9 +76,8 @@ Azure Blob Storage offers different access tiers:
 
 ### "AuthorizationFailure" Error
 
-- Verify the account key or connection string is correct
+- Verify the account key is correct
 - Check that the storage account exists and is accessible
-- For Managed Identity, verify the role assignment is correct
 - Ensure the container exists
 
 ### "ContainerNotFound" Error
@@ -144,8 +89,6 @@ Azure Blob Storage offers different access tiers:
 ### "AuthenticationFailed" Error
 
 - Account key may be incorrect or rotated
-- Connection string may be malformed
-- Managed Identity may not have the required role
 - Check if storage account firewall is blocking access
 
 ### Slow Performance
@@ -157,14 +100,13 @@ Azure Blob Storage offers different access tiers:
 ## Security Best Practices
 
 1. **Never commit credentials** to version control
-2. **Use Managed Identity** when running on Azure
-3. **Rotate storage keys** regularly (every 90 days)
-4. **Enable soft delete** for accidental deletion protection
-5. **Use Private endpoints** for network isolation
-6. **Enable Azure Defender for Storage** for threat detection
-7. **Enable storage analytics logging** for audit trails
-8. **Use customer-managed keys (CMK)** for encryption
-9. **Disable public blob access** at the storage account level
+2. **Rotate storage keys** regularly (every 90 days)
+3. **Enable soft delete** for accidental deletion protection
+4. **Use Private endpoints** for network isolation
+5. **Enable Azure Defender for Storage** for threat detection
+6. **Enable storage analytics logging** for audit trails
+7. **Use customer-managed keys (CMK)** for encryption
+8. **Disable public blob access** at the storage account level
 
 ## Related Guides
 
