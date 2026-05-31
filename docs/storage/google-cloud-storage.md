@@ -42,7 +42,7 @@ BFFless uploads files from the browser directly to GCS using **pre-signed URLs**
    ```json
    [
      {
-       "origin": ["https://admin.toshimoto.dev", "https://toshimoto.dev"],
+       "origin": ["https://admin.YOUR-DOMAIN.COM", "https://YOUR-DMAIN.COM"],
        "method": ["GET", "HEAD", "PUT", "POST"],
        "responseHeader": [
          "Content-Type",
