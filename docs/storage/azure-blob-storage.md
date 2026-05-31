@@ -44,14 +44,59 @@ This guide explains how to configure Azure Blob Storage as your storage provider
 5. **Public access level**: Private (BFFless uses SAS URLs)
 6. Click **Create**
 
-## Step 3: Get the Account Key
+## Step 3: Configure CORS
+
+BFFless uploads files from the browser directly to Azure Blob Storage using **pre-signed SAS URLs**. The browser sends a `PUT` request to the blob endpoint from your BFFless admin origin (e.g. `https://admin.your-domain.com`), so the storage account must permit cross-origin requests from that origin — otherwise the upload will fail with a CORS error in the browser console even though the account key is valid.
+
+CORS in Azure is configured at the **storage account** level (per service), not per container.
+
+### Apply CORS via the Azure Portal
+
+1. Open your storage account in the [Azure Portal](https://portal.azure.com/)
+2. Go to **Settings** → **Resource sharing (CORS)**
+3. Select the **Blob service** tab
+4. Add a rule:
+   - **Allowed origins**: a comma-separated list of origins, e.g. `https://admin.your-domain.com,https://your-domain.com` (no trailing slash, exact scheme + host + port)
+   - **Allowed methods**: check `GET`, `HEAD`, `PUT`, `POST` (also `DELETE` only if you need browser-side deletes)
+   - **Allowed headers**: `*` — or, to be explicit, list `Content-Type`, `Content-MD5`, `Content-Disposition`, `Authorization`, and `x-ms-*`
+   - **Exposed headers**: `*` (or `ETag`, `Content-Length`)
+   - **Max age**: `3600`
+5. Click **Save**
+
+### Apply CORS via the Azure CLI
+
+```bash
+az storage cors add --services b --methods GET HEAD PUT POST --origins https://admin.YOUR-DOMAIN.COM https://YOUR-DOMAIN.COM --allowed-headers '*' --exposed-headers '*' --max-age 3600 --account-name YOUR-ACCOUNT --account-key YOUR-KEY
+```
+
+Verify it was applied:
+
+```bash
+az storage cors list --services b --account-name YOUR-ACCOUNT --account-key YOUR-KEY
+```
+
+:::tip Origin matching
+List every origin you serve the admin UI from — including any custom domain, www/non-www variants, and your localhost dev URL if you upload from there. Wildcards in the host part (e.g. `https://*.your-domain.com`) are not supported; list each origin explicitly.
+
+You can use `*` as the origin during testing, but **don't leave it that way in production** — anyone could upload to your container via a leaked SAS URL from any site.
+:::
+
+:::caution CORS changes can take a few minutes to propagate
+If you still see a CORS error after updating, wait 1–2 minutes and hard-refresh the browser (Cmd/Ctrl-Shift-R) to clear any cached preflight response.
+:::
+
+:::note Why `x-ms-*` and not `x-amz-*` / `x-goog-*`?
+Azure Blob Storage uses `x-ms-*` headers on SAS PUTs. (The `x-amz-*` headers in the [S3 guide](/storage/aws-s3) only apply to S3-compatible providers, and `x-goog-*` only applies to GCS.)
+:::
+
+## Step 4: Get the Account Key
 
 1. Open your storage account
 2. Go to **Security + networking** → **Access keys**
 3. Click **Show** next to key1
 4. Copy the **Storage account name** and **Key**
 
-## Step 4: Configure in BFFless
+## Step 5: Configure in BFFless
 
 1. In the BFFless admin, select **Azure Blob Storage** as the storage provider
 2. Enter your configuration:
@@ -90,6 +135,14 @@ Azure Blob Storage offers different access tiers:
 
 - Account key may be incorrect or rotated
 - Check if storage account firewall is blocking access
+
+### "CORS error" / "Access-Control-Allow-Origin" in browser console on upload
+
+Pre-signed SAS uploads are sent directly from the browser to Azure Blob Storage. If the storage account's CORS policy doesn't include your admin origin, the browser blocks the response.
+
+- Confirm Step 3 (Configure CORS) was applied: Portal → storage account → **Resource sharing (CORS)** → **Blob service**, or `az storage cors list --services b --account-name YOUR-ACCOUNT --account-key YOUR-KEY`
+- The origin in the error message must appear exactly in the CORS origins list (scheme + host + port, no trailing slash)
+- After updating CORS, wait 1–2 minutes and hard-refresh — preflight responses are cached
 
 ### Slow Performance
 
