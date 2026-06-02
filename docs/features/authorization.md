@@ -250,6 +250,22 @@ Roles are hierarchical—higher roles include all permissions of lower roles:
 Owner (4) → Admin (3) → Contributor (2) → Viewer (1) → Guest (0)
 ```
 
+### Global role gates which project roles can be granted
+
+Project roles must stay in lane with the target user's global role. The grant API rejects mismatched combinations:
+
+| Global role | Project roles that can be granted |
+|---|---|
+| **Admin** | Any (admins act as project Owners on every project already; explicit grants are rarely needed) |
+| **User** | Admin, Contributor, Viewer, Guest |
+| **Member** | Viewer, Guest |
+
+To grant Contributor or Admin on a project to someone who currently has the global **Member** role, an Admin must first promote them to **User** in the Users tab, then re-grant the project role. The Members tab UI hides the disallowed options for existing members and the backend returns a 403 with a "promote first" message if the constraint is bypassed (for example, via the API directly).
+
+The constraint reflects how the two role systems are layered: global role gates *what kind of workspace participant* you are (e.g., can you create projects?), and project role gates *what you can do within a single project* you've been added to. A Member is a workspace participant who can't be promoted to project Admin without first being promoted to a workspace User, because the implied authority would exceed their workspace standing.
+
+Project **Owner** is never assigned via the grant API — it's set automatically when a User creates a project, or reassigned via [Transferring Ownership](#transferring-ownership). Because Members can't create projects, they cannot become an Owner without first being promoted to User.
+
 For example, a user with **Admin** role automatically has all **Contributor** and **Viewer** permissions.
 
 ### Owner
