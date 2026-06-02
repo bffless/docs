@@ -125,6 +125,8 @@ L1 and L2 describe *what* a user can do once they're recognized. L3 is the preco
 | Toggle UI | `admin.<your-workspace>/admin/settings/auth` → **Project Membership** card |
 | Env override | `FEATURE_REQUIRE_PROJECT_MEMBERSHIP=true` |
 
+<img src="/img/authorization-project-membership.png" alt="Project Membership card in workspace auth settings with toggle for Require project membership for site authentication" className="screenshot" />
+
 When **`false`**, every membership check in this section is skipped and BFFless authenticates exactly as documented above — credentials valid against the workspace user pool is enough.
 
 When **`true`**:
@@ -154,6 +156,10 @@ Toggle it in **Project Settings → Members → Allow public signup**. The toggl
 :::note Two different `allowPublicSignup*` flags
 The per-project `projects.allowPublicSignup` (this section) is distinct from the workspace-wide `system_config.allowPublicSignups` (note the trailing `s`), which controls whether anyone can register an account at the admin domain at all. Both default to `false`.
 :::
+
+The workspace-wide flag lives in the same **Registration Settings** card on `admin.<your-workspace>/admin/settings/auth`:
+
+<img src="/img/authorization-allow-public-signups.png" alt="Registration Settings card showing Allow Public Signups toggle and current-status indicators" className="screenshot" />
 
 ### Behavior matrix
 
@@ -198,6 +204,14 @@ Admins have unrestricted access to:
 - Access system settings and configuration
 - View platform analytics and logs
 - Manage API keys for any user
+
+:::info Global Admin = project Owner on every project
+A user with the global **Admin** role is treated as a project **Owner** on every project in the workspace, with no explicit project-membership row required. This applies to both the API (every project-scoped endpoint short-circuits the role check) and the admin UI (edit/delete actions render everywhere).
+
+**Exception — project-scoped API keys:** An admin user's *project-scoped* API key still only works for its declared project. The admin bypass applies to session auth and to *global* API keys minted by an admin, not to keys explicitly scoped to a single project.
+
+**Workspace boundary:** This bypass is scoped to a single workspace. On a multi-workspace Enterprise/platform deployment, an admin on `foo.workspace.example.com` has no implicit access to `bar.workspace.example.com` — each workspace has its own database, user pool, and role assignments.
+:::
 
 ### User Capabilities
 
