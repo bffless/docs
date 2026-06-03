@@ -86,7 +86,7 @@ Note: Docker is installed automatically by the install script if not already pre
 Use the automated install script. It handles Docker installation, environment configuration, SSL setup, and secret generation interactively:
 
 ```bash
-INSTALL_DIR=/opt/bffless sh -c "$(curl -fsSL https://raw.githubusercontent.com/bffless/ce/main/install.sh)"
+INSTALL_DIR=/opt/bffless sh -c "$(curl -fsSL https://bffless.app/install.sh)"
 ```
 
 The install script will prompt you for:

@@ -130,7 +130,7 @@ Key is saved at: /etc/letsencrypt/live/yourdomain.com/privkey.pem
 Run the BFFless installer:
 
 ```bash
-INSTALL_DIR=/opt/bffless sh -c "$(curl -fsSL https://raw.githubusercontent.com/bffless/ce/main/install.sh)"
+INSTALL_DIR=/opt/bffless sh -c "$(curl -fsSL https://bffless.app/install.sh)"
 ```
 
 This installs BFFless to `/opt/bffless`.
