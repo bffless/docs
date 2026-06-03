@@ -6,9 +6,9 @@ description: User roles, permissions, and access control in BFFless
 
 # Authorization
 
-Watch the walkthrough (jumps to the Authorization section):
+Watch the walkthrough:
 
-<YouTubeEmbed id="v9Xh1G_y8yM" title="BFFless: Authorization Walkthrough" start={65} />
+<YouTubeEmbed id="7llod4HV-Ec" title="BFFless: Authorization Walkthrough" />
 
 BFFless uses a two-level permission system: **global roles** for system-wide access and **project roles** for per-project permissions.
 
@@ -125,6 +125,8 @@ L1 and L2 describe *what* a user can do once they're recognized. L3 is the preco
 | Toggle UI | `admin.<your-workspace>/admin/settings/auth` → **Project Membership** card |
 | Env override | `FEATURE_REQUIRE_PROJECT_MEMBERSHIP=true` |
 
+<img src="/img/authorization-project-membership.png" alt="Project Membership card in workspace auth settings with toggle for Require project membership for site authentication" className="screenshot" />
+
 When **`false`**, every membership check in this section is skipped and BFFless authenticates exactly as documented above — credentials valid against the workspace user pool is enough.
 
 When **`true`**:
@@ -154,6 +156,10 @@ Toggle it in **Project Settings → Members → Allow public signup**. The toggl
 :::note Two different `allowPublicSignup*` flags
 The per-project `projects.allowPublicSignup` (this section) is distinct from the workspace-wide `system_config.allowPublicSignups` (note the trailing `s`), which controls whether anyone can register an account at the admin domain at all. Both default to `false`.
 :::
+
+The workspace-wide flag lives in the same **Registration Settings** card on `admin.<your-workspace>/admin/settings/auth`:
+
+<img src="/img/authorization-allow-public-signups.png" alt="Registration Settings card showing Allow Public Signups toggle and current-status indicators" className="screenshot" />
 
 ### Behavior matrix
 
@@ -199,6 +205,14 @@ Admins have unrestricted access to:
 - View platform analytics and logs
 - Manage API keys for any user
 
+:::info Global Admin = project Owner on every project
+A user with the global **Admin** role is treated as a project **Owner** on every project in the workspace, with no explicit project-membership row required. This applies to both the API (every project-scoped endpoint short-circuits the role check) and the admin UI (edit/delete actions render everywhere).
+
+**Exception — project-scoped API keys:** An admin user's *project-scoped* API key still only works for its declared project. The admin bypass applies to session auth and to *global* API keys minted by an admin, not to keys explicitly scoped to a single project.
+
+**Workspace boundary:** This bypass is scoped to a single workspace. On a multi-workspace Enterprise/platform deployment, an admin on `foo.workspace.example.com` has no implicit access to `bar.workspace.example.com` — each workspace has its own database, user pool, and role assignments.
+:::
+
 ### User Capabilities
 
 Users can:
@@ -235,6 +249,22 @@ Roles are hierarchical—higher roles include all permissions of lower roles:
 ```
 Owner (4) → Admin (3) → Contributor (2) → Viewer (1) → Guest (0)
 ```
+
+### Global role gates which project roles can be granted
+
+Project roles must stay in lane with the target user's global role. The grant API rejects mismatched combinations:
+
+| Global role | Project roles that can be granted |
+|---|---|
+| **Admin** | Any (admins act as project Owners on every project already; explicit grants are rarely needed) |
+| **User** | Admin, Contributor, Viewer, Guest |
+| **Member** | Viewer, Guest |
+
+To grant Contributor or Admin on a project to someone who currently has the global **Member** role, an Admin must first promote them to **User** in the Users tab, then re-grant the project role. The Members tab UI hides the disallowed options for existing members and the backend returns a 403 with a "promote first" message if the constraint is bypassed (for example, via the API directly).
+
+The constraint reflects how the two role systems are layered: global role gates *what kind of workspace participant* you are (e.g., can you create projects?), and project role gates *what you can do within a single project* you've been added to. A Member is a workspace participant who can't be promoted to project Admin without first being promoted to a workspace User, because the implied authority would exceed their workspace standing.
+
+Project **Owner** is never assigned via the grant API — it's set automatically when a User creates a project, or reassigned via [Transferring Ownership](#transferring-ownership). Because Members can't create projects, they cannot become an Owner without first being promoted to User.
 
 For example, a user with **Admin** role automatically has all **Contributor** and **Viewer** permissions.
 
