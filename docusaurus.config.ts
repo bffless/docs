@@ -4,7 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'BFFless',
-  tagline: 'Self-hosted static site hosting made simple',
+  tagline: 'The home for your AI-generated apps, internal tools, and HTML docs — with a backend, auth, and a path to your internal services',
   favicon: 'img/favicon.svg',
 
   future: {

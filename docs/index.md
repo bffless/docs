@@ -2,14 +2,16 @@
 slug: /
 sidebar_position: 1
 title: Welcome to BFFless
-description: Self-hosted static site hosting platform with authentication, A/B testing, and reverse proxy capabilities
+description: The home for your AI-generated apps, internal tools, and HTML docs — a self-hosted platform with a backend, auth, traffic splitting, and a reverse proxy to your internal services
 ---
 
-<YouTubeEmbed id="luQMEUYzsUQ" title="BFFless - Static site hosting made simple" />
+<YouTubeEmbed id="luQMEUYzsUQ" title="BFFless - a home for your AI-generated apps, internal tools, and HTML docs" />
 
 # Welcome to BFFless
 
-BFFless is a self-hosted platform for hosting static assets and build artifacts from CI/CD pipelines. Deploy your React SPAs, Vue apps, coverage reports, and Storybook builds with built-in authentication, traffic splitting, and reverse proxy capabilities.
+BFFless is the home for your AI-generated apps, internal tools, and HTML docs — with a backend, auth, and a path to your internal services. Point any static build at it — the HTML apps your AI agents produce, React SPAs, Vue apps, engineering docs, coverage reports, Storybook builds — and get built-in authentication, traffic splitting, and reverse proxy capabilities, self-hosted and deployed from your CI/CD pipeline.
+
+> Technical framing for those who know the category: a self-hosted Supabase/Appwrite aimed at static sites and internal apps.
 
 ## Quick Start
 
@@ -19,6 +21,7 @@ Get BFFless running in under 5 minutes with our step-by-step guide.
 
 ## Key Features
 
+- **Home for AI-generated apps & internal tools** - Host the HTML apps, dashboards, and docs your AI agents and teams produce, behind auth
 - **Static Site Hosting** - Upload and serve static files from CI/CD pipelines
 - **Authentication** - Built-in user auth with SuperTokens (sessions + API keys)
 - **A/B Testing** - Split traffic between deployments for experiments
