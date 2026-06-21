@@ -1,6 +1,6 @@
 # BFFless Documentation
 
-> Static asset hosting platform for frontend deployments. Self-hosted, open-source.
+> The home for your AI-generated apps, internal tools, and HTML docs — with a backend, auth, and a path to your internal services. Self-hosted, open-source.
 
 This file contains documentation for BFFless to help LLMs understand and assist with the platform.
 
@@ -29,10 +29,11 @@ This file contains documentation for BFFless to help LLMs understand and assist 
 
 ## Overview
 
-BFFless is a self-hosted static asset hosting platform designed for frontend deployments. It serves as a "Backend for Frontend" (BFF) without the backend boilerplate, allowing teams to deploy static sites, SPAs, and frontend assets with features typically requiring custom infrastructure.
+BFFless is the home for your AI-generated apps, internal tools, and HTML docs — with a backend, auth, and a path to your internal services. It gives static frontends real backend capabilities: somewhere the HTML apps your AI agents produce, internal tools, SPAs, and docs can actually live, behind auth and inside your network. It serves as a "Backend for Frontend" (BFF) without the backend boilerplate, allowing teams to deploy static sites, SPAs, and frontend assets with features typically requiring custom infrastructure. Technical framing for those who know the category: a self-hosted Supabase/Appwrite aimed at static sites and internal apps.
 
 ### Key Features
 
+- **Home for AI-generated apps & internal tools**: Host the HTML apps, dashboards, and docs your AI agents and teams produce, behind auth
 - **Static Asset Hosting**: Upload and serve static files from CI/CD pipelines
 - **Pipelines**: Build backend workflows (forms, data storage, email) by chaining handlers — no server code required
 - **AI Pipelines & Chat**: Add AI-powered chat with streaming responses, skills, and message persistence using OpenAI, Anthropic, or Google AI
