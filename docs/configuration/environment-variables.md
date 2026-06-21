@@ -20,6 +20,7 @@ Complete reference for all configuration options in BFFless.
 | `API_KEY_SALT` | No | Auto-generated | Salt for hashing API keys |
 | `STORAGE_TYPE` | No | `minio` | Storage backend type |
 | `COOKIE_SECURE` | No | `false` | Use HTTPS-only cookies |
+| `TELEMETRY` | No | `on` | Set to `off` to disable anonymous install telemetry |
 
 ---
 
@@ -262,6 +263,17 @@ Optional configuration for sending emails (password resets, notifications). If n
 | `SMTP_PASSWORD` | - | SMTP password |
 | `EMAIL_FROM_NAME` | `BFFless` | Sender display name |
 | `EMAIL_FROM_ADDRESS` | - | Sender email address |
+
+---
+
+## Telemetry
+
+Anonymous, opt-out install telemetry. On by default; see [Telemetry](/reference/telemetry) for exactly what is sent.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TELEMETRY` | `on` | Set to `off` to disable anonymous install telemetry (overrides the admin UI setting) |
+| `TELEMETRY_ENDPOINT` | `https://bffless.app/api/telemetry` | Where pings are sent; point at your own collector if preferred |
 
 ---
 
