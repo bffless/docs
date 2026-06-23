@@ -132,7 +132,7 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
           position: 'right',
         },
         {
-          href: 'https://discord.gg/BfyJwZqS',
+          href: 'https://bffless.app/discord',
           label: 'Discord',
           position: 'right',
         },
@@ -160,7 +160,7 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
           items: [
             {
               label: 'Discord',
-              href: 'https://discord.gg/BfyJwZqS',
+              href: 'https://bffless.app/discord',
             },
             {
               label: 'GitHub',
