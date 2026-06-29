@@ -17,3 +17,8 @@ cro:
   label: CRO
   permalink: /cro
   description: Conversion rate optimization, A/B testing, and landing page experiments
+
+apps:
+  label: Apps
+  permalink: /apps
+  description: Open-source apps built on top of BFFless
