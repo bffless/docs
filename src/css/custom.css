@@ -381,6 +381,96 @@ html.nav-scrolled [data-theme='dark'] .navbar {
   }
 }
 
+/* ── Admonitions — full-border cards, meta-label titles (§6) ────────── */
+/* Docusaurus/Infima renders callouts as Infima `.alert`s with a 5px colored
+   side-stripe. Re-cast each as a full 1px-rule card with a paper tint and a
+   per-type accent — no border-left > 1px (a hard ban, Guardrails §8).
+   Two accent tokens per type: --admon-accent paints the (non-text) border +
+   icon vividly; --admon-title is the contrast-safe title text. They diverge
+   only where the vivid hue fails small-text contrast on the tint (tip in
+   light) — see the verified pairs below. */
+.theme-admonition {
+  background-color: var(--paper-deep);
+  border: 1px solid var(--admon-accent, var(--ink-soft));
+  border-left-width: 1px; /* kill Infima's 5px side-stripe explicitly */
+  border-radius: var(--ifm-global-radius);
+  color: var(--ink); /* body stays readable ink, not the alert foreground */
+  box-shadow: none;
+  /* .alert reroutes links to its foreground color; restore the brand link */
+  --ifm-link-color: var(--terracotta-ink);
+  --ifm-link-hover-color: var(--terracotta);
+}
+[data-theme='dark'] .theme-admonition {
+  background-color: var(--surface-2);
+  --ifm-link-color: var(--terracotta);
+  --ifm-link-hover-color: var(--terracotta-hover);
+}
+
+/* Title rendered as a meta-label (mono, 11px, uppercase, wide tracking),
+   inked with the per-type --admon-title */
+.theme-admonition [class*='admonitionHeading_'] {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--admon-title, var(--ink-soft));
+}
+/* Inline code in a title drops the mono-on-mono uppercase treatment */
+.theme-admonition [class*='admonitionHeading_'] code {
+  text-transform: none;
+  letter-spacing: normal;
+}
+/* Icon inherits the vivid accent; sized down to sit with the 11px label */
+.theme-admonition [class*='admonitionIcon_'] svg {
+  fill: var(--admon-accent, var(--ink-soft));
+  height: 1.05rem;
+  width: 1.05rem;
+  position: relative;
+  top: 1px; /* optically center the glyph against uppercase mono caps */
+}
+
+/* Per-type accents — note/info/tip lean on the mode-aware brand tokens;
+   warning/danger keep semantic amber/red, desaturated warm and darkened so
+   the small title clears 4.5:1 on the light tint (#E4D9C4). */
+.theme-admonition-note {
+  --admon-accent: var(--ink-soft);
+  --admon-title: var(--ink-soft);
+}
+.theme-admonition-info {
+  --admon-accent: var(--ink);
+  --admon-title: var(--ink);
+}
+.theme-admonition-tip {
+  --admon-accent: var(--terracotta);
+  --admon-title: var(--terracotta-ink); /* vivid terracotta fails small-text
+    contrast on the light tint, so the title uses the contrast-safe ink */
+}
+.theme-admonition-warning,
+.theme-admonition-caution {
+  --admon-accent: #8a4b12; /* warm amber, ~4.8:1 on #E4D9C4 */
+  --admon-title: #8a4b12;
+}
+.theme-admonition-danger {
+  --admon-accent: #a33326; /* warm red, ~4.9:1 on #E4D9C4 */
+  --admon-title: #a33326;
+}
+
+/* Dark variant — vivid hues read directly on the #27221C tint, so accent and
+   title converge again (and tip's title rejoins the bright terracotta). */
+[data-theme='dark'] .theme-admonition-tip {
+  --admon-title: var(--terracotta);
+}
+[data-theme='dark'] .theme-admonition-warning,
+[data-theme='dark'] .theme-admonition-caution {
+  --admon-accent: #e0a030; /* bright amber, ~6.9:1 on #27221C */
+  --admon-title: #e0a030;
+}
+[data-theme='dark'] .theme-admonition-danger {
+  --admon-accent: #e8705a; /* bright warm red, ~5.2:1 on #27221C */
+  --admon-title: #e8705a;
+}
+
 /* Screenshot styling — framed with a rule rather than a drop shadow */
 .screenshot {
   border: 1px solid var(--paper-line);
