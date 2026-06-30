@@ -381,6 +381,97 @@ html.nav-scrolled [data-theme='dark'] .navbar {
   }
 }
 
+/* ── Admonitions — full-border cards, meta-label titles, no side-stripe (§6) */
+
+/* Reframe Docusaurus's default 5px left-stripe alert into a full-border card on
+   a neutral paper tint. The type identity moves off the stripe onto the border +
+   icon + meta-label title (Guardrails §8 bans side-stripe accents). Driving it
+   through Infima's --ifm-alert-* vars keeps it independent of the hashed module
+   classes; only the heading/icon are reached by substring selector. */
+.theme-admonition {
+  --ifm-alert-border-width: 1px; /* full border... */
+  --ifm-alert-border-left-width: 1px; /* ...and kill the 5px stripe */
+  --ifm-alert-border-radius: var(--ifm-global-radius);
+  --ifm-alert-shadow: none; /* borders + color, not shadows (§8) */
+  --ifm-alert-background-color: var(--paper-deep); /* tint */
+  --ifm-alert-background-color-highlight: rgba(23, 21, 19, 0.06); /* inline code */
+  --ifm-alert-foreground-color: var(--ink); /* readable body text */
+  --ifm-alert-border-color: var(--adm-border);
+
+  /* Per-type accents — overridden by the type rules below. --adm-accent inks the
+     small meta-label + icon (must clear 4.5:1 on the tint); --adm-border carries
+     the frame and may run brighter (a border has no contrast floor). */
+  --adm-accent: var(--ink-soft);
+  --adm-border: var(--adm-accent);
+
+  /* Keep brand link colors inside admonitions — Infima otherwise ties .alert
+     links to the alert foreground, which would flatten them to ink. */
+  --ifm-link-color: var(--terracotta-ink);
+  --ifm-link-hover-color: var(--terracotta);
+}
+
+/* Title → meta-label (mono, 11px, uppercase, wide tracking), inked per type.
+   The module rule already uppercases the heading; we only restyle the rest. */
+.theme-admonition [class*='admonitionHeading'] {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  color: var(--adm-accent);
+}
+
+/* Icon picks up the type accent and sizes to pair with the mono caps */
+.theme-admonition [class*='admonitionIcon'] svg {
+  fill: var(--adm-accent);
+  height: 0.9rem;
+  width: 0.9rem;
+  position: relative;
+  top: -1px; /* optically center the glyph against the meta-label */
+}
+
+/* Type accents (light) — note/info inked, tip terracotta, warning/danger warm
+   semantic. Tip's bright terracotta fails 4.5:1 as small text, so the border
+   stays bright while the contrast-safe terracotta-ink inks the meta-label. */
+.theme-admonition-note {
+  --adm-accent: var(--ink-soft);
+}
+.theme-admonition-info {
+  --adm-accent: var(--ink);
+}
+.theme-admonition-tip {
+  --adm-accent: var(--terracotta-ink);
+  --adm-border: var(--terracotta);
+}
+.theme-admonition-warning,
+.theme-admonition-caution {
+  --adm-accent: #785310; /* warm amber ≈4.9:1 on paper-deep */
+  --adm-border: #b57518;
+}
+.theme-admonition-danger {
+  --adm-accent: #962a18; /* warm red ≈5.7:1 on paper-deep */
+  --adm-border: #bf3a24;
+}
+
+/* Dark variant — tint to surface-2; accents brighten into the paper-tone family
+   and read directly on the dark surface, so border == accent. note/info/tip
+   resolve automatically from the redefined tokens; only the hardcoded
+   warning/danger hexes need a dark override. */
+[data-theme='dark'] .theme-admonition {
+  --ifm-alert-background-color: var(--surface-2);
+  --ifm-alert-background-color-highlight: rgba(236, 227, 210, 0.08);
+  --ifm-link-color: var(--terracotta);
+  --ifm-link-hover-color: var(--terracotta-hover);
+}
+[data-theme='dark'] .theme-admonition-warning,
+[data-theme='dark'] .theme-admonition-caution {
+  --adm-accent: #d9a441; /* bright warm amber on charcoal */
+  --adm-border: var(--adm-accent);
+}
+[data-theme='dark'] .theme-admonition-danger {
+  --adm-accent: #ec6e5a; /* bright warm red on charcoal */
+  --adm-border: var(--adm-accent);
+}
+
 /* Screenshot styling — framed with a rule rather than a drop shadow */
 .screenshot {
   border: 1px solid var(--paper-line);
