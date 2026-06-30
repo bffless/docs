@@ -86,6 +86,52 @@ You can add multiple Okta providers — each gets its own slug (e.g. `okta-acme`
 
 ---
 
+## Auth0
+
+Auth0 is a hosted IdP and a quick way to stand up SSO without running your own server. BFFless talks to it through the **Generic OIDC** kind — Auth0 exposes a standard discovery endpoint at `https://<your-tenant>/.well-known/openid-configuration`.
+
+### 1. Create the application in Auth0
+
+1. In the [Auth0 dashboard](https://manage.auth0.com/) → **Applications → Create Application**.
+2. Choose **Regular Web Application** and create it.
+
+   :::warning Pick "Regular Web Application", not "Single Page Application"
+   BFFless exchanges the authorization code **server-side using the client secret** (a confidential client). An SPA is a public client with no usable secret, so the token exchange will fail. If you created an SPA by mistake, change it under **Settings → Application Properties → Application Type**.
+   :::
+
+3. On the application's **Settings** tab, under **Application URIs → Allowed Callback URLs**, add:
+   ```
+   https://<your-workspace>/oauth/signin/callback
+   ```
+4. Save changes, then copy the **Domain**, **Client ID**, and **Client Secret** from the top of the Settings tab.
+5. Create at least one end-user to log in with: **User Management → Users → Create User** (or enable a social connection like Google). The email this user signs in with is what BFFless receives.
+
+### 2. Add the provider in BFFless
+
+**+ Add provider** → kind: **Generic OIDC (any IdP)**:
+
+| Field | Value |
+|---|---|
+| Provider ID | `auth0` |
+| Display name | `Auth0` |
+| Client ID | *(from Auth0)* |
+| Client Secret | *(from Auth0)* |
+| Issuer URL | `https://<your-tenant>.us.auth0.com` |
+| Scopes | leave blank (defaults to `openid email profile`) |
+| Enabled | on |
+
+The **Issuer URL** is your Auth0 **Domain** as a URL — the base only, no `/.well-known/...` suffix (BFFless appends it automatically).
+
+### 3. Test + sign in
+
+Click **Test** on the new row — you should see the probe succeed with the issuer URL. Then sign out, visit `/login`, click **Sign in with Auth0**, and authenticate. You'll be redirected back signed in.
+
+:::tip Matching an existing admin
+A user that signs in via Auth0 is matched to a BFFless account **by email**. To sign in as an existing admin (e.g. to manage settings), use an Auth0 user whose email matches that admin's. A brand-new email only becomes an admin if it equals the `ADMIN_EMAIL` env var.
+:::
+
+---
+
 ## Generic OIDC (worked example: Dex)
 
 For any IdP that exposes a standard OIDC discovery endpoint, use the **Generic OIDC** kind. The walkthrough below uses [Dex](https://dexidp.io) as a stand-in — the exact same shape works against Keycloak, Authentik, ZITADEL, your own custom OIDC server, etc.
@@ -141,6 +187,47 @@ Lowercase letters, numbers, hyphens. 1–64 chars. Used in two places:
 - The SuperTokens `thirdPartyId` (for `kind: 'okta' | 'azure-ad' | 'oidc'`; `kind: 'google'` always uses the literal `'google'` for backwards-compatibility with sessions issued before story 0047)
 
 Stable URLs make for stable bookmarks — if you might run multiple Okta tenants, prefix accordingly (`okta-acme`, `okta-vendor`).
+
+---
+
+## Going OIDC-only (disable email/password)
+
+By default a workspace offers **both** email/password and any OIDC buttons you've added. Once SSO is working you can turn email/password **off** entirely, so the only way in is through your IdP.
+
+When email/password is disabled:
+
+- The password form is hidden on `/login` and `/signup` — only OIDC buttons render.
+- The `POST /api/auth/signup` and `POST /api/auth/signin` endpoints are rejected.
+- OIDC sign-in and OIDC public signup keep working normally.
+
+### Turn it off from the admin UI
+
+Go to **Settings → Authentication → Email & Password** and switch it off.
+
+:::info Lockout safeguard
+The toggle stays **locked on** until at least one **admin** has successfully signed in via OIDC. This proves SSO actually works end-to-end before you remove the local fallback — so a misconfigured IdP can't lock everyone out. The UI tells you to add an OIDC provider and sign in with it as an admin first; after that the switch unlocks.
+:::
+
+### The flag
+
+The admin toggle writes the `ENABLE_EMAIL_PASSWORD` feature flag. You can also set it via env var:
+
+```env
+FEATURE_EMAIL_PASSWORD=false   # OIDC-only; reject email/password sign-in + signup
+```
+
+Defaults to `true`. The env var is **not** gated by the safeguard (it's read at boot, before any request) — which makes it the intended operator override and the break-glass recovery path.
+
+### Recovery (if you lock yourself out)
+
+If you end up with no working way in:
+
+- **Disabled via env var / config file:** set `FEATURE_EMAIL_PASSWORD=true` (or remove it) and restart the backend.
+- **Disabled via the admin UI:** that writes a database override, and a database override outranks the env var. Clear the row to restore email/password:
+  ```bash
+  psql "$DATABASE_URL" -c "delete from feature_flags where key = 'ENABLE_EMAIL_PASSWORD';"
+  ```
+  Then restart the backend.
 
 ---
 
