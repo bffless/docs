@@ -4,7 +4,8 @@
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "sandcastle": "npx tsx .sandcastle/main.ts",
+    "sandcastle": "npx tsx .sandcastle/main.mts",
+    "sandcastle:build-image": "sandcastle docker build-image",
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "docusaurus build",

@@ -5,7 +5,11 @@ import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 // own branch, pushes, and opens a PR (it does NOT merge — see prompt.md). The PR
 // triggers the existing pr-preview.yml workflow, which builds the Docusaurus site
 // and deploys it to the shared docs-preview alias for a live preview URL.
-// Run this with: npm run sandcastle  (alias for: npx tsx .sandcastle/main.ts)
+// Run this with: pnpm sandcastle  (alias for: npx tsx .sandcastle/main.mts)
+// NOTE: this file is .mts (not .ts) on purpose — this Docusaurus package is
+// CommonJS-default (no "type": "module"), so tsx would compile a .ts entry as
+// CJS, where the top-level `await run(...)` below is illegal. The .mts extension
+// forces ESM for just this file without changing the package's module type.
 
 await run({
   // A name for this run, shown as a prefix in log output.
