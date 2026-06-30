@@ -15,7 +15,7 @@
  * swizzle, which inlines its constants for the same reason). The color mode is
  * therefore derived from the resolved preset rather than `useColorMode`.
  */
-import React, {useEffect, useRef, type ReactNode} from 'react';
+import React, {useEffect, useMemo, useRef, type ReactNode} from 'react';
 import ErrorBoundary from '@docusaurus/ErrorBoundary';
 import {
   MermaidContainerClassName,
@@ -59,13 +59,22 @@ function MermaidRenderer({value}: Props): ReactNode {
   // the matching palette variables — no @docusaurus/theme-common import needed.
   const base = useMermaidConfig();
   const isDark = base.theme === theme.dark;
-  const config = {
-    ...base,
-    themeVariables: {
-      ...base.themeVariables,
-      ...(isDark ? inkThemeVariables : paperThemeVariables),
-    },
-  };
+  // Memoize so `config` keeps a stable reference across renders. The upstream
+  // useMermaidRenderResult effect lists `config` in its dependency array, so a
+  // fresh object each render would re-fire the async render → setState → render
+  // loop endlessly (locking up any page with a diagram). `base` is already
+  // memoized upstream and `isDark` is a boolean, so this only changes on a
+  // color-mode toggle — exactly when the palette should actually be re-applied.
+  const config = useMemo(
+    () => ({
+      ...base,
+      themeVariables: {
+        ...base.themeVariables,
+        ...(isDark ? inkThemeVariables : paperThemeVariables),
+      },
+    }),
+    [base, isDark],
+  );
   const renderResult = useMermaidRenderResult({text: value, config});
   if (renderResult === null) {
     return null;
