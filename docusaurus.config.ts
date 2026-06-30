@@ -209,6 +209,10 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
       respectPrefersColorScheme: true,
     },
     mermaid: {
+      // Theme presets per color mode; the palette `themeVariables` are layered
+      // on per-mode by the swizzled @theme/Mermaid component, since Docusaurus
+      // shares one static `options` across both modes (design-system.md §6,
+      // src/theme/Mermaid/).
       theme: {light: 'neutral', dark: 'dark'},
     },
     navbar: {

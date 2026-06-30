@@ -1,0 +1,33 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * Mirrors the upstream @docusaurus/theme-mermaid container styles; this
+ * component is swizzled (./index.tsx) only to inject per-mode themeVariables.
+ */
+
+.container {
+  max-width: 100%;
+}
+
+.container > svg {
+  max-width: 100%;
+}
+
+/* Fallback shown if a diagram fails to render (replaces the upstream
+   theme-common fallback, which we can't import — see index.tsx). */
+.error {
+  border: 1px solid var(--paper-line);
+  border-radius: var(--ifm-global-radius);
+  background: var(--ifm-background-surface-color);
+  color: var(--ink);
+  padding: 1rem;
+  margin: 1.5rem 0;
+}
+
+.error pre {
+  margin: 0.5rem 0 0;
+  white-space: pre-wrap;
+}
