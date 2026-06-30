@@ -309,6 +309,78 @@ html.nav-scrolled [data-theme='dark'] .navbar {
   }
 }
 
+/* ── Footer — paper-deep surface, top rule, boxed-"b" lockup (§6) ───── */
+.footer {
+  /* bg from --ifm-footer-background-color (var(--paper-deep)); separated from
+     the page by a rule, not a shadow — see Guardrails §8. */
+  border-top: 1px solid var(--paper-line);
+  --ifm-footer-color: var(--ink-soft);
+  --ifm-footer-link-color: var(--ink-soft);
+  --ifm-footer-link-hover-color: var(--terracotta);
+  --ifm-footer-title-color: var(--ink-soft);
+}
+
+/* Column headers render as meta-labels (mono, 11px, uppercase, wide tracking) */
+.footer__title {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* Column links stay Inter (inherited); terracotta on hover */
+.footer__link-item {
+  transition: color 150ms ease;
+}
+.footer__link-item:hover {
+  color: var(--terracotta);
+  text-decoration: none;
+}
+
+/* The boxed-"b" lockup ported from the landing: a square 1px ink frame around
+   a Fraunces-italic "b", paired with the Inter wordmark. */
+.footer__lockup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.footer__boxed-b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid var(--ink);
+  border-radius: var(--ifm-global-radius);
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--ink);
+}
+.footer__wordmark {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* Copyright — quieter than the lockup; meta-spaced */
+.footer__copyright {
+  color: var(--ink-mute);
+  font-size: 0.85rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer__link-item {
+    transition: none;
+  }
+}
+
 /* Screenshot styling — framed with a rule rather than a drop shadow */
 .screenshot {
   border: 1px solid var(--paper-line);
