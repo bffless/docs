@@ -622,3 +622,127 @@ html.nav-scrolled [data-theme='dark'] .navbar {
   border-radius: var(--ifm-global-radius);
   margin: 1.5rem 0;
 }
+
+/* ── The kit — pill buttons + corner marks (§5), and the existing
+   components LikeButton + YouTubeEmbed (§6) ────────────────────────── */
+
+/* Pill button — fully-rounded MDX CTA, ported from the landing index.css.
+   .pill-cta = filled terracotta; .pill-ghost = outlined ink that inverts
+   on hover. Both share geometry; the design leans on color, not shadow. */
+.pill-cta,
+.pill-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.7rem 1.3rem;
+  font-family: var(--ifm-font-family-base);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+.pill-cta {
+  border: 1px solid var(--terracotta);
+  background: var(--terracotta);
+  color: var(--paper);
+}
+.pill-cta:hover {
+  border-color: var(--terracotta-hover);
+  background: var(--terracotta-hover);
+  color: var(--paper);
+}
+.pill-ghost {
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+}
+.pill-ghost:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Corner marks — the 14px L-bracket flourish on two opposite corners
+   (top-left + bottom-right) of a framed element. Sparing, per §5: only
+   the doc-index intro band and YouTubeEmbed. */
+.corner-frame {
+  position: relative;
+}
+.corner-frame::before,
+.corner-frame::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--terracotta);
+  border-style: solid;
+  pointer-events: none;
+}
+.corner-frame::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
+}
+.corner-frame::after {
+  right: -1px;
+  bottom: -1px;
+  border-width: 0 1px 1px 0;
+}
+
+/* LikeButton — a .pill-ghost that fills terracotta once liked (§6). */
+.like-button-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0 0.5rem;
+}
+.like-button:disabled:not(.like-button--liked) {
+  opacity: 0.7;
+  cursor: default;
+}
+.like-button--liked,
+.like-button--liked:hover {
+  border-color: var(--terracotta);
+  background: var(--terracotta);
+  color: var(--paper);
+  cursor: default;
+}
+
+/* YouTubeEmbed — wrapped in a 1px rule frame with corner marks (§6). */
+.youtube-embed {
+  margin: 0 auto 2rem;
+  text-align: center;
+}
+.youtube-embed__frame {
+  position: relative;
+  margin: 0 auto;
+  border: 1px solid var(--paper-line);
+  border-radius: var(--ifm-global-radius);
+}
+.youtube-embed__inner {
+  position: relative;
+  height: 0;
+  padding-bottom: 56.25%;
+  overflow: hidden;
+  border-radius: calc(var(--ifm-global-radius) - 1px);
+}
+.youtube-embed__iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill-cta,
+  .pill-ghost {
+    transition: none;
+  }
+}
