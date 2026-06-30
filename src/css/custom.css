@@ -2,41 +2,103 @@
  * Any CSS included here will be global. The classic template
  * bundles Infima by default. Infima is a CSS framework designed to
  * work well for content-centric websites.
+ *
+ * Foundation for the docs.bffless.app redesign onto the bffless.app
+ * "paper / ink / terracotta" identity. See docs/design-system.md for the
+ * full spec; this file lands §1–§4 (tokens, Infima mapping, brand fonts).
+ * Per-component styling (navbar, sidebar, footer, admonitions, code blocks,
+ * prose, mermaid, components) lands in the later redesign stories.
  */
 
-/* You can override the default Infima variables here. */
+/* ── Brand tokens — Light "Paper" (design-system.md §1) ─────────────── */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --paper: #ece3d2; /* page background */
+  --paper-deep: #e4d9c4; /* elevated surface: sidebar, code, cards */
+  --paper-line: #d5c8ae; /* rules — all 1px borders/dividers */
+  --ink: #171513; /* primary text */
+  --ink-soft: #3a352e; /* secondary text + meta-labels */
+  --ink-mute: #7a7268; /* tertiary text — large only (>=18px) */
+  --ink-faint: #a9a095; /* disabled / placeholder */
+  --terracotta: #d85a3d; /* accent: hovers, underlines, active markers */
+  --terracotta-hover: #c24e33; /* accent hover/pressed */
+  --terracotta-ink: #7a2d1d; /* link text on paper (contrast-safe) */
+  --surface-2: #ddd0b6; /* nested surface / hover (light) */
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* ── Infima mapping — Light (design-system.md §3) ──────────────────── */
+:root {
+  /* Terracotta primary ramp: darkest #7A2D1D -> lightest #EC7C61 */
+  --ifm-color-primary: #d85a3d;
+  --ifm-color-primary-dark: #c24e33;
+  --ifm-color-primary-darker: #a33e29;
+  --ifm-color-primary-darkest: #7a2d1d;
+  --ifm-color-primary-light: #e2694c;
+  --ifm-color-primary-lighter: #e77357;
+  --ifm-color-primary-lightest: #ec7c61;
+
+  --ifm-background-color: var(--paper);
+  --ifm-background-surface-color: var(--paper-deep);
+  --ifm-color-content: var(--ink);
+  --ifm-color-content-secondary: var(--ink-soft);
+
+  /* Inline links use the contrast-safe terracotta-ink (~7:1 on paper);
+     the bright terracotta carries the underline + hover. */
+  --ifm-link-color: var(--terracotta-ink);
+  --ifm-link-hover-color: var(--terracotta);
+
+  /* Rules — every 1px border/divider resolves to paper-line */
+  --ifm-color-emphasis-300: var(--paper-line);
+  --ifm-toc-border-color: var(--paper-line);
+  --ifm-table-border-color: var(--paper-line);
+
+  --ifm-navbar-background-color: var(--paper);
+  --ifm-footer-background-color: var(--paper-deep);
+
+  /* Brand fonts (loaded via headTags in docusaurus.config.ts). Only H1 is
+     promoted to Fraunces — that lands in the Typography story. */
+  --ifm-font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
+  --ifm-font-family-monospace: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  --ifm-heading-font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --ifm-code-font-size: 90%;
+  --ifm-global-radius: 6px;
+
+  --docusaurus-highlighted-code-line-bg: rgba(23, 21, 19, 0.06);
+}
+
+/* ── Brand tokens + Infima mapping — Dark variant "Ink" (§2, §3) ───── */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --paper: #14110f; /* page background */
+  --paper-deep: #1e1a16; /* elevated surface */
+  --surface-2: #27221c; /* nested surface / hover */
+  --paper-line: #3a352e; /* rules */
+  --ink: #ece3d2; /* primary text (paper tone) */
+  --ink-soft: #d5c8ae; /* secondary text + meta-labels */
+  --ink-mute: #a9a095; /* tertiary text */
+  --ink-faint: #7a7268;
+  --terracotta: #e2694c; /* accent + link text (brightened for dark) */
+  --terracotta-hover: #ec7c61; /* accent hover */
+  --terracotta-ink: #e2694c; /* dark links use bright terracotta directly */
+
+  /* Terracotta ramp shifted brighter so primary reads on charcoal */
+  --ifm-color-primary: #e2694c;
+  --ifm-color-primary-dark: #d85a3d;
+  --ifm-color-primary-darker: #c24e33;
+  --ifm-color-primary-darkest: #7a2d1d;
+  --ifm-color-primary-light: #ec7c61;
+  --ifm-color-primary-lighter: #ef8a72;
+  --ifm-color-primary-lightest: #f29c87;
+
+  /* Bright terracotta is contrast-safe on dark, so links use it directly */
+  --ifm-link-color: var(--terracotta);
+  --ifm-link-hover-color: var(--terracotta-hover);
+
+  --docusaurus-highlighted-code-line-bg: rgba(236, 227, 210, 0.08);
 }
 
-/* Screenshot styling with border and shadow */
+/* Screenshot styling — framed with a rule rather than a drop shadow */
 .screenshot {
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--paper-line);
+  border-radius: var(--ifm-global-radius);
   margin: 1.5rem 0;
-}
-
-[data-theme='dark'] .screenshot {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
