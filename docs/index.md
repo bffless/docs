@@ -17,7 +17,7 @@ BFFless is the home for your AI-generated apps, internal tools, and HTML docs �
 
 Get BFFless running in under 5 minutes with our step-by-step guide.
 
-<a href="/getting-started/quickstart" class="button button--primary button--lg">Get Started →</a>
+<a href="/getting-started/quickstart" class="pill-cta">Get Started →</a>
 
 ## Key Features
 
