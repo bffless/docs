@@ -34,6 +34,28 @@ const config: Config = {
   // queue order in dataLayer is what determines whether the first page_view
   // gets the variant attribution or not.
   headTags: [
+    // Brand fonts — Fraunces (H1 + wordmark), Inter (body/UI), JetBrains Mono
+    // (code + meta-labels). Mirrors the bffless.app landing's Google Fonts
+    // load so the two properties share one type system. See docs/design-system.md §4.
+    {
+      tagName: 'link',
+      attributes: {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossorigin: 'anonymous',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500;1,9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
+      },
+    },
     {
       tagName: 'link',
       attributes: {
@@ -111,7 +133,9 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
   themeConfig: {
     image: 'img/social-card.png',
     colorMode: {
-      defaultMode: 'dark',
+      // Light "Paper" is the brand default; the dark variant is the designed
+      // companion. Keep the toggle. See docs/design-system.md §9.
+      defaultMode: 'light',
       respectPrefersColorScheme: true,
     },
     mermaid: {
