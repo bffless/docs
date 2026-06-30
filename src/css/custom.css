@@ -54,8 +54,8 @@
   --ifm-navbar-background-color: var(--paper);
   --ifm-footer-background-color: var(--paper-deep);
 
-  /* Brand fonts (loaded via headTags in docusaurus.config.ts). Only H1 is
-     promoted to Fraunces — that lands in the Typography story. */
+  /* Brand fonts (loaded via headTags in docusaurus.config.ts). Base + headings
+     are Inter; H1 is promoted to Fraunces in the Typography section below. */
   --ifm-font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
   --ifm-font-family-monospace: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
   --ifm-heading-font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -94,6 +94,102 @@
   --ifm-link-hover-color: var(--terracotta-hover);
 
   --docusaurus-highlighted-code-line-bg: rgba(236, 227, 210, 0.08);
+}
+
+/* ── Typography — type scale, Fraunces H1, meta-labels (§4) ─────────── */
+:root {
+  /* Heading scale — Inter for H2–H6 (H1 promoted to Fraunces below) */
+  --ifm-h2-font-size: 1.6rem;
+  --ifm-h3-font-size: 1.25rem;
+  --ifm-h4-font-size: 1.05rem;
+  --ifm-h5-font-size: 1rem;
+  --ifm-h6-font-size: 0.95rem;
+  --ifm-heading-font-weight: 600;
+
+  /* Calm reading rhythm */
+  --ifm-line-height-base: 1.7;
+
+  /* Meta-label primitive — mono, 11px, uppercase, wide tracking, ink-soft.
+     Reused by the breadcrumb eyebrow (below) and later chrome stories. */
+  --meta-label-font: var(--ifm-font-family-monospace);
+  --meta-label-size: 0.6875rem; /* 11px */
+  --meta-label-tracking: 0.22em;
+}
+
+/* H1 — the only serif. Fraunces display, balanced wrapping. */
+h1,
+.markdown h1 {
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-size: clamp(2rem, 1.6rem + 1.6vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+/* H2–H6 keep Inter (via --ifm-heading-font-family); only tracking differs */
+.markdown h2 {
+  letter-spacing: -0.01em;
+}
+.markdown h3 {
+  letter-spacing: -0.005em;
+}
+
+/* Body prose — pretty wrapping avoids orphans/ragged short lines */
+.markdown p,
+.markdown li {
+  text-wrap: pretty;
+}
+
+/* Reading column — cap prose measure at ~70ch for legibility (§4) */
+.theme-doc-markdown.markdown {
+  max-width: 70ch;
+}
+
+/* Meta-label utility — the design kit's small mono label (§4/§5) */
+.meta-label {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ── Breadcrumb eyebrow — Docusaurus breadcrumbs as a meta-label row (§6) */
+.breadcrumbs {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  /* The breadcrumb carries real navigation, so it earns the eyebrow slot
+     above the H1 — no decorative per-page kicker (see Guardrails §8). */
+}
+.breadcrumbs__link {
+  color: var(--ink-soft);
+  background: transparent;
+  padding: 0.2rem 0;
+  transition: color 150ms ease;
+}
+.breadcrumbs__link:hover {
+  color: var(--terracotta);
+  background: transparent;
+}
+.breadcrumbs__item--active .breadcrumbs__link,
+.breadcrumbs__item--active .breadcrumbs__link:hover {
+  color: var(--ink);
+  background: transparent;
+}
+.breadcrumbHomeIcon {
+  position: relative;
+  top: -1px; /* optically align the home glyph with uppercase mono caps */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breadcrumbs__link {
+    transition: none;
+  }
 }
 
 /* Screenshot styling — framed with a rule rather than a drop shadow */
