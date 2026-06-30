@@ -189,7 +189,9 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
       ],
     },
     footer: {
-      style: 'dark',
+      // Paper identity: light-compatible footer on --paper-deep with a top
+      // rule and the boxed-"b" lockup (swizzled Footer/Layout). See §6.
+      style: 'light',
       links: [
         {
           title: 'Documentation',
