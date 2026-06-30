@@ -516,6 +516,106 @@ html.nav-scrolled [data-theme='dark'] .navbar {
   }
 }
 
+/* ── Prose — links, tables, blockquotes, hr, pagination (§6) ────────── */
+
+/* Inline links — terracotta-ink text on paper (the contrast-safe ink; the
+   colors come from --ifm-link-color, set per mode in §3), always underlined in
+   the bright --terracotta with a 2px offset so the rule reads as an accent
+   distinct from the text. Hover inks the text terracotta to match. Heading
+   anchor (.hash-link) links keep their own treatment. */
+.markdown a:not(.hash-link) {
+  text-decoration: underline;
+  text-decoration-color: var(--terracotta);
+  text-underline-offset: 2px;
+  transition:
+    color 150ms ease,
+    text-decoration-color 150ms ease;
+}
+.markdown a:not(.hash-link):hover {
+  text-decoration-color: var(--ifm-link-hover-color);
+}
+
+/* Tables — 1px rules, paper-deep header row with meta-label-cased headers,
+   a faint ink/paper zebra. No heavy borders (Guardrails §8). */
+:root {
+  --ifm-table-head-background: var(--paper-deep);
+  --ifm-table-stripe-background: rgba(23, 21, 19, 0.03); /* ~3% ink */
+}
+[data-theme='dark'] {
+  --ifm-table-stripe-background: rgba(236, 227, 210, 0.04); /* ~4% paper */
+}
+.markdown table thead tr {
+  border-bottom: 1px solid var(--paper-line);
+}
+.markdown table th {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-align: left;
+}
+/* A path/identifier in a header keeps its case and reads as code, not a label */
+.markdown table th code {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Blockquotes — a 1px left rule (the only allowed side accent, Guardrails §8)
+   in terracotta, over a paper-deep tint with ink-soft text. */
+.markdown blockquote {
+  border-left: 1px solid var(--terracotta);
+  background: var(--paper-deep);
+  color: var(--ink-soft);
+  border-radius: 0 var(--ifm-global-radius) var(--ifm-global-radius) 0;
+}
+
+/* Horizontal rule — the design's hairline rule, not a thick divider */
+:root {
+  --ifm-hr-background-color: var(--paper-line);
+  --ifm-hr-height: 1px;
+}
+.markdown hr {
+  border: 0;
+  height: 1px;
+  background: var(--paper-line);
+}
+
+/* Pagination (prev/next) — two bordered cells framed by a 1px rule whose border
+   raises to terracotta on hover; the "PREVIOUS"/"NEXT" sublabel as a meta-label,
+   the title in Inter. One legitimate bordered cell — not a card grid (§6). */
+.pagination-nav__link {
+  border: 1px solid var(--paper-line);
+  border-radius: var(--ifm-global-radius);
+  transition:
+    border-color 150ms ease,
+    color 150ms ease;
+}
+.pagination-nav__link:hover {
+  border-color: var(--terracotta);
+}
+.pagination-nav__sublabel {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.pagination-nav__label {
+  font-family: var(--ifm-font-family-base);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .markdown a:not(.hash-link),
+  .pagination-nav__link {
+    transition: none;
+  }
+}
+
 /* Screenshot styling — framed with a rule rather than a drop shadow */
 .screenshot {
   border: 1px solid var(--paper-line);
