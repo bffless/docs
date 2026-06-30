@@ -15,6 +15,13 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
   && apt-get update && apt-get install -y gh \
   && rm -rf /var/lib/apt/lists/*
 
+# Install Chromium's system libraries for Playwright (headless screenshots of the
+# agent's UI changes — the visual smoke-gate in prompt.md). Done as root (it
+# apt-installs libs); the browser binary itself is downloaded later AS THE agent
+# user so it lands in /home/agent's cache. Pinned to match the @playwright/test
+# devDependency so the driver and browser agree.
+RUN npx -y playwright@1.61.1 install-deps chromium
+
 # Enable pnpm via corepack (this Docusaurus site installs with pnpm).
 # `corepack enable` runs as root so the shims land in /usr/local/bin. The actual
 # pnpm download (`corepack prepare`) happens later AS THE agent USER, so it's
@@ -38,6 +45,11 @@ USER ${AGENT_UID}:${AGENT_GID}
 # packageManager field). Runs as `agent` so the cache lives in /home/agent and is
 # used at runtime with no download — fixes the onSandboxReady `pnpm install` step.
 RUN corepack prepare pnpm@10.33.0 --activate
+
+# Download Playwright's Chromium for the agent user (cached in /home/agent), so the
+# sandbox agent can run a real headless browser (via scripts/shot.mjs) to screenshot
+# and smoke-check its UI changes. Runs as `agent` so the runtime user can find it.
+RUN npx -y playwright@1.61.1 install chromium
 
 # Install Claude Code CLI
 RUN curl -fsSL https://claude.ai/install.sh | bash

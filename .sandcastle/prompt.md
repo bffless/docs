@@ -52,13 +52,18 @@ This is a **static site — there is no backend, no `/api/*`, and no proxy rules
 6. **Verify** — run the site's checks and fix any failures before continuing:
    - `pnpm typecheck` — TypeScript across config and `src/`.
    - `pnpm build` — a full Docusaurus production build. This is the key gate: it compiles all MDX and runs the **broken-link checker**, so a green build proves pages render and links resolve. Treat any build error or broken-link warning as a failure to fix before continuing.
-7. **Branch + commit** — single commit on your `sandcastle/issue-<N>-<short-slug>` branch. Message MUST start with `SANDCASTLE:` and include the issue number, the key decisions, and the files changed (e.g. `SANDCASTLE: document GCS storage env vars (#71)`).
-8. **Push** — `origin` is SSH but the sandbox has `GH_TOKEN` (HTTPS). Push over HTTPS; don't reconfigure the remote:
+7. **Screenshot (visual/UI changes only — skip for pure content edits)** — verify your change renders cleanly in a real headless browser. The build output is static, so serve it and shoot:
+   - Serve the build in the background: `pnpm serve --no-open --port 3000 &` (serves `build/` from step 6; wait until it responds).
+   - Screenshot the affected page(s) in **both** color modes — the dark variant is part of this redesign, so it must be checked every time: `node scripts/shot.mjs http://localhost:3000/<path> --out .sandcastle/screenshots/<name>-light.png --full` and again with `--dark` → `<name>-dark.png`. `shot.mjs` exits non-zero on console errors or failed (4xx/5xx) requests — treat that as a failure: fix and re-shoot.
+   - You cannot judge aesthetics — that's the human's job on the preview URL (step 10). Your bar here is **mechanical**: page renders, no console errors, no failed requests, both modes load. `.sandcastle/screenshots/` is gitignored; note in the PR body which pages/modes you smoke-checked.
+   - Stop the server when done.
+8. **Branch + commit** — single commit on your `sandcastle/issue-<N>-<short-slug>` branch. Message MUST start with `SANDCASTLE:` and include the issue number, the key decisions, and the files changed (e.g. `SANDCASTLE: paper/ink/terracotta design tokens + brand fonts (#71)`).
+9. **Push** — `origin` is SSH but the sandbox has `GH_TOKEN` (HTTPS). Push over HTTPS; don't reconfigure the remote:
    - `git push "https://x-access-token:${GH_TOKEN}@github.com/bffless/docs-public.git" HEAD:sandcastle/issue-<N>-<short-slug>`
-9. **Open the story PR — base = BASE branch** (the epic branch, or `main` in legacy mode):
-   - `gh pr create --base <BASE> --head sandcastle/issue-<N>-<short-slug> --title "SANDCASTLE: <summary> (#<N>)" --body "<what changed, why, how verified>. Refs #<N>"`
-   - The PR triggers `pr-preview.yml`, which builds the site and deploys it to the **`docs-preview`** alias, then comments a live preview URL. Reference it in the PR body once available.
-10. **Land it (epic mode only) — auto-merge on green CI, then close the issue:**
+10. **Open the story PR — base = BASE branch** (the epic branch, or `main` in legacy mode):
+    - `gh pr create --base <BASE> --head sandcastle/issue-<N>-<short-slug> --title "SANDCASTLE: <summary> (#<N>)" --body "<what changed, why, how verified, which pages/modes smoke-checked>. Refs #<N>"`
+    - The PR triggers `pr-preview.yml`, which builds the site and deploys it to the **`docs-preview`** alias, then comments a live preview URL. Reference it in the PR body — this is the surface a human uses to review look-and-feel.
+11. **Land it (epic mode only) — auto-merge on green CI, then close the issue:**
     - Wait for checks: `gh pr checks <pr> --watch --fail-fast`.
     - If green: `gh pr merge <pr> --squash --delete-branch`.
     - Then close the issue (GitHub won't auto-close from a non-`main` base): `gh issue close <N> --comment "Landed on <BASE> via <pr-url>"`. This unblocks the next story in the chain.

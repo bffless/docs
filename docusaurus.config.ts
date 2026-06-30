@@ -75,6 +75,20 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
         docs: {
           sidebarPath: './sidebars.ts',
           routeBasePath: '/',
+          // Keep internal agent/decision docs out of the published site (docs/
+          // is served at the root). These dirs hold Matt-Pocock skill config
+          // (agents/) and ADRs (adr/) — repo-internal, not user documentation.
+          // Excluding them also keeps their repo-relative links out of the
+          // strict broken-link checker (onBrokenLinks: 'throw').
+          exclude: [
+            '**/_*.{js,jsx,ts,tsx,md,mdx}',
+            '**/_*/**',
+            '**/*.test.{js,jsx,ts,tsx}',
+            '**/__tests__/**',
+            'adr/**',
+            'agents/**',
+            'design-system.md',
+          ],
         },
         blog: {
           showReadingTime: true,
