@@ -192,6 +192,79 @@ h1,
   }
 }
 
+/* ── Navbar — paper bg, bottom rule, Fraunces wordmark, terracotta active (§6) */
+.navbar {
+  /* bg comes from --ifm-navbar-background-color (var(--paper)); the design
+     leans on a rule, not a shadow — see Guardrails §8. */
+  box-shadow: none;
+  border-bottom: 1px solid var(--paper-line);
+  transition: box-shadow 200ms ease;
+}
+
+/* Whisper-shadow fades in only once scrolled (the one allowed navbar shadow);
+   the bottom rule stays put underneath it. */
+html.nav-scrolled .navbar {
+  box-shadow: 0 1px 8px rgba(23, 21, 19, 0.08);
+}
+[data-theme='dark'] html.nav-scrolled .navbar,
+html.nav-scrolled [data-theme='dark'] .navbar {
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Synced broken-heart mark at 28px (§6) */
+.navbar__logo {
+  height: 28px;
+}
+.navbar__logo img {
+  height: 28px;
+}
+
+/* Wordmark — the one navbar use of Fraunces (display serif) */
+.navbar__title {
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* Nav links stay Inter (inherited); active/hover go terracotta */
+.navbar__link {
+  font-weight: 500;
+}
+.navbar__link:hover,
+.navbar__link--active {
+  color: var(--terracotta);
+}
+
+/* GitHub link rendered as an icon — mask recolored by the link color so it
+   inks at rest and goes terracotta on hover, like the other nav links. */
+.header-github-link {
+  display: flex;
+  align-items: center;
+  padding: var(--ifm-navbar-item-padding-vertical) 0.6rem;
+}
+.header-github-link::before {
+  content: '';
+  display: block;
+  width: 22px;
+  height: 22px;
+  background-color: var(--ink);
+  -webkit-mask: url('/img/github.svg') center / contain no-repeat;
+  mask: url('/img/github.svg') center / contain no-repeat;
+  transition: background-color 150ms ease;
+}
+.header-github-link:hover::before {
+  background-color: var(--terracotta);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar,
+  .header-github-link::before {
+    transition: none;
+  }
+}
+
 /* Screenshot styling — framed with a rule rather than a drop shadow */
 .screenshot {
   border: 1px solid var(--paper-line);

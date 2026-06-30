@@ -146,6 +146,11 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
       logo: {
         alt: 'BFFless Logo',
         src: 'img/logo.svg',
+        srcDark: 'img/logo-dark.svg',
+        // Logo links cross-site to the marketing home so docs + landing read
+        // as one property (design-system.md §6).
+        href: 'https://bffless.app/?utm_source=docs.bffless.com&utm_medium=referral&utm_campaign=ecosystem-nav&utm_content=logo-link',
+        target: '_self',
       },
       items: [
         {
@@ -176,8 +181,10 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
         },
         {
           href: 'https://github.com/bffless/ce',
-          label: 'GitHub',
           position: 'right',
+          // Rendered as an icon (see .header-github-link in custom.css §6).
+          className: 'header-github-link',
+          'aria-label': 'GitHub repository',
         },
       ],
     },
