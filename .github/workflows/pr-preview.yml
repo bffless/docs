@@ -2,7 +2,10 @@ name: PR Docs Preview
 
 on:
   pull_request:
-    branches: ['*']
+    # '**' (not '*') so PRs targeting slashed base branches — e.g. the
+    # epic/docs-redesign epic branch the redesign stories merge into — also
+    # build a preview. A single '*' glob does not match branch names with '/'.
+    branches: ['**']
 
 permissions:
   contents: read
