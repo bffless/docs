@@ -265,6 +265,50 @@ html.nav-scrolled [data-theme='dark'] .navbar {
   }
 }
 
+/* ── Sidebar — paper-deep surface, meta-label categories, terracotta active (§6) */
+:root {
+  /* Drive Infima's menu off the brand tokens. terracotta/surface-2 are
+     redefined in the dark variant, so these resolve correctly per mode. */
+  --ifm-menu-color: var(--ink-soft); /* resting item text */
+  --ifm-menu-color-active: var(--terracotta); /* active item text */
+  --ifm-menu-color-background-active: var(--surface-2); /* active tint */
+  --ifm-menu-color-background-hover: var(--surface-2); /* hover tint */
+}
+
+/* Elevated surface, separated from the reading column by a rule — not a shadow */
+.theme-doc-sidebar-container {
+  background: var(--paper-deep);
+  border-right: 1px solid var(--paper-line);
+}
+
+.menu__link {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+/* Category headers render as meta-labels (mono, 11px, uppercase, wide tracking) */
+.theme-doc-sidebar-item-category > .menu__list-item-collapsible > .menu__link {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* Active item — terracotta text (from the Infima var above) + 600 weight + the
+   surface-2 tint. No thick left-stripe — a hard-ban in Guardrails §8. */
+.menu__link--active {
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu__link {
+    transition: none;
+  }
+}
+
 /* Screenshot styling — framed with a rule rather than a drop shadow */
 .screenshot {
   border: 1px solid var(--paper-line);
