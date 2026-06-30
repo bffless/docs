@@ -27,11 +27,11 @@ await run({
   // sandbox at the start of each iteration, so the agent always sees fresh data.
   promptFile: "./.sandcastle/prompt.md",
 
-  // Up to 8 issues per run: each iteration is one issue → one branch → one PR
-  // (squash-merged into the epic on green CI before the next starts). 8 covers
-  // the rest of the redesign stories (#13–#22) in one unattended pass. Each
+  // Up to 10 issues per run: each iteration is one issue → one branch → one PR
+  // (squash-merged into the epic on green CI before the next starts). 10 covers
+  // all remaining redesign stories (#13–#22) in one unattended pass. Each
   // story still gets its own preview deploy for human aesthetic review.
-  maxIterations: 8,
+  maxIterations: 10,
 
   // Branch strategy — "branch" lands the agent's commits on a named branch and
   // never merges to HEAD, so your local `main` is untouched (honours the
