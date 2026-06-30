@@ -4,7 +4,8 @@
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "sandcastle": "npx tsx .sandcastle/main.ts",
+    "sandcastle": "npx tsx .sandcastle/main.mts",
+    "sandcastle:build-image": "sandcastle docker build-image",
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "docusaurus build",
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.10.0",
+    "@playwright/test": "1.61.1",
     "@docusaurus/module-type-aliases": "3.9.2",
     "@docusaurus/tsconfig": "3.9.2",
     "@docusaurus/types": "3.9.2",

@@ -12,7 +12,7 @@ Deploy BFFless in under 5 minutes using the automated installer.
 Watch the 4-minute [Anatomy of a Website explainer](#background-how-the-web-works) below to see where BFFless fits in the request flow — DNS, the edge, the server, and the BFF. Already familiar? Skip to **Prerequisites**.
 :::
 
-## Background — How the Web Works
+## Background — How the Web Works {#background-how-the-web-works}
 
 <YouTubeEmbed id="luQMEUYzsUQ" title="BFFless: Anatomy of a Website — How the Web Actually Works" />
 
@@ -52,7 +52,7 @@ flowchart LR
 - Easy DNS management
 - No certbot or port 80 required
 
-<a href="/getting-started/cloudflare-setup" class="button button--primary button--lg">Get Started with Cloudflare →</a>
+<a href="/getting-started/cloudflare-setup" class="pill-cta">Get Started with Cloudflare →</a>
 
 ---
 
@@ -73,4 +73,4 @@ Use this if you need direct connections without a proxy, or if your organization
 - Requires port 80 open for verification
 - You manage SSL renewal (automated via cron)
 
-<a href="/getting-started/letsencrypt-setup" class="button button--secondary button--lg">Get Started with Let's Encrypt →</a>
+<a href="/getting-started/letsencrypt-setup" class="pill-ghost">Get Started with Let's Encrypt →</a>

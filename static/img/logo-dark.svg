@@ -1,6 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <!-- Dark-variant wordmark logo: circuit wires + plugs retuned to a paper tone
+       (#d5c8ae) so they read on the charcoal navbar; the broken heart keeps the
+       terracotta brand color, which carries on both light and dark. -->
   <!-- Circuit wires from bottom of heart -->
-  <g stroke="#4a4a4a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <g stroke="#d5c8ae" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <!-- Left outer - angles outward -->
     <path d="M115 215 L115 295 L55 295 L55 355"/>
     <!-- Left inner - angles inward -->
@@ -12,7 +15,7 @@
   </g>
 
   <!-- Circuit plugs -->
-  <g fill="#4a4a4a">
+  <g fill="#d5c8ae">
     <circle cx="55" cy="360" r="8"/>
     <circle cx="130" cy="375" r="8"/>
     <circle cx="270" cy="375" r="8"/>
@@ -20,7 +23,7 @@
   </g>
 
   <!-- Plug holes -->
-  <g fill="white">
+  <g fill="#14110f">
     <circle cx="55" cy="360" r="3"/>
     <circle cx="130" cy="375" r="3"/>
     <circle cx="270" cy="375" r="3"/>

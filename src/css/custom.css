@@ -2,41 +2,747 @@
  * Any CSS included here will be global. The classic template
  * bundles Infima by default. Infima is a CSS framework designed to
  * work well for content-centric websites.
+ *
+ * Foundation for the docs.bffless.app redesign onto the bffless.app
+ * "paper / ink / terracotta" identity. See docs/design-system.md for the
+ * full spec; this file lands §1–§4 (tokens, Infima mapping, brand fonts).
+ * Per-component styling (navbar, sidebar, footer, admonitions, code blocks,
+ * prose, mermaid, components) lands in the later redesign stories.
  */
 
-/* You can override the default Infima variables here. */
+/* ── Brand tokens — Light "Paper" (design-system.md §1) ─────────────── */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --paper: #ece3d2; /* page background */
+  --paper-deep: #e4d9c4; /* elevated surface: sidebar, code, cards */
+  --paper-line: #d5c8ae; /* rules — all 1px borders/dividers */
+  --ink: #171513; /* primary text */
+  --ink-soft: #3a352e; /* secondary text + meta-labels */
+  --ink-mute: #7a7268; /* tertiary text — large only (>=18px) */
+  --ink-faint: #a9a095; /* disabled / placeholder */
+  --terracotta: #d85a3d; /* accent: hovers, underlines, active markers */
+  --terracotta-hover: #c24e33; /* accent hover/pressed */
+  --terracotta-ink: #7a2d1d; /* link text on paper (contrast-safe) */
+  --surface-2: #ddd0b6; /* nested surface / hover (light) */
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* ── Infima mapping — Light (design-system.md §3) ──────────────────── */
+:root {
+  /* Terracotta primary ramp: darkest #7A2D1D -> lightest #EC7C61 */
+  --ifm-color-primary: #d85a3d;
+  --ifm-color-primary-dark: #c24e33;
+  --ifm-color-primary-darker: #a33e29;
+  --ifm-color-primary-darkest: #7a2d1d;
+  --ifm-color-primary-light: #e2694c;
+  --ifm-color-primary-lighter: #e77357;
+  --ifm-color-primary-lightest: #ec7c61;
+
+  --ifm-background-color: var(--paper);
+  --ifm-background-surface-color: var(--paper-deep);
+  --ifm-color-content: var(--ink);
+  --ifm-color-content-secondary: var(--ink-soft);
+
+  /* Inline links use the contrast-safe terracotta-ink (~7:1 on paper);
+     the bright terracotta carries the underline + hover. */
+  --ifm-link-color: var(--terracotta-ink);
+  --ifm-link-hover-color: var(--terracotta);
+
+  /* Rules — every 1px border/divider resolves to paper-line */
+  --ifm-color-emphasis-300: var(--paper-line);
+  --ifm-toc-border-color: var(--paper-line);
+  --ifm-table-border-color: var(--paper-line);
+
+  --ifm-navbar-background-color: var(--paper);
+  --ifm-footer-background-color: var(--paper-deep);
+
+  /* Brand fonts (loaded via headTags in docusaurus.config.ts). Base + headings
+     are Inter; H1 is promoted to Fraunces in the Typography section below. */
+  --ifm-font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
+  --ifm-font-family-monospace: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  --ifm-heading-font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --ifm-code-font-size: 90%;
+  --ifm-global-radius: 6px;
+
+  --docusaurus-highlighted-code-line-bg: rgba(23, 21, 19, 0.06);
+}
+
+/* ── Brand tokens + Infima mapping — Dark variant "Ink" (§2, §3) ───── */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --paper: #14110f; /* page background */
+  --paper-deep: #1e1a16; /* elevated surface */
+  --surface-2: #27221c; /* nested surface / hover */
+  --paper-line: #3a352e; /* rules */
+  --ink: #ece3d2; /* primary text (paper tone) */
+  --ink-soft: #d5c8ae; /* secondary text + meta-labels */
+  --ink-mute: #a9a095; /* tertiary text */
+  --ink-faint: #7a7268;
+  --terracotta: #e2694c; /* accent + link text (brightened for dark) */
+  --terracotta-hover: #ec7c61; /* accent hover */
+  --terracotta-ink: #e2694c; /* dark links use bright terracotta directly */
+
+  /* Terracotta ramp shifted brighter so primary reads on charcoal */
+  --ifm-color-primary: #e2694c;
+  --ifm-color-primary-dark: #d85a3d;
+  --ifm-color-primary-darker: #c24e33;
+  --ifm-color-primary-darkest: #7a2d1d;
+  --ifm-color-primary-light: #ec7c61;
+  --ifm-color-primary-lighter: #ef8a72;
+  --ifm-color-primary-lightest: #f29c87;
+
+  /* Bright terracotta is contrast-safe on dark, so links use it directly */
+  --ifm-link-color: var(--terracotta);
+  --ifm-link-hover-color: var(--terracotta-hover);
+
+  --docusaurus-highlighted-code-line-bg: rgba(236, 227, 210, 0.08);
 }
 
-/* Screenshot styling with border and shadow */
+/* ── Typography — type scale, Fraunces H1, meta-labels (§4) ─────────── */
+:root {
+  /* Heading scale — Inter for H2–H6 (H1 promoted to Fraunces below) */
+  --ifm-h2-font-size: 1.6rem;
+  --ifm-h3-font-size: 1.25rem;
+  --ifm-h4-font-size: 1.05rem;
+  --ifm-h5-font-size: 1rem;
+  --ifm-h6-font-size: 0.95rem;
+  --ifm-heading-font-weight: 600;
+
+  /* Calm reading rhythm */
+  --ifm-line-height-base: 1.7;
+
+  /* Meta-label primitive — mono, 11px, uppercase, wide tracking, ink-soft.
+     Reused by the breadcrumb eyebrow (below) and later chrome stories. */
+  --meta-label-font: var(--ifm-font-family-monospace);
+  --meta-label-size: 0.6875rem; /* 11px */
+  --meta-label-tracking: 0.22em;
+}
+
+/* H1 — the only serif. Fraunces display, balanced wrapping. */
+h1,
+.markdown h1 {
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-size: clamp(2rem, 1.6rem + 1.6vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+/* H2–H6 keep Inter (via --ifm-heading-font-family); only tracking differs */
+.markdown h2 {
+  letter-spacing: -0.01em;
+}
+.markdown h3 {
+  letter-spacing: -0.005em;
+}
+
+/* Body prose — pretty wrapping avoids orphans/ragged short lines */
+.markdown p,
+.markdown li {
+  text-wrap: pretty;
+}
+
+/* Reading column — cap prose measure at ~70ch for legibility (§4) */
+.theme-doc-markdown.markdown {
+  max-width: 70ch;
+}
+
+/* Meta-label utility — the design kit's small mono label (§4/§5) */
+.meta-label {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ── Breadcrumb eyebrow — Docusaurus breadcrumbs as a meta-label row (§6) */
+.breadcrumbs {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  /* The breadcrumb carries real navigation, so it earns the eyebrow slot
+     above the H1 — no decorative per-page kicker (see Guardrails §8). */
+}
+.breadcrumbs__link {
+  color: var(--ink-soft);
+  background: transparent;
+  padding: 0.2rem 0;
+  transition: color 150ms ease;
+}
+.breadcrumbs__link:hover {
+  color: var(--terracotta);
+  background: transparent;
+}
+.breadcrumbs__item--active .breadcrumbs__link,
+.breadcrumbs__item--active .breadcrumbs__link:hover {
+  color: var(--ink);
+  background: transparent;
+}
+.breadcrumbHomeIcon {
+  position: relative;
+  top: -1px; /* optically align the home glyph with uppercase mono caps */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breadcrumbs__link {
+    transition: none;
+  }
+}
+
+/* ── Navbar — paper bg, bottom rule, Fraunces wordmark, terracotta active (§6) */
+.navbar {
+  /* bg comes from --ifm-navbar-background-color (var(--paper)); the design
+     leans on a rule, not a shadow — see Guardrails §8. */
+  box-shadow: none;
+  border-bottom: 1px solid var(--paper-line);
+  transition: box-shadow 200ms ease;
+}
+
+/* Whisper-shadow fades in only once scrolled (the one allowed navbar shadow);
+   the bottom rule stays put underneath it. */
+html.nav-scrolled .navbar {
+  box-shadow: 0 1px 8px rgba(23, 21, 19, 0.08);
+}
+[data-theme='dark'] html.nav-scrolled .navbar,
+html.nav-scrolled [data-theme='dark'] .navbar {
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Synced broken-heart mark at 28px (§6) */
+.navbar__logo {
+  height: 28px;
+}
+.navbar__logo img {
+  height: 28px;
+}
+
+/* Wordmark — the one navbar use of Fraunces (display serif) */
+.navbar__title {
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* Nav links stay Inter (inherited); active/hover go terracotta */
+.navbar__link {
+  font-weight: 500;
+}
+.navbar__link:hover,
+.navbar__link--active {
+  color: var(--terracotta);
+}
+
+/* GitHub link rendered as an icon — mask recolored by the link color so it
+   inks at rest and goes terracotta on hover, like the other nav links. */
+.header-github-link {
+  display: flex;
+  align-items: center;
+  padding: var(--ifm-navbar-item-padding-vertical) 0.6rem;
+}
+.header-github-link::before {
+  content: '';
+  display: block;
+  width: 22px;
+  height: 22px;
+  background-color: var(--ink);
+  -webkit-mask: url('/img/github.svg') center / contain no-repeat;
+  mask: url('/img/github.svg') center / contain no-repeat;
+  transition: background-color 150ms ease;
+}
+.header-github-link:hover::before {
+  background-color: var(--terracotta);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar,
+  .header-github-link::before {
+    transition: none;
+  }
+}
+
+/* ── Sidebar — paper-deep surface, meta-label categories, terracotta active (§6) */
+:root {
+  /* Drive Infima's menu off the brand tokens. terracotta/surface-2 are
+     redefined in the dark variant, so these resolve correctly per mode. */
+  --ifm-menu-color: var(--ink-soft); /* resting item text */
+  --ifm-menu-color-active: var(--terracotta); /* active item text */
+  --ifm-menu-color-background-active: var(--surface-2); /* active tint */
+  --ifm-menu-color-background-hover: var(--surface-2); /* hover tint */
+}
+
+/* Elevated surface, separated from the reading column by a rule — not a shadow */
+.theme-doc-sidebar-container {
+  background: var(--paper-deep);
+  border-right: 1px solid var(--paper-line);
+}
+
+.menu__link {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+/* Category headers render as meta-labels (mono, 11px, uppercase, wide tracking) */
+.theme-doc-sidebar-item-category > .menu__list-item-collapsible > .menu__link {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* Active item — terracotta text (from the Infima var above) + 600 weight + the
+   surface-2 tint. No thick left-stripe — a hard-ban in Guardrails §8. */
+.menu__link--active {
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu__link {
+    transition: none;
+  }
+}
+
+/* ── Footer — paper-deep surface, top rule, boxed-"b" lockup (§6) ───── */
+.footer {
+  /* bg from --ifm-footer-background-color (var(--paper-deep)); separated from
+     the page by a rule, not a shadow — see Guardrails §8. */
+  border-top: 1px solid var(--paper-line);
+  --ifm-footer-color: var(--ink-soft);
+  --ifm-footer-link-color: var(--ink-soft);
+  --ifm-footer-link-hover-color: var(--terracotta);
+  --ifm-footer-title-color: var(--ink-soft);
+}
+
+/* Column headers render as meta-labels (mono, 11px, uppercase, wide tracking) */
+.footer__title {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* Column links stay Inter (inherited); terracotta on hover */
+.footer__link-item {
+  transition: color 150ms ease;
+}
+.footer__link-item:hover {
+  color: var(--terracotta);
+  text-decoration: none;
+}
+
+/* The boxed-"b" lockup ported from the landing: a square 1px ink frame around
+   a Fraunces-italic "b", paired with the Inter wordmark. */
+.footer__lockup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.footer__boxed-b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid var(--ink);
+  border-radius: var(--ifm-global-radius);
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--ink);
+}
+.footer__wordmark {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* Copyright — quieter than the lockup; meta-spaced */
+.footer__copyright {
+  color: var(--ink-mute);
+  font-size: 0.85rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer__link-item {
+    transition: none;
+  }
+}
+
+/* ── Admonitions — full-border cards, meta-label titles (§6) ────────── */
+/* Docusaurus/Infima renders callouts as Infima `.alert`s with a 5px colored
+   side-stripe. Re-cast each as a full 1px-rule card with a paper tint and a
+   per-type accent — no border-left > 1px (a hard ban, Guardrails §8).
+   Two accent tokens per type: --admon-accent paints the (non-text) border +
+   icon vividly; --admon-title is the contrast-safe title text. They diverge
+   only where the vivid hue fails small-text contrast on the tint (tip in
+   light) — see the verified pairs below. */
+.theme-admonition {
+  background-color: var(--paper-deep);
+  border: 1px solid var(--admon-accent, var(--ink-soft));
+  border-left-width: 1px; /* kill Infima's 5px side-stripe explicitly */
+  border-radius: var(--ifm-global-radius);
+  color: var(--ink); /* body stays readable ink, not the alert foreground */
+  box-shadow: none;
+  /* .alert reroutes links to its foreground color; restore the brand link */
+  --ifm-link-color: var(--terracotta-ink);
+  --ifm-link-hover-color: var(--terracotta);
+}
+[data-theme='dark'] .theme-admonition {
+  background-color: var(--surface-2);
+  --ifm-link-color: var(--terracotta);
+  --ifm-link-hover-color: var(--terracotta-hover);
+}
+
+/* Title rendered as a meta-label (mono, 11px, uppercase, wide tracking),
+   inked with the per-type --admon-title */
+.theme-admonition [class*='admonitionHeading_'] {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--admon-title, var(--ink-soft));
+}
+/* Inline code in a title drops the mono-on-mono uppercase treatment */
+.theme-admonition [class*='admonitionHeading_'] code {
+  text-transform: none;
+  letter-spacing: normal;
+}
+/* Icon inherits the vivid accent; sized down to sit with the 11px label */
+.theme-admonition [class*='admonitionIcon_'] svg {
+  fill: var(--admon-accent, var(--ink-soft));
+  height: 1.05rem;
+  width: 1.05rem;
+  position: relative;
+  top: 1px; /* optically center the glyph against uppercase mono caps */
+}
+
+/* Per-type accents — note/info/tip lean on the mode-aware brand tokens;
+   warning/danger keep semantic amber/red, desaturated warm and darkened so
+   the small title clears 4.5:1 on the light tint (#E4D9C4). */
+.theme-admonition-note {
+  --admon-accent: var(--ink-soft);
+  --admon-title: var(--ink-soft);
+}
+.theme-admonition-info {
+  --admon-accent: var(--ink);
+  --admon-title: var(--ink);
+}
+.theme-admonition-tip {
+  --admon-accent: var(--terracotta);
+  --admon-title: var(--terracotta-ink); /* vivid terracotta fails small-text
+    contrast on the light tint, so the title uses the contrast-safe ink */
+}
+.theme-admonition-warning,
+.theme-admonition-caution {
+  --admon-accent: #8a4b12; /* warm amber, ~4.8:1 on #E4D9C4 */
+  --admon-title: #8a4b12;
+}
+.theme-admonition-danger {
+  --admon-accent: #a33326; /* warm red, ~4.9:1 on #E4D9C4 */
+  --admon-title: #a33326;
+}
+
+/* Dark variant — vivid hues read directly on the #27221C tint, so accent and
+   title converge again (and tip's title rejoins the bright terracotta). */
+[data-theme='dark'] .theme-admonition-tip {
+  --admon-title: var(--terracotta);
+}
+[data-theme='dark'] .theme-admonition-warning,
+[data-theme='dark'] .theme-admonition-caution {
+  --admon-accent: #e0a030; /* bright amber, ~6.9:1 on #27221C */
+  --admon-title: #e0a030;
+}
+[data-theme='dark'] .theme-admonition-danger {
+  --admon-accent: #e8705a; /* bright warm red, ~5.2:1 on #27221C */
+  --admon-title: #e8705a;
+}
+
+/* ── Code blocks — paper-deep surface, rule frame, mono header (§6) ──── */
+/* The surface + plain text come from the custom Prism themes (var(--paper-deep)
+   / var(--ink), set in docusaurus.config.ts); here we frame the block with a
+   rule and replace Infima's drop shadow — the design separates with borders +
+   color, not shadows (Guardrails §8). */
+.theme-code-block {
+  border: 1px solid var(--paper-line);
+  border-radius: var(--ifm-global-radius);
+  box-shadow: none;
+}
+
+/* Header bar (only rendered when an author sets ```lang title="…"). Mono, so it
+   reads as a filename/path chip against the code; case is preserved (a path is
+   case-significant — unlike the uppercase meta-label, see the admonition title
+   exception above), with the meta-label's ink-soft on the paper-deep surface
+   and a rule dividing it from the code. */
+[class*='codeBlockTitle'] {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  background: var(--paper-deep);
+  border-bottom: 1px solid var(--paper-line);
+}
+
+/* Copy / word-wrap buttons — rest as ink-soft, ink terracotta + terracotta rule
+   on hover (the buttons inherit the paper-deep surface + paper-line border from
+   Infima via --prism-background-color / --ifm-color-emphasis-300). */
+.theme-code-block button.clean-btn {
+  color: var(--ink-soft);
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+.theme-code-block button.clean-btn:hover {
+  color: var(--terracotta);
+  border-color: var(--terracotta);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-code-block button.clean-btn {
+    transition: none;
+  }
+}
+
+/* ── Prose — links, tables, blockquotes, hr, pagination (§6) ────────── */
+
+/* Inline links — terracotta-ink text on paper (the contrast-safe ink; the
+   colors come from --ifm-link-color, set per mode in §3), always underlined in
+   the bright --terracotta with a 2px offset so the rule reads as an accent
+   distinct from the text. Hover inks the text terracotta to match. Heading
+   anchor (.hash-link) links keep their own treatment. */
+.markdown a:not(.hash-link) {
+  text-decoration: underline;
+  text-decoration-color: var(--terracotta);
+  text-underline-offset: 2px;
+  transition:
+    color 150ms ease,
+    text-decoration-color 150ms ease;
+}
+.markdown a:not(.hash-link):hover {
+  text-decoration-color: var(--ifm-link-hover-color);
+}
+
+/* Tables — 1px rules, paper-deep header row with meta-label-cased headers,
+   a faint ink/paper zebra. No heavy borders (Guardrails §8). */
+:root {
+  --ifm-table-head-background: var(--paper-deep);
+  --ifm-table-stripe-background: rgba(23, 21, 19, 0.03); /* ~3% ink */
+}
+[data-theme='dark'] {
+  --ifm-table-stripe-background: rgba(236, 227, 210, 0.04); /* ~4% paper */
+}
+.markdown table thead tr {
+  border-bottom: 1px solid var(--paper-line);
+}
+.markdown table th {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-align: left;
+}
+/* A path/identifier in a header keeps its case and reads as code, not a label */
+.markdown table th code {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Blockquotes — a 1px left rule (the only allowed side accent, Guardrails §8)
+   in terracotta, over a paper-deep tint with ink-soft text. */
+.markdown blockquote {
+  border-left: 1px solid var(--terracotta);
+  background: var(--paper-deep);
+  color: var(--ink-soft);
+  border-radius: 0 var(--ifm-global-radius) var(--ifm-global-radius) 0;
+}
+
+/* Horizontal rule — the design's hairline rule, not a thick divider */
+:root {
+  --ifm-hr-background-color: var(--paper-line);
+  --ifm-hr-height: 1px;
+}
+.markdown hr {
+  border: 0;
+  height: 1px;
+  background: var(--paper-line);
+}
+
+/* Pagination (prev/next) — two bordered cells framed by a 1px rule whose border
+   raises to terracotta on hover; the "PREVIOUS"/"NEXT" sublabel as a meta-label,
+   the title in Inter. One legitimate bordered cell — not a card grid (§6). */
+.pagination-nav__link {
+  border: 1px solid var(--paper-line);
+  border-radius: var(--ifm-global-radius);
+  transition:
+    border-color 150ms ease,
+    color 150ms ease;
+}
+.pagination-nav__link:hover {
+  border-color: var(--terracotta);
+}
+.pagination-nav__sublabel {
+  font-family: var(--meta-label-font);
+  font-size: var(--meta-label-size);
+  font-weight: 500;
+  letter-spacing: var(--meta-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.pagination-nav__label {
+  font-family: var(--ifm-font-family-base);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .markdown a:not(.hash-link),
+  .pagination-nav__link {
+    transition: none;
+  }
+}
+
+/* Screenshot styling — framed with a rule rather than a drop shadow */
 .screenshot {
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--paper-line);
+  border-radius: var(--ifm-global-radius);
   margin: 1.5rem 0;
 }
 
-[data-theme='dark'] .screenshot {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+/* ── The kit — pill buttons + corner marks (§5), and the existing
+   components LikeButton + YouTubeEmbed (§6) ────────────────────────── */
+
+/* Pill button — fully-rounded MDX CTA, ported from the landing index.css.
+   .pill-cta = filled terracotta; .pill-ghost = outlined ink that inverts
+   on hover. Both share geometry; the design leans on color, not shadow. */
+.pill-cta,
+.pill-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.7rem 1.3rem;
+  font-family: var(--ifm-font-family-base);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+.pill-cta {
+  border: 1px solid var(--terracotta);
+  background: var(--terracotta);
+  color: var(--paper);
+}
+.pill-cta:hover {
+  border-color: var(--terracotta-hover);
+  background: var(--terracotta-hover);
+  color: var(--paper);
+}
+.pill-ghost {
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+}
+.pill-ghost:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Corner marks — the 14px L-bracket flourish on two opposite corners
+   (top-left + bottom-right) of a framed element. Sparing, per §5: only
+   the doc-index intro band and YouTubeEmbed. */
+.corner-frame {
+  position: relative;
+}
+.corner-frame::before,
+.corner-frame::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--terracotta);
+  border-style: solid;
+  pointer-events: none;
+}
+.corner-frame::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
+}
+.corner-frame::after {
+  right: -1px;
+  bottom: -1px;
+  border-width: 0 1px 1px 0;
+}
+
+/* LikeButton — a .pill-ghost that fills terracotta once liked (§6). */
+.like-button-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0 0.5rem;
+}
+.like-button:disabled:not(.like-button--liked) {
+  opacity: 0.7;
+  cursor: default;
+}
+.like-button--liked,
+.like-button--liked:hover {
+  border-color: var(--terracotta);
+  background: var(--terracotta);
+  color: var(--paper);
+  cursor: default;
+}
+
+/* YouTubeEmbed — wrapped in a 1px rule frame with corner marks (§6). */
+.youtube-embed {
+  margin: 0 auto 2rem;
+  text-align: center;
+}
+.youtube-embed__frame {
+  position: relative;
+  margin: 0 auto;
+  border: 1px solid var(--paper-line);
+  border-radius: var(--ifm-global-radius);
+}
+.youtube-embed__inner {
+  position: relative;
+  height: 0;
+  padding-bottom: 56.25%;
+  overflow: hidden;
+  border-radius: calc(var(--ifm-global-radius) - 1px);
+}
+.youtube-embed__iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill-cta,
+  .pill-ghost {
+    transition: none;
+  }
 }

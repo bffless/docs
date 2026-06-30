@@ -5,7 +5,11 @@ import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 // own branch, pushes, and opens a PR (it does NOT merge — see prompt.md). The PR
 // triggers the existing pr-preview.yml workflow, which builds the Docusaurus site
 // and deploys it to the shared docs-preview alias for a live preview URL.
-// Run this with: npm run sandcastle  (alias for: npx tsx .sandcastle/main.ts)
+// Run this with: pnpm sandcastle  (alias for: npx tsx .sandcastle/main.mts)
+// NOTE: this file is .mts (not .ts) on purpose — this Docusaurus package is
+// CommonJS-default (no "type": "module"), so tsx would compile a .ts entry as
+// CJS, where the top-level `await run(...)` below is illegal. The .mts extension
+// forces ESM for just this file without changing the package's module type.
 
 await run({
   // A name for this run, shown as a prefix in log output.
@@ -23,10 +27,11 @@ await run({
   // sandbox at the start of each iteration, so the agent always sees fresh data.
   promptFile: "./.sandcastle/prompt.md",
 
-  // One issue per run: single issue → single branch → single PR. Keeps the
-  // PR-per-issue mapping clean. Raise once the flow is proven if you want the
-  // agent to chew through several ready issues back-to-back.
-  maxIterations: 1,
+  // Up to 10 issues per run: each iteration is one issue → one branch → one PR
+  // (squash-merged into the epic on green CI before the next starts). 10 covers
+  // all remaining redesign stories (#13–#22) in one unattended pass. Each
+  // story still gets its own preview deploy for human aesthetic review.
+  maxIterations: 10,
 
   // Branch strategy — "branch" lands the agent's commits on a named branch and
   // never merges to HEAD, so your local `main` is untouched (honours the

@@ -2,7 +2,10 @@ name: PR Docs Preview
 
 on:
   pull_request:
-    branches: ['*']
+    # '**' (not '*') so PRs targeting slashed base branches — e.g. the
+    # epic/docs-redesign epic branch the redesign stories merge into — also
+    # build a preview. A single '*' glob does not match branch names with '/'.
+    branches: ['**']
 
 permissions:
   contents: read
@@ -18,9 +21,9 @@ jobs:
           fetch-depth: 0
 
       - name: Setup pnpm
+        # Version comes from package.json "packageManager" (pnpm@10.33.0).
+        # Don't also pass `version:` here — action-setup errors on a conflict.
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
