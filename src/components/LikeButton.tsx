@@ -74,36 +74,13 @@ export default function LikeButton({slug}: LikeButtonProps) {
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        margin: '1.5rem 0 0.5rem',
-      }}
-    >
+    <div className="like-button-wrap">
       <button
         type="button"
+        className={`pill-ghost like-button${liked ? ' like-button--liked' : ''}`}
         onClick={handleClick}
         disabled={liked || busy}
         aria-pressed={liked}
-        style={{
-          appearance: 'none',
-          border: '1px solid var(--ifm-color-primary)',
-          background: liked ? 'transparent' : 'var(--ifm-color-primary)',
-          color: liked
-            ? 'var(--ifm-color-primary)'
-            : 'var(--ifm-color-white, #fff)',
-          padding: '1rem 2.5rem',
-          borderRadius: '4px',
-          fontSize: '1.125rem',
-          fontWeight: 600,
-          letterSpacing: '0.01em',
-          cursor: liked || busy ? 'default' : 'pointer',
-          opacity: busy && !liked ? 0.7 : 1,
-          boxShadow: liked ? 'none' : '0 1px 2px rgba(0, 0, 0, 0.12)',
-          transition:
-            'background 0.15s, color 0.15s, box-shadow 0.15s, border-color 0.15s',
-        }}
       >
         {liked
           ? '✓ Liked — thanks!'
