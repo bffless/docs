@@ -60,3 +60,5 @@ To finish the package, Studio automates the thumbnail creation. By defining the 
 The app calls Claude Sonnet to draft a highly detailed image generation prompt, which is then sent to Nanobanana to render the actual image. The result is a beautiful, custom thumbnail perfectly suited for the video.
 
 Studio is an open-source app built to run on top of BFFless, and it fundamentally changes how I approach video editing. I plan on continually refining it as I produce more content, making the post-production process faster and more intelligent.
+
+You can find the source code on GitHub at [github.com/bffless/apps](https://github.com/bffless/apps).
