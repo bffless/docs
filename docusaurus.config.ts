@@ -1,6 +1,76 @@
-import {themes as prismThemes} from 'prism-react-renderer';
+import type {PrismTheme} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+
+// ── Custom Prism themes — "paper" code highlighting (design-system.md §6) ──
+// Replaces prism-react-renderer's github/dracula so code reads as ink-on-paper
+// (light) / paper-on-charcoal (dark) with terracotta accents. Surface + plain
+// text resolve to the brand tokens (var(--paper-deep)/var(--ink)), so the code
+// surface follows the palette per color mode; only the off-palette syntax hues
+// (muted comment, warm-olive string, brick number) are literal.
+//
+// Every token color is contrast-checked ≥4.5:1 on its mode's code surface
+// (light --paper-deep #ECE3D2→#E4D9C4 deep; dark #1E1A16). The three light
+// hues the spec names verbatim fall just under 4.5:1 on #E4D9C4, so per the
+// "verify contrast" clause (§6) + Guardrails §8 they are darkened toward ink:
+//   comment  #7A7268 (ink-mute, 3.4:1)  → #655E54 (~4.6:1)
+//   string   #5C6E3B                     → #556534 (~4.6:1)
+//   number   #D85A3D (terracotta, 2.8:1) → #A33E29 (ramp primary-darker, ~4.6:1)
+// Dark hues all clear 4.5:1 on #1E1A16 as specified and are kept verbatim.
+const sharedPrismStyles = (c: {
+  comment: string;
+  string: string;
+  number: string;
+  keyword: string;
+}): PrismTheme['styles'] => [
+  {
+    types: ['comment', 'prolog', 'doctype', 'cdata'],
+    style: {color: c.comment, fontStyle: 'italic'},
+  },
+  {types: ['namespace'], style: {opacity: 0.7}},
+  {
+    types: ['string', 'char', 'attr-value', 'inserted', 'regex', 'url'],
+    style: {color: c.string},
+  },
+  {
+    types: ['number', 'boolean', 'constant', 'symbol'],
+    style: {color: c.number},
+  },
+  {
+    types: [
+      'keyword',
+      'atrule',
+      'operator',
+      'tag',
+      'selector',
+      'deleted',
+      'important',
+      'entity',
+    ],
+    style: {color: c.keyword},
+  },
+  {types: ['punctuation'], style: {color: 'var(--ink-soft)'}},
+];
+
+const paperPrismLight: PrismTheme = {
+  plain: {color: 'var(--ink)', backgroundColor: 'var(--paper-deep)'},
+  styles: sharedPrismStyles({
+    comment: '#655e54',
+    string: '#556534',
+    number: '#a33e29',
+    keyword: 'var(--terracotta-ink)',
+  }),
+};
+
+const paperPrismDark: PrismTheme = {
+  plain: {color: 'var(--ink)', backgroundColor: 'var(--paper-deep)'},
+  styles: sharedPrismStyles({
+    comment: '#8a8278',
+    string: '#a8b775',
+    number: '#ec7c61',
+    keyword: 'var(--terracotta)',
+  }),
+};
 
 const config: Config = {
   title: 'BFFless',
@@ -219,8 +289,8 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
       copyright: `Copyright © ${new Date().getFullYear()} BFFless. Built with Docusaurus.`,
     },
     prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+      theme: paperPrismLight,
+      darkTheme: paperPrismDark,
       additionalLanguages: ['bash', 'yaml', 'docker', 'nginx'],
     },
   } satisfies Preset.ThemeConfig,
