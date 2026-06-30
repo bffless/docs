@@ -471,6 +471,51 @@ html.nav-scrolled [data-theme='dark'] .navbar {
   --admon-title: #e8705a;
 }
 
+/* ── Code blocks — paper-deep surface, rule frame, mono header (§6) ──── */
+/* The surface + plain text come from the custom Prism themes (var(--paper-deep)
+   / var(--ink), set in docusaurus.config.ts); here we frame the block with a
+   rule and replace Infima's drop shadow — the design separates with borders +
+   color, not shadows (Guardrails §8). */
+.theme-code-block {
+  border: 1px solid var(--paper-line);
+  border-radius: var(--ifm-global-radius);
+  box-shadow: none;
+}
+
+/* Header bar (only rendered when an author sets ```lang title="…"). Mono, so it
+   reads as a filename/path chip against the code; case is preserved (a path is
+   case-significant — unlike the uppercase meta-label, see the admonition title
+   exception above), with the meta-label's ink-soft on the paper-deep surface
+   and a rule dividing it from the code. */
+[class*='codeBlockTitle'] {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  background: var(--paper-deep);
+  border-bottom: 1px solid var(--paper-line);
+}
+
+/* Copy / word-wrap buttons — rest as ink-soft, ink terracotta + terracotta rule
+   on hover (the buttons inherit the paper-deep surface + paper-line border from
+   Infima via --prism-background-color / --ifm-color-emphasis-300). */
+.theme-code-block button.clean-btn {
+  color: var(--ink-soft);
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+.theme-code-block button.clean-btn:hover {
+  color: var(--terracotta);
+  border-color: var(--terracotta);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-code-block button.clean-btn {
+    transition: none;
+  }
+}
+
 /* Screenshot styling — framed with a rule rather than a drop shadow */
 .screenshot {
   border: 1px solid var(--paper-line);
