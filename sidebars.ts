@@ -80,6 +80,7 @@ const sidebars: SidebarsConfig = {
         'configuration/environment-variables',
         'configuration/storage-backends',
         'configuration/authentication',
+        'configuration/oidc-providers',
       ],
     },
     {
