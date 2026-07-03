@@ -2,16 +2,18 @@
 slug: /
 sidebar_position: 1
 title: Welcome to BFFless
-description: The home for your AI-generated apps, internal tools, and HTML docs — a self-hosted platform with a backend, auth, traffic splitting, and a reverse proxy to your internal services
+description: The home for your AI-generated apps, internal tools, and HTML docs. A self-hosted platform with a backend, auth, traffic splitting, and a reverse proxy to your internal services.
 ---
 
 <YouTubeEmbed id="luQMEUYzsUQ" title="BFFless - a home for your AI-generated apps, internal tools, and HTML docs" />
 
 # Welcome to BFFless
 
-BFFless is the home for your AI-generated apps, internal tools, and HTML docs — with a backend, auth, and a path to your internal services. Point any static build at it — the HTML apps your AI agents produce, React SPAs, Vue apps, engineering docs, coverage reports, Storybook builds — and get built-in authentication, traffic splitting, and reverse proxy capabilities, self-hosted and deployed from your CI/CD pipeline.
+BFFless is the home for your AI-generated apps, internal tools, and HTML docs. It gives them a backend, authentication, and a path through to your internal services.
 
-> Technical framing for those who know the category: a self-hosted Supabase/Appwrite aimed at static sites and internal apps.
+Point any static build at it: the HTML apps your AI agents produce, React SPAs, Vue apps, engineering docs, coverage reports, or Storybook builds. Each one gets built-in authentication, traffic splitting, and a reverse proxy, all self-hosted and deployed straight from your CI/CD pipeline.
+
+> If you've used Supabase or Appwrite, think of BFFless as a self-hosted take on that idea, aimed at static sites and internal apps rather than full applications.
 
 ## Quick Start
 
