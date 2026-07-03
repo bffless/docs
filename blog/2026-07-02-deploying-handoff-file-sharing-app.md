@@ -66,8 +66,6 @@ With the MCP server connected, the GitHub secrets configured, and AWS S3 storage
 
 Claude gets to work immediately. It invokes the "install app" skill that comes bundled with the repo — this skill contains instructions on how to install each app. It then lists the MCP connections, reads the getting-started documentation, and scans through the [proxy rules](https://docs.bffless.app/features/proxy-rules/) that are part of the Handoff repo.
 
-<img src="/img/handoff-05.jpg" alt="Claude Code reading the repo and invoking the install app skill" />
-
 Claude identifies the repository as `bffless-apps-test` and checks the current state of the BFFless instance via MCP. It asks one important question: "Does handoff.toshimoto.dev already route to your BFFless instance?" — which it does, thanks to a wildcard domain configuration.
 
 ### Applying CORS Rules
