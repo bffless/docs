@@ -98,7 +98,7 @@ One of the most useful features is [share links](https://docs.bffless.app/featur
 
 This is particularly handy when working with Claude on a VPS server. Instead of SSH-ing files around, you can simply share a link and say, "Hey Claude, take a look at this file."
 
-<img src="/img/handoff-07.jpg" alt="Viewing a shared file in Firefox without any authentication" />
+<img src="/img/handoff-07.jpg" alt="Generating a share link for a file in the Handoff interface" />
 
 ### How It Works Under the Hood
 
