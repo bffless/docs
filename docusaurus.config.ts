@@ -1,5 +1,5 @@
-import type {PrismTheme} from 'prism-react-renderer';
-import type {Config} from '@docusaurus/types';
+import type { PrismTheme } from 'prism-react-renderer';
+import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 // ── Custom Prism themes — "paper" code highlighting (design-system.md §6) ──
@@ -25,35 +25,26 @@ const sharedPrismStyles = (c: {
 }): PrismTheme['styles'] => [
   {
     types: ['comment', 'prolog', 'doctype', 'cdata'],
-    style: {color: c.comment, fontStyle: 'italic'},
+    style: { color: c.comment, fontStyle: 'italic' },
   },
-  {types: ['namespace'], style: {opacity: 0.7}},
+  { types: ['namespace'], style: { opacity: 0.7 } },
   {
     types: ['string', 'char', 'attr-value', 'inserted', 'regex', 'url'],
-    style: {color: c.string},
+    style: { color: c.string },
   },
   {
     types: ['number', 'boolean', 'constant', 'symbol'],
-    style: {color: c.number},
+    style: { color: c.number },
   },
   {
-    types: [
-      'keyword',
-      'atrule',
-      'operator',
-      'tag',
-      'selector',
-      'deleted',
-      'important',
-      'entity',
-    ],
-    style: {color: c.keyword},
+    types: ['keyword', 'atrule', 'operator', 'tag', 'selector', 'deleted', 'important', 'entity'],
+    style: { color: c.keyword },
   },
-  {types: ['punctuation'], style: {color: 'var(--ink-soft)'}},
+  { types: ['punctuation'], style: { color: 'var(--ink-soft)' } },
 ];
 
 const paperPrismLight: PrismTheme = {
-  plain: {color: 'var(--ink)', backgroundColor: 'var(--paper-deep)'},
+  plain: { color: 'var(--ink)', backgroundColor: 'var(--paper-deep)' },
   styles: sharedPrismStyles({
     comment: '#655e54',
     string: '#556534',
@@ -63,7 +54,7 @@ const paperPrismLight: PrismTheme = {
 };
 
 const paperPrismDark: PrismTheme = {
-  plain: {color: 'var(--ink)', backgroundColor: 'var(--paper-deep)'},
+  plain: { color: 'var(--ink)', backgroundColor: 'var(--paper-deep)' },
   styles: sharedPrismStyles({
     comment: '#8a8278',
     string: '#a8b775',
@@ -74,7 +65,8 @@ const paperPrismDark: PrismTheme = {
 
 const config: Config = {
   title: 'BFFless',
-  tagline: 'The home for your AI-generated apps, internal tools, and HTML docs — with a backend, auth, and a path to your internal services',
+  tagline:
+    'The home for your AI-generated apps, internal tools, and HTML docs — with a backend, auth, and a path to your internal services',
   favicon: 'img/favicon.svg',
 
   future: {
@@ -86,7 +78,7 @@ const config: Config = {
   },
   themes: ['@docusaurus/theme-mermaid'],
 
-  url: 'https://docs.bffless.com',
+  url: 'https://docs.bffless.app',
   baseUrl: '/',
 
   trailingSlash: true,
@@ -109,7 +101,7 @@ const config: Config = {
     // load so the two properties share one type system. See docs/design-system.md §4.
     {
       tagName: 'link',
-      attributes: {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
+      attributes: { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     },
     {
       tagName: 'link',
@@ -213,7 +205,7 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
       // on per-mode by the swizzled @theme/Mermaid component, since Docusaurus
       // shares one static `options` across both modes (design-system.md §6,
       // src/theme/Mermaid/).
-      theme: {light: 'neutral', dark: 'dark'},
+      theme: { light: 'neutral', dark: 'dark' },
     },
     navbar: {
       title: 'BFFless',
