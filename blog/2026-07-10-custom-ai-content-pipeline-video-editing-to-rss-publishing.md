@@ -1,5 +1,6 @@
 ---
 slug: custom-ai-content-pipeline-video-editing-to-rss-publishing
+date: 2026-07-10T12:00
 title: "Custom AI Content Pipeline: Video Editing to RSS Publishing"
 authors: [bffless-team]
 tags: [apps]
