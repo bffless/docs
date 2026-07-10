@@ -9,6 +9,8 @@ description: Learn how to install BFFless skills in Claude for richer AI-assiste
 
 When working with an LLM like Claude, the model is only as helpful as the context it has. BFFless publishes a dedicated [skills repository](/features/claude-code-plugin) — available at `github.com/bffless/skills` — that gives your AI coding agent domain knowledge about the BFFless platform. Once installed, these skills let Claude understand BFFless concepts like pipelines, proxy rules, deployments, and more, so you can ask informed questions and get accurate guidance without having to explain the platform from scratch every time.
 
+<YouTubeEmbed id="oitzN1gByr0" title="Using BFFless Skills and MCP Server for AI Workflows" />
+
 <!-- truncate -->
 
 <img src="/img/skills-01.jpg" alt="The BFFless skills repository on GitHub" />
