@@ -18,7 +18,7 @@ The video being processed in this demo is the one behind our previous post, [Usi
 
 ## The Three Apps
 
-Each of the three apps serves a distinct role in the pipeline:
+All three apps live in the [BFFless apps repository](https://github.com/bffless/apps) — a collection of ready-to-deploy applications that run on top of a BFFless instance. Each one serves a distinct role in the pipeline:
 
 - **Studio** handles post-production processing of videos. It runs entirely in the browser, using FFmpeg compiled to WebAssembly to perform all the editing client-side — meaning there is no server-side compute cost. Studio imports raw video clips, transcribes the audio, generates contact-sheet thumbnails, and then hands everything off to an AI "director" that intelligently cuts the footage into chapters and scenes. It can also generate a thumbnail image and a full blog post from the video content.
 
@@ -107,3 +107,5 @@ These three apps — Studio, Handoff, and Reader — form a cohesive content pip
 - **Reader** consumes and distributes content through RSS feed subscriptions.
 
 The pipeline is still evolving — there are known bugs to fix (like the file-level feed ignore and the Chrome FFmpeg issue) and features to add. But it already demonstrates a powerful pattern: using BFFless as the backbone for custom AI-assisted tooling that handles the full lifecycle of content creation, hosting, and consumption.
+
+You can find the source code for all three apps on GitHub at [github.com/bffless/apps](https://github.com/bffless/apps).
