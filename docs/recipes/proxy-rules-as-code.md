@@ -9,7 +9,7 @@ description: Author proxy rule sets as YAML + TypeScript files in git and sync t
 This recipe shows how to author [proxy rules](/features/proxy-rules) as ordinary files in a git repository instead of only through the admin UI — one YAML manifest per route, handler bodies as real `.fn.ts`/`.fn.js` files you can lint and unit-test, and a CLI that compiles the directory back into the same export format the dashboard's Import already accepts. It's built around the [`bffless` npm package](https://github.com/bffless/ce/blob/main/packages/cli/README.md) and the [`bffless/deploy-proxy-rules`](https://github.com/bffless/deploy-proxy-rules) GitHub Action.
 
 :::note Requires CE >= 0.2.0
-Live sync (`rules push`/`diff` and the `deploy-proxy-rules` action) calls the proxy-rule-set sync endpoint (`PUT /api/proxy-rule-sets/project/:projectId/sync`), which ships in CE 0.2.0+. `rules build`/`validate`/`test` work against any CE version since they only compile and lint files locally.
+Live sync (`rules push`/`diff` and the `deploy-proxy-rules` action) talks to the proxy-rule-set sync endpoint (`PUT /api/proxy-rule-sets/project/:projectId/sync`) for `push` and the export endpoint (`GET /api/proxy-rule-sets/project/:projectId/export`) for `diff`, both of which ship in CE 0.2.0+. `rules build`/`validate`/`test` work against any CE version since they only compile and lint files locally.
 :::
 
 ## Overview
@@ -138,7 +138,7 @@ cases:
 
 `rules test` runs these through the same `node:vm` harness as `bffless/harness`'s `runHandlerFile` — no live instance, no Vitest required. A thrown error names the original `.fn.ts` file; run with `NODE_OPTIONS=--enable-source-maps` for line-accurate stack traces through the bundle.
 
-`bffless rules validate` also runs the shared handler lint (`eval`, `Function`/`new Function`, `require`, dynamic `import()`, `process.*`, `.__proto__`, `Buffer(...)`, and a missing `handler` export) — the same checks the `bffless/eslint` flat-config preset gives your editor, and what a CI pipeline should gate on.
+`bffless rules validate` also runs the shared handler lint (including `eval`, `Function`/`new Function`, `require`, dynamic `import()`, `process.*`, `.__proto__`, `Buffer(...)`, `globalThis`/`global` access, `constructor` indexing, and a missing `handler` export) — the same checks the `bffless/eslint` flat-config preset gives your editor, and what a CI pipeline should gate on.
 
 ## Local Dev Loop
 
@@ -263,6 +263,8 @@ jobs:
         run: |
           set -euo pipefail
           # Alias first — the rule set 409s on delete while attached.
+          # This alias (preview-pr-$N) is the same one the preview job's upload-artifact
+          # step creates via its `alias:` input — nothing else creates it.
           code=$(curl -s -o /dev/null -w '%{http_code}' -X DELETE -H "X-API-Key: $KEY" "$URL/api/repo/OWNER/REPO/aliases/preview-pr-$N")
           [ "$code" = "204" ] || [ "$code" = "404" ] || exit 1   # 204 deleted, 404 never existed — both fine
           project_id=$(curl -sf -H "X-API-Key: $KEY" "$URL/api/projects/my-org/my-project" | jq -r '.id')
@@ -293,17 +295,19 @@ jobs:
       - env:
           BFFLESS_API_URL: ${{ vars.BFFLESS_URL }}
           BFFLESS_API_KEY: ${{ secrets.BFFLESS_API_KEY }}
-        run: npx --yes bffless@^0.1.0 rules diff --project my-project 2>&1 | tee "$GITHUB_STEP_SUMMARY"
+        run: |
+          set -o pipefail
+          npx --yes bffless@^0.2.0 rules diff --project my-project 2>&1 | tee "$GITHUB_STEP_SUMMARY"
 ```
 
 `rules diff` exits `1` on drift, which fails the job so the team notices manual dashboard edits to a git-managed set.
 
 ## Revisions & Rollback
 
-The server keeps the last 20 revisions of a rule set automatically, captured on every sync, import, or dashboard edit. The dashboard's **History** panel lists them with a **Restore** action.
+The server keeps the last 20 revisions of a rule set automatically, captured on every mutation — sync, import, create/copy, dashboard edit, or even a rollback itself. The dashboard's **History** panel lists them with a **Restore** action.
 
 :::note Requires bffless CLI >= 0.2.0
-The two commands below ship in the same release train as this page but aren't in the CLI package version documented above yet.
+The two commands below ship in bffless 0.2.0 alongside everything else on this page.
 :::
 
 `bffless rules revisions <set>` lists a rule set's captured revisions, newest first. `bffless rules rollback <set> [--to <revisionId>] [--dry-run]` restores one — defaulting to the newest non-current revision when `--to` is omitted. Rollback never renames or recreates the set, and a rollback is itself a new revision (history only ever moves forward, like `git revert`).
@@ -312,7 +316,7 @@ One caveat carries over from restoring any previously deleted rule: secret heade
 
 ## Troubleshooting
 
-**Git and live have drifted.** Run `rules diff <dir>` — it exits `1` when live differs from what's authored (`0` in sync, `2` on error) and prints the same created/updated/deleted/unchanged breakdown as `push --dry-run`. Reconcile with `rules push` (git wins); if a dashboard edit should actually be kept, fold it into the manifest by hand first, then push.
+**Git and live have drifted.** Run `rules diff <dir>` — it exits `1` when live differs from what's authored (`0` in sync, `2` on error) and prints a per-set drift line plus path-level value diffs (not the created/updated/deleted/unchanged breakdown that `push --dry-run`'s server report gives). Reconcile with `rules push` (git wins) — but plain `push` only creates/updates rules, it never deletes ones added directly on the dashboard, so pass `--prune` (or `prune: true` in CI) if the reconciliation also needs to remove dashboard-added rules; if a dashboard edit should actually be kept, fold it into the manifest by hand first, then push.
 
 **Dashboard shows a "Managed from git" warning.** Editing a synced rule set directly in the dashboard doesn't block the edit or clear its `source` — it warns that the next `rules push`/CI sync will overwrite whatever you just changed, since git stays the source of truth. Run `rules pull` first if you want to capture the dashboard edit back into the authoring layout instead of losing it.
 
