@@ -113,6 +113,7 @@ const sidebars: SidebarsConfig = {
         'recipes/compare-screenshots',
         'recipes/email-form-handler',
         'recipes/state-management',
+        'recipes/proxy-rules-as-code',
       ],
     },
     {

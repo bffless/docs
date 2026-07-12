@@ -462,3 +462,4 @@ This pattern allows any number of apps to consume the same centralized feature f
 
 - [Traffic Splitting](/features/traffic-splitting) - A/B testing and canary deployments
 - [Share Links](/features/share-links) - Share private content without authentication
+- [Proxy Rules as Code](/recipes/proxy-rules-as-code) - Author rule sets as YAML + TypeScript files in git and sync them with CI
