@@ -32,6 +32,17 @@ npx bffless rules build          # one-off, no install
 npm i -g bffless                 # or: pnpm add -D bffless
 ```
 
+## Adopting an Existing Rule Set
+
+Already have a rule set built through the dashboard or an MCP session? Bring it into git without hand-authoring anything, using `rules pull --decompile`:
+
+- **From a live instance:** `npx bffless rules pull <set-name> --decompile` resolves the set within your configured project and decompiles its export straight to the authoring layout (a live pull always decompiles; `--decompile` is accepted for compatibility but is a no-op here).
+- **From a dashboard export:** download the set's export JSON, then `npx bffless rules pull --from-file ./export.json --decompile` decompiles that file instead — `--decompile` is required in this form.
+
+Either way, the authoring layout lands at `.bffless/proxy-rules/<ruleSet.name>/` by default (`-o <dir>` to choose another location, `--force` to overwrite a non-empty one) — `ruleset.yaml`, one manifest per route under `rules/`, and a sibling `.fn.js` for any rule with a `function_handler` step. From there, `rules build`/`validate`/`test` (below) work exactly the same as on a hand-authored layout.
+
+Commit the result, then add a `.bffless/config.json` so every command resolves the rule set and target project without repeating flags — `apiUrl`, `project`, and a `ruleSets` glob array (full precedence rules in [Syncing to a Live Instance](#syncing-to-a-live-instance) below). It's safe to commit: the API key is only ever read from the `BFFLESS_API_KEY` environment variable, never from `config.json`.
+
 ## Directory Layout & Rule Manifests
 
 A rule set is any directory containing a `ruleset.yaml`. By convention it lives at `.bffless/proxy-rules/<set-name>/`:
@@ -129,6 +140,39 @@ cases:
 
 `bffless rules validate` also runs the shared handler lint (`eval`, `Function`/`new Function`, `require`, dynamic `import()`, `process.*`, `.__proto__`, `Buffer(...)`, and a missing `handler` export) — the same checks the `bffless/eslint` flat-config preset gives your editor, and what a CI pipeline should gate on.
 
+## Local Dev Loop
+
+`bffless rules dev [dirs...]` watches one or more rule-set directories and reruns build → validate → test on every change without leaving the terminal, resolving `[dirs...]` the same way every other `rules` command does (explicit paths, or the nearest `.bffless/config.json`'s `ruleSets` globs when none are given):
+
+```bash
+npx bffless rules dev .bffless/proxy-rules/api
+```
+
+It's local-first by default — no network. Plain `rules dev` never makes an HTTP call; it only compiles (writing `dist/`, exactly like `rules build`), validates, and runs `*.fn.test.yaml` fixtures. Changes under a set's own `dist/` directory are ignored, so the loop's build output never re-triggers itself.
+
+Per changed set, one pass runs:
+
+1. `rules build` (compile) — a compile error stops the pass here.
+2. `rules validate` — any error stops the pass here (warnings don't).
+3. `rules test` (`*.fn.test.yaml` fixtures) — any failed case stops the pass here.
+
+Every pass — green or not — prints one timestamped status line, and editing one set's files only reruns that set (200ms debounce per set, so a burst of saves coalesces into a single rerun):
+
+```
+[12:01:03] api ✓ build ✓ validate ✓ 3 tests
+[12:01:07] api ✗ build: rules/api/x/post.rule.yaml: code file not found: missing.js
+```
+
+A red pass is logged and the loop keeps watching — nothing exits the process except Ctrl-C.
+
+**`--push` (opt-in, requires `--name-suffix`).** Only a fully green pass is eligible to push, and passing `--push` without `--name-suffix` is a startup error — dev mode is never allowed to sync to a set's bare (live) name:
+
+```bash
+npx bffless rules dev --push --name-suffix dev-yourname .bffless/proxy-rules/api
+```
+
+With both flags, every fully green pass additionally runs the equivalent of `rules push --name-suffix <suffix>`, so the synced copy always lives at `<name>-<suffix>` — the same preview-deploy pattern used in [PR previews and cleanup](#pr-previews-and-cleanup) below — never the production name. `--api-url`/`--api-key`/`--project` behave exactly as they do for `rules push`/`pull`/`diff`.
+
 ## Syncing to a Live Instance
 
 `.bffless/config.json` (`{ apiUrl?, project?, ruleSets? }`) is safe to commit — it never holds secrets:
@@ -197,7 +241,11 @@ Sets are processed in the order given in `path` and the run fails fast, but earl
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-The action only creates/updates/prunes rules *within* a set — it never deletes the set itself, so a preview set outlives its PR unless a `pull_request: types: [closed]` job tears it down. There's no CLI command for that yet, so wire the delete directly against the API, using the rule set id you captured when the preview was first created (or resolve it by name):
+The action only creates/updates/prunes rules *within* a set — it never deletes the set itself, so a preview set outlives its PR unless a `pull_request: types: [closed]` job tears it down. There's no CLI command for that yet, so wire the delete directly against the API, resolving the rule set id by name. `OWNER`/`REPO` below are literal placeholders for your repo's org/name — everything else (`my-org/my-project`, `api-pr-$N`) is a running example value to substitute with your own:
+
+:::note Project lookup needs owner/name (or a UUID)
+`GET /api/projects/:id` only accepts the project's UUID. Resolving by name over the raw API needs the two-segment route, `GET /api/projects/:owner/:name` (e.g. `my-org/my-project`) — unlike the CLI's `--project`/`config.json`'s `project`, which also accept a bare name.
+:::
 
 ```yaml
 on:
@@ -214,12 +262,16 @@ jobs:
           N: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          curl -s -o /dev/null -w '%{http_code}' -X DELETE -H "X-API-Key: $KEY" "$URL/api/repo/OWNER/REPO/aliases/preview-pr-$N"
-          project_id=$(curl -sf -H "X-API-Key: $KEY" "$URL/api/projects/my-project" | jq -r '.id')
+          # Alias first — the rule set 409s on delete while attached.
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X DELETE -H "X-API-Key: $KEY" "$URL/api/repo/OWNER/REPO/aliases/preview-pr-$N")
+          [ "$code" = "204" ] || [ "$code" = "404" ] || exit 1   # 204 deleted, 404 never existed — both fine
+          project_id=$(curl -sf -H "X-API-Key: $KEY" "$URL/api/projects/my-org/my-project" | jq -r '.id')
           set_id=$(curl -sf -H "X-API-Key: $KEY" "$URL/api/proxy-rule-sets/project/$project_id" | jq -r --arg n "api-pr-$N" '.ruleSets[] | select(.name==$n) | .id')
           [ -z "$set_id" ] && exit 0
           curl -sf -X DELETE -H "X-API-Key: $KEY" "$URL/api/proxy-rule-sets/$set_id"
 ```
+
+See [`bffless/apps`'s `cleanup-preview-reader.yml`](https://github.com/bffless/apps/blob/main/.github/workflows/cleanup-preview-reader.yml) for the pattern this is drawn from.
 
 ### Drift check
 
@@ -246,15 +298,29 @@ jobs:
 
 `rules diff` exits `1` on drift, which fails the job so the team notices manual dashboard edits to a git-managed set.
 
-## Looking Ahead: Local Dev Loop & Rollback
+## Revisions & Rollback
 
-:::note Not shipped yet
-The two workflows below are locked contracts for an upcoming release of the `bffless` CLI and CE — not available in the CLI version documented above. They're included here so authoring layouts built today stay compatible once they land; don't wire CI around them yet.
+The server keeps the last 20 revisions of a rule set automatically, captured on every sync, import, or dashboard edit. The dashboard's **History** panel lists them with a **Restore** action.
+
+:::note Requires bffless CLI >= 0.2.0
+The two commands below ship in the same release train as this page but aren't in the CLI package version documented above yet.
 :::
 
-**`rules dev`** will be a local-first watch mode: on every file change it rebuilds, validates, and runs `*.fn.test.yaml` fixtures against the changed rule set, entirely offline. Pushing to a live instance while watching will be opt-in via `--push`, and will require `--name-suffix` (e.g. `--push --name-suffix dev-yourname`) so a local dev loop can never overwrite production's rule set by accident.
+`bffless rules revisions <set>` lists a rule set's captured revisions, newest first. `bffless rules rollback <set> [--to <revisionId>] [--dry-run]` restores one — defaulting to the newest non-current revision when `--to` is omitted. Rollback never renames or recreates the set, and a rollback is itself a new revision (history only ever moves forward, like `git revert`).
 
-**Revisions & rollback**: the server will keep the last 20 revisions of a rule set automatically, captured on every sync, import, or dashboard edit. `bffless rules revisions <set>` will list them (newest first); `bffless rules rollback <set> [--to <revisionId>] [--dry-run]` will restore one — defaulting to the newest non-current revision when `--to` is omitted. Rollback never renames or recreates the set, and a rollback is itself a new revision (history only ever moves forward, like `git revert`). One caveat that will carry over from restoring a rule that was previously deleted: secret header values can't be restored, so a rolled-back rule loses them and the CLI/dashboard report will warn about it. The dashboard will get a matching History panel with a **Restore** action alongside these CLI commands.
+One caveat carries over from restoring any previously deleted rule: secret header values can't be restored, so a rolled-back rule loses them — the CLI/dashboard change report warns about it.
+
+## Troubleshooting
+
+**Git and live have drifted.** Run `rules diff <dir>` — it exits `1` when live differs from what's authored (`0` in sync, `2` on error) and prints the same created/updated/deleted/unchanged breakdown as `push --dry-run`. Reconcile with `rules push` (git wins); if a dashboard edit should actually be kept, fold it into the manifest by hand first, then push.
+
+**Dashboard shows a "Managed from git" warning.** Editing a synced rule set directly in the dashboard doesn't block the edit or clear its `source` — it warns that the next `rules push`/CI sync will overwrite whatever you just changed, since git stays the source of truth. Run `rules pull` first if you want to capture the dashboard edit back into the authoring layout instead of losing it.
+
+**Sync fails with a 400 on a "methods-split" rule set.** Known limitation: if a live rule set has multiple rules sharing the same `pathPattern`, distinguished only by their `methods:` lists rather than consolidated into one `any.rule.yaml`, `rules push`/`diff` can't address them individually yet and errors rather than guessing. Consolidate that path onto a single `methods:` rule via the dashboard (or split it onto distinct paths) before syncing.
+
+**Push reports missing secrets.** A non-empty `missingSecrets` in the sync response (the CLI prints a `MISSING SECRETS (…)` line) means a `{{secrets.NAME}}` placeholder referenced by the set has no matching value on the target project yet. It's a warning, not a failure — `push` still exits `0` — set the named secret in the project's **Settings → Secrets**.
+
+**A PR-preview rule set is still live after the PR closed.** The action only manages rules *inside* the suffixed set — it never deletes the set or the alias pointing at it. Wire the [PR previews and cleanup](#pr-previews-and-cleanup) job above, deleting the **alias first, then the set** — the rule set 409s on delete while an alias still references it.
 
 ## Related
 
