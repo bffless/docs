@@ -115,6 +115,35 @@ See **[SSO / OIDC Providers](/configuration/oidc-providers)** for full per-provi
 
 ---
 
+## Logging in from a localhost dev server
+
+A dev server on `http://localhost:5173` is a **different origin** from your workspace, so the SuperTokens session cookie (scoped to `.yourdomain.com`) can't reach it — the normal login redirect bounces to the admin and comes back *unauthenticated*. To exercise real login against a deployed backend from localhost, use the **custom-domain relay**, which mints a per-origin `bffless_access` cookie.
+
+**1. Register `localhost` as a custom domain.** Add a custom `domain_mappings` entry for the project whose domain is the **bare host** `localhost` — no port. (The port is supplied separately, in step 2.)
+
+**2. Build the login URL with relay params, putting the port in `targetOrigin`:**
+
+```
+https://admin.yourdomain.com/login?customDomainRelay=true&targetDomain=localhost&targetOrigin=http://localhost:5173&redirect=/some/path
+```
+
+| Param | Value | Why |
+|---|---|---|
+| `customDomainRelay` | `true` | Tells the admin login page to run the domain-token relay instead of a plain redirect. |
+| `targetDomain` | `localhost` | **Bare host, no port.** `POST /api/auth/domain-token` validates this as a domain name and **rejects a `:port`** (`400 "targetDomain must be a valid domain name"`). It's also matched against the registered mapping, so it must be exactly `localhost`. |
+| `targetOrigin` | `http://localhost:5173` | Carries the scheme + port. The backend honours this override **only when `targetDomain` is `localhost` or `127.0.0.1`**, and builds the callback URL from it — so the token returns to your dev port. |
+| `redirect` | `/some/path` | A **path** (passed through as `redirectPath`), not an absolute URL. |
+
+After you sign in (or if you already have an admin session), the admin mints the token and redirects to `http://localhost:5173/_bffless/auth/callback?token=…`, which sets `bffless_access` on the localhost origin. `localhost` is a secure context even over HTTP, so the `Secure` cookie sticks.
+
+:::tip Put the port in `targetOrigin`, not `targetDomain`
+The single most common mistake is sending `targetDomain=localhost:5173`. The domain-token validator rejects the port. Use `window.location.hostname` (`localhost`) for `targetDomain` and `window.location.origin` (`http://localhost:5173`) for `targetOrigin`.
+:::
+
+Your dev server also needs to proxy `/api` and `/_bffless` to the deployed backend so those requests resolve. As an alternative that needs no backend at all, mock `/_bffless/auth/*` in your dev server.
+
+---
+
 ## API Endpoints
 
 ### Custom Endpoints
