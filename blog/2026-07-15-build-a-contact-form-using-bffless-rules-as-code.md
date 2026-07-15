@@ -15,6 +15,8 @@ When you deploy a change to your front-end website and it has an accompanying ru
 
 In this walkthrough we will create a new contact form for scheduling a demo meeting. It will include a database schema to store the submissions and a pipeline rule to validate and persist them, all generated with the help of an AI coding assistant and the [BFFless CLI](https://www.npmjs.com/package/bffless). All of the YAML shown below lives in the public [example project repository](https://github.com/bffless/example-project/tree/main/.bffless/proxy-rules) if you want to follow along.
 
+<YouTubeEmbed id="I8ENnwXd4dg" title="Build a Contact Form Using BFFless Rules as Code" />
+
 <!-- truncate -->
 
 ## Generating the Pipeline and Schema with an AI Assistant
