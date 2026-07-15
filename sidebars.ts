@@ -64,6 +64,7 @@ const sidebars: SidebarsConfig = {
             'deployment/github-actions/download-artifact',
             'deployment/github-actions/compare-screenshots',
             'deployment/github-actions/compare-coverage',
+            'deployment/github-actions/deploy-proxy-rules',
           ],
         },
         'deployment/umbrel',

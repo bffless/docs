@@ -16,6 +16,7 @@ Automate static asset deployments using the official BFFless GitHub Actions.
 | [`bffless/download-artifact`](/deployment/github-actions/download-artifact)     | Download deployed artifacts from BFFless            |
 | [`bffless/compare-screenshots`](/deployment/github-actions/compare-screenshots) | Visual regression testing against BFFless baselines |
 | [`bffless/compare-coverage`](/deployment/github-actions/compare-coverage)       | Code coverage regression detection                  |
+| [`bffless/deploy-proxy-rules`](/deployment/github-actions/deploy-proxy-rules)   | Build, validate and push proxy rule sets from source |
 
 ## Setup
 
@@ -87,3 +88,4 @@ jobs:
 - [Download Artifact Action](/deployment/github-actions/download-artifact) - Retrieve deployed builds
 - [Compare Screenshots Action](/deployment/github-actions/compare-screenshots) - Visual regression testing
 - [Compare Coverage Action](/deployment/github-actions/compare-coverage) - Code coverage regression detection
+- [Deploy Proxy Rules Action](/deployment/github-actions/deploy-proxy-rules) - Sync proxy rule sets from source
