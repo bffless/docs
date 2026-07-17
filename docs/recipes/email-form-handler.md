@@ -29,7 +29,7 @@ This is perfect for contact forms, feedback widgets, lead capture forms, and any
 
 ## Live Example
 
-We use this feature on [bffless.app](https://bffless.app) with three different form handlers:
+We use this feature on [bffless.dev](https://bffless.dev) with three different form handlers:
 
 | Endpoint | Purpose | Destination |
 |----------|---------|-------------|

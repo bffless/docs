@@ -1,5 +1,5 @@
 /**
- * Mermaid `themeVariables` mapped to the bffless.app "paper" identity, one set
+ * Mermaid `themeVariables` mapped to the bffless.dev "paper" identity, one set
  * per color mode. Docusaurus only varies the Mermaid *theme* preset by mode
  * (`themeConfig.mermaid.theme.{light,dark}`); the shared `options` cannot hold
  * per-mode variables, so the swizzled `@theme/Mermaid` component (./index.tsx)

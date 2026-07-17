@@ -97,7 +97,7 @@ const config: Config = {
   // gets the variant attribution or not.
   headTags: [
     // Brand fonts — Fraunces (H1 + wordmark), Inter (body/UI), JetBrains Mono
-    // (code + meta-labels). Mirrors the bffless.app landing's Google Fonts
+    // (code + meta-labels). Mirrors the bffless.dev landing's Google Fonts
     // load so the two properties share one type system. See docs/design-system.md §4.
     {
       tagName: 'link',
@@ -215,7 +215,7 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
         srcDark: 'img/logo-dark.svg',
         // Logo links cross-site to the marketing home so docs + landing read
         // as one property (design-system.md §6).
-        href: 'https://bffless.app/?utm_source=docs.bffless.com&utm_medium=referral&utm_campaign=ecosystem-nav&utm_content=logo-link',
+        href: 'https://bffless.dev/?utm_source=docs.bffless.dev&utm_medium=referral&utm_campaign=ecosystem-nav&utm_content=logo-link',
         target: '_self',
       },
       items: [
@@ -231,17 +231,17 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
           position: 'left',
         },
         {
-          href: 'https://bffless.app/?utm_source=docs.bffless.com&utm_medium=referral&utm_campaign=ecosystem-nav&utm_content=oss-link',
+          href: 'https://bffless.dev/?utm_source=docs.bffless.dev&utm_medium=referral&utm_campaign=ecosystem-nav&utm_content=oss-link',
           label: 'Open Source',
           position: 'right',
         },
         {
-          href: 'https://www.bffless.com/?utm_source=docs.bffless.com&utm_medium=referral&utm_campaign=ecosystem-nav&utm_content=agency-link',
+          href: 'https://www.bffless.com/?utm_source=docs.bffless.dev&utm_medium=referral&utm_campaign=ecosystem-nav&utm_content=agency-link',
           label: 'Agency',
           position: 'right',
         },
         {
-          href: 'https://bffless.app/discord',
+          href: 'https://bffless.dev/discord',
           label: 'Discord',
           position: 'right',
         },
@@ -273,7 +273,7 @@ gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
           items: [
             {
               label: 'Discord',
-              href: 'https://bffless.app/discord',
+              href: 'https://bffless.dev/discord',
             },
             {
               label: 'GitHub',

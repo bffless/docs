@@ -4,26 +4,26 @@
 
 This file contains documentation for BFFless to help LLMs understand and assist with the platform.
 
-- Website: https://bffless.app
-- Documentation: https://docs.bffless.app
+- Website: https://bffless.dev
+- Documentation: https://docs.bffless.dev
 - GitHub: https://github.com/bffless/ce
 - License: O'Saasy
 
 ## Table of Contents
 
-- Overview: https://docs.bffless.app/
-- Quick Start: https://docs.bffless.app/getting-started/quickstart/
-- Architecture: https://docs.bffless.app/reference/architecture/
-- Features: https://docs.bffless.app/features/traffic-splitting/
-- Pipelines: https://docs.bffless.app/features/pipelines/
-- AI Pipelines: https://docs.bffless.app/features/ai-pipelines/
-- Chat: https://docs.bffless.app/features/chat/
-- API Reference: https://docs.bffless.app/reference/api/
-- Configuration: https://docs.bffless.app/configuration/environment-variables/
-- Storage Backends: https://docs.bffless.app/storage/overview/
-- Deployment: https://docs.bffless.app/deployment/overview/
-- Security: https://docs.bffless.app/reference/security/
-- Troubleshooting: https://docs.bffless.app/troubleshooting/
+- Overview: https://docs.bffless.dev/
+- Quick Start: https://docs.bffless.dev/getting-started/quickstart/
+- Architecture: https://docs.bffless.dev/reference/architecture/
+- Features: https://docs.bffless.dev/features/traffic-splitting/
+- Pipelines: https://docs.bffless.dev/features/pipelines/
+- AI Pipelines: https://docs.bffless.dev/features/ai-pipelines/
+- Chat: https://docs.bffless.dev/features/chat/
+- API Reference: https://docs.bffless.dev/reference/api/
+- Configuration: https://docs.bffless.dev/configuration/environment-variables/
+- Storage Backends: https://docs.bffless.dev/storage/overview/
+- Deployment: https://docs.bffless.dev/deployment/overview/
+- Security: https://docs.bffless.dev/reference/security/
+- Troubleshooting: https://docs.bffless.dev/troubleshooting/
 
 ---
 
@@ -74,20 +74,20 @@ Note: Docker is installed automatically by the install script if not already pre
 - SSL certificates with 15-year validity
 - DDoS protection and CDN caching included
 - No certbot or port 80 required
-- Setup guide: https://docs.bffless.app/getting-started/cloudflare-setup
+- Setup guide: https://docs.bffless.dev/getting-started/cloudflare-setup
 
 **Let's Encrypt**:
 - Direct connection to your server
 - Certificates auto-renew every 90 days
 - Requires port 80 open for verification
-- Setup guide: https://docs.bffless.app/getting-started/letsencrypt-setup
+- Setup guide: https://docs.bffless.dev/getting-started/letsencrypt-setup
 
 ### Installation
 
 Use the automated install script. It handles Docker installation, environment configuration, SSL setup, and secret generation interactively:
 
 ```bash
-INSTALL_DIR=/opt/bffless sh -c "$(curl -fsSL https://bffless.app/install.sh)"
+INSTALL_DIR=/opt/bffless sh -c "$(curl -fsSL https://bffless.dev/install.sh)"
 ```
 
 The install script will prompt you for:
@@ -104,9 +104,9 @@ cd /opt/bffless
 ```
 
 For full step-by-step instructions, see:
-- Cloudflare setup: https://docs.bffless.app/getting-started/cloudflare-setup
-- Let's Encrypt setup: https://docs.bffless.app/getting-started/letsencrypt-setup
-- Manual setup (advanced): https://docs.bffless.app/getting-started/manual-setup
+- Cloudflare setup: https://docs.bffless.dev/getting-started/cloudflare-setup
+- Let's Encrypt setup: https://docs.bffless.dev/getting-started/letsencrypt-setup
+- Manual setup (advanced): https://docs.bffless.dev/getting-started/manual-setup
 
 ### First Deployment
 
@@ -319,7 +319,7 @@ Build backend automation workflows by chaining handlers together — no server c
 **Example: Contact Form Pipeline**:
 Form Handler (validate) → Data Create (store) → Email Handler (notify admin) → Response Handler (success message)
 
-Documentation: https://docs.bffless.app/features/pipelines/
+Documentation: https://docs.bffless.dev/features/pipelines/
 
 ### AI Pipelines
 
@@ -367,7 +367,7 @@ Add AI-powered chat and content generation to your site using pipeline handlers.
 
 **Security**: API keys are encrypted at rest using AES-256-GCM, never exposed in pipeline configs, and masked in the admin UI.
 
-Documentation: https://docs.bffless.app/features/ai-pipelines/
+Documentation: https://docs.bffless.dev/features/ai-pipelines/
 
 ### Chat
 
@@ -407,9 +407,9 @@ function Chat() {
 }
 ```
 
-**Demo**: Live examples at https://chat.docs.bffless.app/ (full page) and https://chat.docs.bffless.app/popup/ (popup widget). Source: https://github.com/bffless/demo-chat
+**Demo**: Live examples at https://chat.bffless.dev/ (full page) and https://chat.bffless.dev/popup/ (popup widget). Source: https://github.com/bffless/chat
 
-Documentation: https://docs.bffless.app/features/chat/
+Documentation: https://docs.bffless.dev/features/chat/
 
 ---
 
@@ -950,4 +950,4 @@ When assisting with BFFless:
 
 ---
 
-For more detailed information, visit https://docs.bffless.app
+For more detailed information, visit https://docs.bffless.dev

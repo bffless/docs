@@ -28,8 +28,6 @@ flowchart LR
     style B fill:#e0f2fe,stroke:#333,stroke-width:2px
 ```
 
-**Live Example:** `https://orbs.sandbox.workspace.bffless.app/api/users` proxies to `https://jsonplaceholder.typicode.com/users`
-
 ## Key Concepts
 
 ### Two-Level Configuration
@@ -320,7 +318,7 @@ feature-flags/
 
 3. **Add proxy rule to consuming apps**:
    - **Path Pattern**: `/flags/*`
-   - **Target URL**: `https://demo-feature-flags.docs.bffless.app`
+   - **Target URL**: `https://demo-feature-flags.bffless.dev`
    - **Strip Prefix**: Yes (so `/flags/features.json` → `/features.json`)
 
 ### Example: Feature Flags JSON
@@ -389,8 +387,8 @@ See this pattern in action with our demo setup:
 
 | URL | Description |
 |-----|-------------|
-| [demo.docs.bffless.app/flags/features.json](https://demo.docs.bffless.app/flags/features.json) | Fetches flags via proxy rule |
-| [demo-feature-flags.docs.bffless.app/features.json](https://demo-feature-flags.docs.bffless.app/features.json) | Direct access to feature flags source |
+| [demo.bffless.dev/flags/features.json](https://demo.bffless.dev/flags/features.json) | Fetches flags via proxy rule |
+| [demo-feature-flags.bffless.dev/features.json](https://demo-feature-flags.bffless.dev/features.json) | Direct access to feature flags source |
 
 Both URLs serve the same content, but the first goes through a proxy rule on the demo project.
 
@@ -399,12 +397,12 @@ Both URLs serve the same content, but the first goes through a proxy rule on the
 ```mermaid
 flowchart TB
     subgraph "Demo App Project"
-        A[demo.docs.bffless.app]
+        A[demo.bffless.dev]
         PR["Proxy Rule:<br/>/flags/* → demo-feature-flags..."]
     end
 
     subgraph "Feature Flags Project"
-        FF[demo-feature-flags.docs.bffless.app]
+        FF[demo-feature-flags.bffless.dev]
         FILES["/production/flags/<br/>├── features.json<br/>└── environments/"]
     end
 
@@ -427,32 +425,32 @@ flowchart TB
 
 The demo project has a proxy rule that forwards all `/flags/*` requests to the feature flags project:
 
-<img src="/img/proxy-rule-feature-flag-a.png" alt="Proxy rule configuration showing /flags/* forwarding to demo-feature-flags.docs.bffless.app" className="screenshot" />
+<img src="/img/proxy-rule-feature-flag-a.png" alt="Proxy rule configuration showing /flags/* forwarding to demo-feature-flags.bffless.dev" className="screenshot" />
 
 - **Path Pattern**: `/flags/*` - matches any request starting with `/flags/`
-- **Target URL**: `https://demo-feature-flags.docs.bffless.app`
+- **Target URL**: `https://demo-feature-flags.bffless.dev`
 - **Strip Prefix**: Enabled - removes `/flags` so `/flags/features.json` becomes `/features.json`
 
 **Step 2: Configure the Feature Flags Domain**
 
 The feature flags project uses a domain mapping with a path prefix to serve files from a specific directory:
 
-<img src="/img/proxy-rule-feature-flag-b.png" alt="Domain mapping for demo-feature-flags.docs.bffless.app showing /flags path configuration" className="screenshot" />
+<img src="/img/proxy-rule-feature-flag-b.png" alt="Domain mapping for demo-feature-flags.bffless.dev showing /flags path configuration" className="screenshot" />
 
-- **Domain**: `demo-feature-flags.docs.bffless.app`
+- **Domain**: `demo-feature-flags.bffless.dev`
 - **Mapping**: `/production/flags` - serves files from the flags subdirectory
 - **Path**: `/flags` - the path prefix for this domain mapping
 
 #### Request Flow Example
 
-When a browser requests `https://demo.docs.bffless.app/flags/features.json`:
+When a browser requests `https://demo.bffless.dev/flags/features.json`:
 
 | Step | Action |
 |------|--------|
-| 1 | Browser requests `/flags/features.json` from `demo.docs.bffless.app` |
+| 1 | Browser requests `/flags/features.json` from `demo.bffless.dev` |
 | 2 | Proxy rule matches `/flags/*` pattern |
 | 3 | Prefix `/flags` is stripped (because "Strip Prefix" is enabled) |
-| 4 | Request forwarded to `demo-feature-flags.docs.bffless.app/features.json` |
+| 4 | Request forwarded to `demo-feature-flags.bffless.dev/features.json` |
 | 5 | Feature flags project returns `features.json` |
 | 6 | Response proxied back to browser |
 

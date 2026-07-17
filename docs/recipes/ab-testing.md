@@ -20,32 +20,32 @@ The `__bffless_variant` cookie tells your frontend which variant the user is see
 
 ## Live Example
 
-We're running an A/B test on [bffless.app](https://bffless.app) right now with 4 variants, each receiving 25% of traffic. When you visit the site normally, you're randomly assigned to one variant and will stay on that variant (sticky sessions).
+We're running an A/B test on [bffless.dev](https://bffless.dev) right now with 4 variants, each receiving 25% of traffic. When you visit the site normally, you're randomly assigned to one variant and will stay on that variant (sticky sessions).
 
 The links below use the `?version=` query parameter to **force a specific variant** — useful for sharing, debugging, or reviewing each version during development:
 
 | Variant | Title | Link |
 |---------|-------|------|
-| Default | "Your Build Artifacts Start Here" | [bffless.app/?version=default](https://bffless.app/?version=default) |
-| Outcome | "Every Push Gets a URL" | [bffless.app/?version=outcome](https://bffless.app/?version=outcome) |
-| Problem | "Ship Faster, Compare Everything" | [bffless.app/?version=problem](https://bffless.app/?version=problem) |
-| Simplicity | "One Action. Instant Results." | [bffless.app/?version=simplicity](https://bffless.app/?version=simplicity) |
+| Default | "Your Build Artifacts Start Here" | [bffless.dev/?version=default](https://bffless.dev/?version=default) |
+| Outcome | "Every Push Gets a URL" | [bffless.dev/?version=outcome](https://bffless.dev/?version=outcome) |
+| Problem | "Ship Faster, Compare Everything" | [bffless.dev/?version=problem](https://bffless.dev/?version=problem) |
+| Simplicity | "One Action. Instant Results." | [bffless.dev/?version=simplicity](https://bffless.dev/?version=simplicity) |
 
 Each variant has different headline copy. Open your browser DevTools and check the `__bffless_variant` cookie to see the variant name.
 
-<a href="https://bffless.app/?version=default" target="_blank">
+<a href="https://bffless.dev/?version=default" target="_blank">
   <img src="/img/recipe-ab-version-default.png" alt="Default variant" className="screenshot" />
 </a>
 
-<a href="https://bffless.app/?version=outcome" target="_blank">
+<a href="https://bffless.dev/?version=outcome" target="_blank">
   <img src="/img/recipe-ab-version-outcome.png" alt="Outcome variant" className="screenshot" />
 </a>
 
-<a href="https://bffless.app/?version=problem" target="_blank">
+<a href="https://bffless.dev/?version=problem" target="_blank">
   <img src="/img/recipe-ab-version-problem.png" alt="Problem variant" className="screenshot" />
 </a>
 
-<a href="https://bffless.app/?version=simplicity" target="_blank">
+<a href="https://bffless.dev/?version=simplicity" target="_blank">
   <img src="/img/recipe-ab-version-simplicity.png" alt="Simplicity variant" className="screenshot" />
 </a>
 

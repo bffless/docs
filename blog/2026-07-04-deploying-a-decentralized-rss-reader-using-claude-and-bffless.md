@@ -9,7 +9,7 @@ description: "A walkthrough of deploying a custom Google Reader–inspired RSS f
 
 Back in 2013, Google shut down one of its most beloved products: Google Reader. It was a simple, elegant RSS feed reader — and millions of people relied on it to keep up with blogs, news, and niche publications. Google killed it because it didn't align with their strategy, and the internet has never quite recovered.
 
-This post walks through building and deploying a spiritual successor — a self-hosted RSS feed reader built with Claude and running on [BFFless](https://docs.bffless.app/). The entire deployment, from an empty instance to a working application, is handled by prompting Claude to use the BFFless [MCP server](https://docs.bffless.app/features/mcp-server/). No manual configuration of backend endpoints, database tables, or domain mappings required.
+This post walks through building and deploying a spiritual successor — a self-hosted RSS feed reader built with Claude and running on [BFFless](https://docs.bffless.dev/). The entire deployment, from an empty instance to a working application, is handled by prompting Claude to use the BFFless [MCP server](https://docs.bffless.dev/features/mcp-server/). No manual configuration of backend endpoints, database tables, or domain mappings required.
 
 <YouTubeEmbed id="z8WIGM_bEeM" title="Deploying a Decentralized RSS Reader with Claude and BFFless" />
 
@@ -35,7 +35,7 @@ Over in the terminal, the apps repository has already been cloned locally with a
 
 With the clean instance ready, the next step is simply telling Claude what to do. The prompt is direct:
 
-> I have deleted the reader on toshimoto.dev and I want you to install it fresh. You'll need to create the [pipelines](https://docs.bffless.app/features/pipelines/) using the MCP server. You'll need to deploy the application and you'll need to create a domain `reader.toshimoto.dev`, and you'll need to create the aliases along with anything else that your instructions tell you for deploying the reader.
+> I have deleted the reader on toshimoto.dev and I want you to install it fresh. You'll need to create the [pipelines](https://docs.bffless.dev/features/pipelines/) using the MCP server. You'll need to deploy the application and you'll need to create a domain `reader.toshimoto.dev`, and you'll need to create the aliases along with anything else that your instructions tell you for deploying the reader.
 
 Claude picks up the prompt and immediately starts working. It runs an "install app" skill (part of the BFFless apps system), calls into the pipeline APIs, and begins inspecting the current state of the instance. It confirms what we already know — zero projects, zero domains — and gets to work.
 
@@ -51,7 +51,7 @@ The deployment unfolds in a clear sequence, and you can follow along by switchin
 
 ![Database schemas showing reader_feeds and reader_items tables](/img/rss-reader-04.jpg)
 
-**Proxy rules.** This is the bulk of the work. Claude creates a rule set with 11 [proxy rules](https://docs.bffless.app/features/proxy-rules/) — the backend endpoints that power the application. These include a reverse proxy for authentication, endpoints for adding, listing, and removing feeds, folder management, and more. Watching the admin UI, you can see the rules appear one by one: three, then four, then nine, and finally all eleven.
+**Proxy rules.** This is the bulk of the work. Claude creates a rule set with 11 [proxy rules](https://docs.bffless.dev/features/proxy-rules/) — the backend endpoints that power the application. These include a reverse proxy for authentication, endpoints for adding, listing, and removing feeds, folder management, and more. Watching the admin UI, you can see the rules appear one by one: three, then four, then nine, and finally all eleven.
 
 ![The proxy rules tab showing the full set of 11 backend rules](/img/rss-reader-05.jpg)
 

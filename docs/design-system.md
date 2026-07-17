@@ -1,6 +1,6 @@
 # docs-public Design System
 
-The implementation spec for theming Docusaurus to the **bffless.app** identity. Sandcastle agents implement each redesign story against this file; humans review the result on the `docs-preview` deploy. This file is **excluded from the published site** (see `docusaurus.config.ts` → `docs.exclude`).
+The implementation spec for theming Docusaurus to the **bffless.dev** identity. Sandcastle agents implement each redesign story against this file; humans review the result on the `docs-preview` deploy. This file is **excluded from the published site** (see `docusaurus.config.ts` → `docs.exclude`).
 
 Vocabulary (Paper, Ink, Terracotta, Meta-label, Corner marks, Rule, Chrome, Reading column) is defined in [`/CONTEXT.md`](../CONTEXT.md). The decision record is [ADR-0001](./adr/0001-docs-visual-redesign.md).
 
@@ -10,7 +10,7 @@ Vocabulary (Paper, Ink, Terracotta, Meta-label, Corner marks, Rule, Chrome, Read
 
 ## 0. Identity preservation (read first)
 
-The warm "paper" background is a **committed brand color** carried over from bffless.app — not an invented palette. The usual advice that "cream/sand backgrounds read as AI-default" does **not** apply here: matching the existing brand is the goal. Keep the paper/ink/terracotta system as specified. Do **not** "improve" it into a white or gray theme.
+The warm "paper" background is a **committed brand color** carried over from bffless.dev — not an invented palette. The usual advice that "cream/sand backgrounds read as AI-default" does **not** apply here: matching the existing brand is the goal. Keep the paper/ink/terracotta system as specified. Do **not** "improve" it into a white or gray theme.
 
 The one genuinely new design is the **dark variant** (§2) — the landing is light-only, so there is no upstream source; it is designed here and must be contrast-checked.
 
@@ -133,7 +133,7 @@ Reusable primitives. Per ADR-0001 these appear on **chrome and components**, nev
 
 ## 6. Component specs
 
-**Navbar** — bg `--paper`, bottom **rule**, no shadow (add a 1px shadow only on scroll). Synced broken-heart `logo.svg` (28px) + wordmark "BFFless" in **Fraunces**. Nav links Inter; active/hover link = `--terracotta` text. Logo `href` → `https://bffless.app` (cross-site unity). GitHub link as icon.
+**Navbar** — bg `--paper`, bottom **rule**, no shadow (add a 1px shadow only on scroll). Synced broken-heart `logo.svg` (28px) + wordmark "BFFless" in **Fraunces**. Nav links Inter; active/hover link = `--terracotta` text. Logo `href` → `https://bffless.dev` (cross-site unity). GitHub link as icon.
 
 **Sidebar** — bg `--paper-deep`, separated from content by a **rule**. Category headers as **meta-labels**. Item hover = `--surface-2` bg. **Active item** = `--terracotta` text + 600 weight + subtle `--surface-2` tint. **No thick left-border stripe** (impeccable hard-ban); a hairline `1px` left rule in `--terracotta` is the *maximum* if a marker is wanted.
 
