@@ -43,7 +43,12 @@ jobs:
           path: build
           api-url: ${{ vars.ASSET_HOST_URL }}
           api-key: ${{ secrets.ASSET_HOST_KEY }}
+          repository: bffless/docs
           alias: docs-preview
           base-path: /build
+          # Attach the existing production rule set by name so blog-post likes
+          # work on previews. Deliberately no deploy-proxy-rules step here — a
+          # PR must not overwrite the live rule set; rules sync on merge only.
+          proxy-rule-set-names: api-backend
           description: 'Docs preview for PR #${{ github.event.pull_request.number }}'
           summary-title: Docs Preview Summary

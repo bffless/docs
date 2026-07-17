@@ -1,0 +1,27 @@
+handler: ./fold.fn.js
+cases:
+  - name: folds rows into a map keyed by slug
+    data:
+      steps:
+        query:
+          - { slug: "my-post", variant: "b", created_at: "2026-04-13T12:00:00Z" }
+          - { slug: "other-post" }
+    expect:
+      result:
+        my-post:
+          { liked: true, slug: "my-post", variant: "b", liked_at: "2026-04-13T12:00:00Z" }
+        other-post:
+          { liked: true, slug: "other-post", variant: null, liked_at: null }
+
+  - name: skips rows without a slug
+    data:
+      steps:
+        query: [{ variant: "a" }, null]
+    expect:
+      result: {}
+
+  - name: returns empty map when query step is missing
+    data:
+      steps: {}
+    expect:
+      result: {}

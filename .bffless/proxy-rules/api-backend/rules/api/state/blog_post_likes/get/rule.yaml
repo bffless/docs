@@ -1,0 +1,33 @@
+# GET /api/state/blog_post_likes — read half of the blog-likes widget.
+# `useBffState` fetches this on mount; the response is a map keyed by slug so
+# the client can O(1)-check whether the current post is liked.
+description: GET state for blog_post_likes
+pipeline:
+  name: GET blog_post_likes
+  description: Return all likes for the current guest as a map keyed by slug
+  steps:
+    # Match on either identity: a logged-in user's id OR the per-browser guest
+    # id that useBffState appends as ?_bffGuestId=…
+    - id: query
+      name: query
+      handler: data_query
+      config:
+        schemaId: $schema:blog_post_likes
+        pageSize: 500
+        filterLogic: or
+        filters:
+          user_id: { op: eq, value: user.id }
+          guest_id: { op: eq, value: request.query._bffGuestId }
+
+    - id: fold
+      name: fold
+      handler: function_handler
+      code: ./fold.fn.js
+
+    - id: response
+      name: Return State
+      handler: response_handler
+      config:
+        body: "{{{steps.fold}}}"
+        status: 200
+        contentType: application/json

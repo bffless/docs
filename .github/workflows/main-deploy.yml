@@ -37,13 +37,24 @@ jobs:
       - name: Build Docusaurus
         run: pnpm build
 
+      # Sync before upload so the build's proxy rules exist before it goes live.
+      - name: Sync proxy rules
+        uses: bffless/deploy-proxy-rules@v1
+        with:
+          path: .bffless/proxy-rules/api-backend
+          api-url: ${{ vars.ASSET_HOST_URL }}
+          api-key: ${{ secrets.ASSET_HOST_KEY }}
+          project: bffless/docs
+
       - name: Upload docs to production
         uses: bffless/upload-artifact@v1
         with:
           path: build
           api-url: ${{ vars.ASSET_HOST_URL }}
           api-key: ${{ secrets.ASSET_HOST_KEY }}
+          repository: bffless/docs
           alias: docs-production
           base-path: /build
+          proxy-rule-set-names: api-backend
           description: 'Docs production deploy for ${{ github.ref_name }}@${{ github.sha }}'
           summary-title: Docs Production Deploy
