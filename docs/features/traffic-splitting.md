@@ -27,8 +27,8 @@ Try traffic splitting yourself at <a href="https://demo.bffless.dev/" target="_b
 </div>
 
 Open in an incognito window to get randomly assigned, or use query parameters to force a specific variant:
-- <a href="https://demo.bffless.dev/?version=default" target="_blank" rel="noopener noreferrer">demo.bffless.dev/?version=default ↗</a> - Force production (purple)
-- <a href="https://demo.bffless.dev/?version=red" target="_blank" rel="noopener noreferrer">demo.bffless.dev/?version=red ↗</a> - Force red variant
+- <a href="https://demo.bffless.dev/?v=default" target="_blank" rel="noopener noreferrer">demo.bffless.dev/?v=default ↗</a> - Force production (purple)
+- <a href="https://demo.bffless.dev/?v=red" target="_blank" rel="noopener noreferrer">demo.bffless.dev/?v=red ↗</a> - Force red variant
 
 ## Overview
 
@@ -90,11 +90,11 @@ When enabled, a `__bffless_variant` cookie is set with the selected alias name.
 
 Override weighted distribution with deterministic routing rules. When a condition matches, the visitor is forced to that alias regardless of weights.
 
-<img src="/img/traffic-splitting-query-param.png" alt="Traffic rules configuration showing query parameter rules for version=red and version=default" className="screenshot" />
+<img src="/img/traffic-splitting-query-param.png" alt="Traffic rules configuration showing query parameter rules for v=red and v=default" className="screenshot" />
 
 | Rule Type | Example | Use Case |
 |-----------|---------|----------|
-| **Query Parameter** | `version=red` → `red` | Force specific variant for testing/validation |
+| **Query Parameter** | `v=red` → `red` | Force specific variant for testing/validation |
 | **Cookie** | `audience=enterprise` → `enterprise` | Segment returning visitors |
 
 This is useful for:
