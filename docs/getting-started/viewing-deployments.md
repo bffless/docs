@@ -110,7 +110,7 @@ Your app is now live on your primary domain!
 
 ### Mapping Custom Subdomains
 
-For additional deployments, you can map custom subdomains to serve content at URLs like <a href="https://demo.docs.bffless.dev/" target="_blank" rel="noopener noreferrer">demo.docs.bffless.dev ↗</a> or `staging.docs.yourdomain.com`.
+For additional deployments, you can map custom subdomains to serve content at URLs like `demo.yourdomain.com` or `staging.docs.yourdomain.com`.
 
 <img src="/img/viewing-deployment-domains.png" alt="Create Domain Mapping dialog for subdomain configuration" className="screenshot" />
 

@@ -92,7 +92,7 @@ function Chat() {
 ```
 
 :::tip
-See the <a href="https://github.com/bffless/demo-chat" target="_blank" rel="noopener noreferrer">demo-chat repository ↗</a> for a complete working example with streaming, markdown rendering, and rate limit handling.
+See the <a href="https://github.com/bffless/chat" target="_blank" rel="noopener noreferrer">bffless/chat repository ↗</a> for a complete working example with streaming, markdown rendering, and rate limit handling.
 :::
 
 ## Modes
@@ -384,7 +384,7 @@ my-docs-site/
 
 <img src="/img/ai-pipelines-chat-frontend.png" alt="BFFless Chat Demo showing a streaming conversation with markdown rendering" className="screenshot" />
 
-The <a href="https://github.com/bffless/demo-chat" target="_blank" rel="noopener noreferrer">bffless/demo-chat ↗</a> repository is a complete working example of an AI chat interface built with BFFless. It demonstrates:
+The <a href="https://github.com/bffless/chat" target="_blank" rel="noopener noreferrer">bffless/chat ↗</a> repository is a complete working example of an AI chat interface built with BFFless. It demonstrates:
 
 - Real-time streaming responses using `useChat` from `@ai-sdk/react`
 - Markdown rendering of AI responses
@@ -395,7 +395,7 @@ The <a href="https://github.com/bffless/demo-chat" target="_blank" rel="noopener
 
 **Tech stack:** React + TypeScript + Vite + AI SDK
 
-The demo is live at <a href="https://chat.docs.bffless.dev/" target="_blank" rel="noopener noreferrer">chat.docs.bffless.dev ↗</a> and deploys automatically on push to `main`.
+A live example is the BFFless chat at <a href="https://chat.bffless.dev/" target="_blank" rel="noopener noreferrer">chat.bffless.dev ↗</a> (source: <a href="https://github.com/bffless/chat" target="_blank" rel="noopener noreferrer">bffless/chat ↗</a>).
 
 ## Security
 

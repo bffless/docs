@@ -14,22 +14,6 @@ Split traffic across multiple deployment aliases for A/B testing, canary deploym
 
 <img src="/img/traffic-splitting-settings.png" alt="Traffic splitting configuration showing production and red aliases at 50% each" className="screenshot" />
 
-## Live Demo
-
-Try traffic splitting yourself at <a href="https://demo.docs.bffless.dev/" target="_blank" rel="noopener noreferrer">demo.docs.bffless.dev ↗</a>. This demo splits traffic 50/50 between two versions:
-
-- **production** - Purple button (default)
-- **red** - Red button (<a href="https://github.com/bffless/demo/pull/1" target="_blank" rel="noopener noreferrer">see the PR ↗</a>)
-
-<div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', margin: '1.5rem 0'}}>
-  <img src="/img/traffic-splitting-demo-default-button.png" alt="Demo app with purple button showing production variant cookie" className="screenshot" style={{flex: '1', minWidth: '300px', maxWidth: '48%'}} />
-  <img src="/img/traffic-splitting-demo-red-button.png" alt="Demo app with red button showing red variant cookie" className="screenshot" style={{flex: '1', minWidth: '300px', maxWidth: '48%'}} />
-</div>
-
-Open in an incognito window to get randomly assigned, or use query parameters to force a specific variant:
-- <a href="https://demo.docs.bffless.dev/?version=default" target="_blank" rel="noopener noreferrer">demo.docs.bffless.dev/?version=default ↗</a> - Force production (purple)
-- <a href="https://demo.docs.bffless.dev/?version=red" target="_blank" rel="noopener noreferrer">demo.docs.bffless.dev/?version=red ↗</a> - Force red variant
-
 ## Overview
 
 Traffic splitting allows you to distribute visitors across different versions of your site. This is useful for:
@@ -108,7 +92,7 @@ This is useful for:
 
 ### A/B Testing
 
-Test two versions of your site to see which performs better. The <a href="https://demo.docs.bffless.dev/" target="_blank" rel="noopener noreferrer">live demo ↗</a> shows this in action:
+Test two versions of your site to see which performs better:
 
 ```
 production: 50%  (purple button - current design)

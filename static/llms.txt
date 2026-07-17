@@ -407,7 +407,7 @@ function Chat() {
 }
 ```
 
-**Demo**: Live examples at https://chat.docs.bffless.dev/ (full page) and https://chat.docs.bffless.dev/popup/ (popup widget). Source: https://github.com/bffless/demo-chat
+**Demo**: Live examples at https://chat.bffless.dev/ (full page) and https://chat.bffless.dev/popup/ (popup widget). Source: https://github.com/bffless/chat
 
 Documentation: https://docs.bffless.dev/features/chat/
 

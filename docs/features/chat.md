@@ -82,7 +82,7 @@ function Chat() {
 ```
 
 :::tip
-See the <a href="https://github.com/bffless/demo-chat" target="_blank" rel="noopener noreferrer">demo-chat repository ↗</a> for a complete working example with streaming, markdown rendering, and suggested prompts.
+See the <a href="https://github.com/bffless/chat" target="_blank" rel="noopener noreferrer">bffless/chat repository ↗</a> for a complete working example with streaming, markdown rendering, and suggested prompts.
 :::
 
 ### 3. Deploy
@@ -116,7 +116,7 @@ Skills are markdown files that give your chatbot domain-specific knowledge. Depl
 <img src="/img/chat-skills.png" alt="GitHub directory structure showing .bffless/skills/ with multiple skill folders" className="screenshot" />
 
 :::tip
-See a working example: <a href="https://github.com/bffless/demo-chat/tree/main/.bffless/skills" target="_blank" rel="noopener noreferrer">demo-chat skills directory ↗</a>
+See a working example: <a href="https://github.com/bffless/chat/tree/main/.bffless/skills" target="_blank" rel="noopener noreferrer">bffless/chat skills directory ↗</a>
 :::
 
 Skills are **versioned with each deployment** — when an alias points to a commit, the skills for that commit are used. This makes them git-managed, rollback-safe, and A/B testable.
@@ -200,12 +200,12 @@ See [AI Pipelines — Configuration Reference](/features/ai-pipelines#configurat
 
 ## Demo Application
 
-Try the live demos:
+Try it live — the BFFless chat runs at chat.bffless.dev:
 
-- <a href="https://chat.docs.bffless.dev/" target="_blank" rel="noopener noreferrer">Full page chat ↗</a>
-- <a href="https://chat.docs.bffless.dev/popup/" target="_blank" rel="noopener noreferrer">Popup widget ↗</a>
+- <a href="https://chat.bffless.dev/" target="_blank" rel="noopener noreferrer">Full page chat ↗</a>
+- <a href="https://chat.bffless.dev/popup/" target="_blank" rel="noopener noreferrer">Popup widget ↗</a>
 
-Source code: <a href="https://github.com/bffless/demo-chat" target="_blank" rel="noopener noreferrer">bffless/demo-chat ↗</a>
+Source code: <a href="https://github.com/bffless/chat" target="_blank" rel="noopener noreferrer">bffless/chat ↗</a>
 
 **Tech stack:** React + TypeScript + Vite + AI SDK
 

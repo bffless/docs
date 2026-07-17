@@ -19,14 +19,12 @@ Using DB Records as a state store provides:
 
 This pattern is perfect for counters, feature flags, user preferences, and any server-persisted state on static sites.
 
-## Live Example
+## What We'll Build
 
-We have a click counter demo running on [demo.docs.bffless.dev](https://demo.docs.bffless.dev). The counter state is stored in a DB Record and accessed via Pipeline API endpoints:
+This recipe walks through building a click counter. The counter state is stored in a DB Record and accessed via Pipeline API endpoints:
 
 - **GET `/api/count`** - Returns the current count
 - **POST `/api/count`** - Increments and returns the updated count
-
-Try it yourself—open the demo in multiple browser tabs and watch the count sync across all of them.
 
 ## Step 1: Create the Data Schema
 

@@ -204,7 +204,7 @@ This isn't a full replacement for Unbounce or Instapage — BFFless is not a dra
 
 ## Try it
 
-There's a live traffic-splitting demo running at [demo.docs.bffless.dev](https://demo.docs.bffless.dev/) — open it in an incognito window a few times and watch the button color change. Our own homepage at [bffless.dev](https://bffless.dev) is currently running a four-way headline test using exactly the pattern above.
+Our own homepage at [bffless.dev](https://bffless.dev) is currently running a four-way headline test using exactly the pattern above — open it in an incognito window a few times and watch the headline change.
 
 If you want to go deeper, the [A/B testing recipe](/recipes/ab-testing) walks through the GitHub Actions setup, analytics integrations for GA4, Mixpanel, and Pendo, and the full cookie behavior. The [traffic splitting reference](/features/traffic-splitting) covers weights, rules, and canary rollouts in detail.
 
