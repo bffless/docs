@@ -1,0 +1,56 @@
+# POST /api/state/blog_post_likes — write half of the blog-likes widget.
+# Upserts a single like row keyed on (guest_id, slug): the conditional
+# data_create only fires when `find` came back empty, so re-liking is a no-op.
+# Ends by re-listing and folding, returning the same map shape as GET so the
+# client can swap its state from one round-trip.
+description: POST/update state for blog_post_likes
+pipeline:
+  name: POST blog_post_likes
+  description: Upsert a single like row keyed on (guest_id, slug). Dedup + return full map.
+  steps:
+    - id: find
+      name: find
+      handler: data_query
+      config:
+        schemaId: $schema:blog_post_likes
+        single: true
+        filterLogic: and
+        filters:
+          slug: { op: eq, value: request.body.slug }
+          guest_id: { op: eq, value: request.query._bffGuestId }
+
+    - id: create
+      name: create
+      handler: data_create
+      config:
+        schemaId: $schema:blog_post_likes
+        condition: "!steps.find"
+        fields:
+          slug: request.body.slug
+          user_id: user.id
+          variant: request.body.variant
+          guest_id: request.query._bffGuestId
+
+    - id: query
+      name: query
+      handler: data_query
+      config:
+        schemaId: $schema:blog_post_likes
+        pageSize: 500
+        filterLogic: or
+        filters:
+          user_id: { op: eq, value: user.id }
+          guest_id: { op: eq, value: request.query._bffGuestId }
+
+    - id: fold
+      name: fold
+      handler: function_handler
+      code: ./fold.fn.js
+
+    - id: response
+      name: Return State
+      handler: response_handler
+      config:
+        body: "{{{steps.fold}}}"
+        status: 200
+        contentType: application/json

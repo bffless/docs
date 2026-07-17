@@ -1,0 +1,5 @@
+{
+  "apiUrl": "https://admin.bffless.dev",
+  "project": "bffless/docs",
+  "ruleSets": [".bffless/proxy-rules/*"]
+}

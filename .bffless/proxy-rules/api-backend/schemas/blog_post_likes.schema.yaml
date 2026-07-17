@@ -1,0 +1,14 @@
+name: blog_post_likes
+fields:
+  - name: slug
+    type: string
+    required: true
+  - name: variant
+    type: string
+    required: false
+  - name: guest_id
+    type: string
+    required: false
+  - name: user_id
+    type: string
+    required: false

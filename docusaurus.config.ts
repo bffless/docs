@@ -78,7 +78,7 @@ const config: Config = {
   },
   themes: ['@docusaurus/theme-mermaid'],
 
-  url: 'https://docs.bffless.app',
+  url: 'https://docs.bffless.dev',
   baseUrl: '/',
 
   trailingSlash: true,

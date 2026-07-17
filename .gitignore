@@ -10,6 +10,7 @@
 # Generated files
 .docusaurus
 .cache-loader
+.bffless/proxy-rules/*/dist/
 
 # Misc
 .DS_Store
