@@ -20,6 +20,7 @@
   "dependencies": {
     "@bffless/use-bff-state": "^1.3.0",
     "@docusaurus/core": "3.9.2",
+    "@docusaurus/plugin-content-blog": "3.9.2",
     "@docusaurus/preset-classic": "3.9.2",
     "@docusaurus/theme-mermaid": "3.9.2",
     "@mdx-js/react": "^3.0.0",
@@ -30,10 +31,10 @@
   },
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.10.0",
-    "@playwright/test": "1.61.1",
     "@docusaurus/module-type-aliases": "3.9.2",
     "@docusaurus/tsconfig": "3.9.2",
     "@docusaurus/types": "3.9.2",
+    "@playwright/test": "1.61.1",
     "typescript": "~5.6.2"
   },
   "browserslist": {
