@@ -200,7 +200,7 @@ See [AI Pipelines — Configuration Reference](/features/ai-pipelines#configurat
 
 ## Demo Application
 
-Try it live — the BFFless chat runs at chat.bffless.dev:
+Try the live demos:
 
 - <a href="https://chat.bffless.dev/" target="_blank" rel="noopener noreferrer">Full page chat ↗</a>
 - <a href="https://chat.bffless.dev/popup/" target="_blank" rel="noopener noreferrer">Popup widget ↗</a>

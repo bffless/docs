@@ -395,7 +395,7 @@ The <a href="https://github.com/bffless/chat" target="_blank" rel="noopener nore
 
 **Tech stack:** React + TypeScript + Vite + AI SDK
 
-A live example is the BFFless chat at <a href="https://chat.bffless.dev/" target="_blank" rel="noopener noreferrer">chat.bffless.dev ↗</a> (source: <a href="https://github.com/bffless/chat" target="_blank" rel="noopener noreferrer">bffless/chat ↗</a>).
+The demo is live at <a href="https://chat.bffless.dev/" target="_blank" rel="noopener noreferrer">chat.bffless.dev ↗</a> and deploys automatically on push to `main`.
 
 ## Security
 

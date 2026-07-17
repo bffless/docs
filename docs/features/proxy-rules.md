@@ -318,7 +318,7 @@ feature-flags/
 
 3. **Add proxy rule to consuming apps**:
    - **Path Pattern**: `/flags/*`
-   - **Target URL**: `https://feature-flags.yourdomain.com`
+   - **Target URL**: `https://demo-feature-flags.bffless.dev`
    - **Strip Prefix**: Yes (so `/flags/features.json` → `/features.json`)
 
 ### Example: Feature Flags JSON
@@ -381,6 +381,80 @@ function App() {
 - **Environment-specific** - Use different flag files per environment
 - **No backend required** - Pure static JSON files
 
+### Live Demo
+
+See this pattern in action with our demo setup:
+
+| URL | Description |
+|-----|-------------|
+| [demo.bffless.dev/flags/features.json](https://demo.bffless.dev/flags/features.json) | Fetches flags via proxy rule |
+| [demo-feature-flags.bffless.dev/features.json](https://demo-feature-flags.bffless.dev/features.json) | Direct access to feature flags source |
+
+Both URLs serve the same content, but the first goes through a proxy rule on the demo project.
+
+#### How It Works
+
+```mermaid
+flowchart TB
+    subgraph "Demo App Project"
+        A[demo.bffless.dev]
+        PR["Proxy Rule:<br/>/flags/* → demo-feature-flags..."]
+    end
+
+    subgraph "Feature Flags Project"
+        FF[demo-feature-flags.bffless.dev]
+        FILES["/production/flags/<br/>├── features.json<br/>└── environments/"]
+    end
+
+    Browser -->|"GET /flags/features.json"| A
+    A -->|"matches /flags/*"| PR
+    PR -->|"GET /features.json<br/>(prefix stripped)"| FF
+    FF --> FILES
+    FILES -->|"features.json"| FF
+    FF -->|"Response"| PR
+    PR -->|"Response"| A
+    A -->|"Response"| Browser
+
+    style PR fill:#e0f2fe,stroke:#333,stroke-width:2px
+    style FF fill:#bbf,stroke:#333,stroke-width:2px
+```
+
+#### Configuration Details
+
+**Step 1: Create a Proxy Rule on the Demo Project**
+
+The demo project has a proxy rule that forwards all `/flags/*` requests to the feature flags project:
+
+<img src="/img/proxy-rule-feature-flag-a.png" alt="Proxy rule configuration showing /flags/* forwarding to demo-feature-flags.bffless.dev" className="screenshot" />
+
+- **Path Pattern**: `/flags/*` - matches any request starting with `/flags/`
+- **Target URL**: `https://demo-feature-flags.bffless.dev`
+- **Strip Prefix**: Enabled - removes `/flags` so `/flags/features.json` becomes `/features.json`
+
+**Step 2: Configure the Feature Flags Domain**
+
+The feature flags project uses a domain mapping with a path prefix to serve files from a specific directory:
+
+<img src="/img/proxy-rule-feature-flag-b.png" alt="Domain mapping for demo-feature-flags.bffless.dev showing /flags path configuration" className="screenshot" />
+
+- **Domain**: `demo-feature-flags.bffless.dev`
+- **Mapping**: `/production/flags` - serves files from the flags subdirectory
+- **Path**: `/flags` - the path prefix for this domain mapping
+
+#### Request Flow Example
+
+When a browser requests `https://demo.bffless.dev/flags/features.json`:
+
+| Step | Action |
+|------|--------|
+| 1 | Browser requests `/flags/features.json` from `demo.bffless.dev` |
+| 2 | Proxy rule matches `/flags/*` pattern |
+| 3 | Prefix `/flags` is stripped (because "Strip Prefix" is enabled) |
+| 4 | Request forwarded to `demo-feature-flags.bffless.dev/features.json` |
+| 5 | Feature flags project returns `features.json` |
+| 6 | Response proxied back to browser |
+
+This pattern allows any number of apps to consume the same centralized feature flags without CORS issues, simply by adding a proxy rule pointing to the feature flags project.
 
 ## Related Features
 

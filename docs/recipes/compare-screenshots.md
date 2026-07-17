@@ -443,4 +443,4 @@ Ensure your CI environment matches local:
 
 ## See It in Action
 
-This recipe is implemented in the [BFFless demo repository](https://github.com/bffless/demo) — see [an example PR comment](https://github.com/bffless/demo/pull/1#issuecomment-3914080635) produced by the workflow.
+This recipe is implemented in the [BFFless demo repository](https://github.com/bffless/demo). Open a PR there to see the visual regression testing workflow in action.

@@ -375,8 +375,16 @@ If auto-detection picks the wrong format, explicitly set it:
     format: lcov  # Explicitly set format
 ```
 
-## Hosting the Report
+## See It in Action
 
-Beyond application builds, this same workflow lets BFFless host auxiliary artifacts like the HTML coverage report itself, making it easily accessible to your team.
+This recipe is implemented in the [BFFless demo repository](https://github.com/bffless/demo). Open a PR there to see the coverage comparison workflow in action.
+
+### Live Coverage Report
+
+The HTML coverage report from the demo repository is hosted on BFFless and available at:
+
+**[demo-coverage.bffless.dev](https://demo-coverage.bffless.dev)**
 
 ![Coverage Report](/img/github-actions-coverage.png)
+
+This demonstrates how BFFless can host not just your application builds, but also auxiliary artifacts like coverage reports, making them easily accessible to your team.
