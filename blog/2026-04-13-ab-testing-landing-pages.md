@@ -7,8 +7,6 @@ image: /img/ab-test-main-hero.png
 description: How PPC agencies and CRO teams can run landing-page A/B tests on BFFless — git-native, any framework, no per-page pricing.
 ---
 
-import LikeButton from '@site/src/components/LikeButton';
-
 <img src="/img/ab-test-main-hero.png" alt="Two browser-window mockups side by side over a dark navy grid floor — one with a purple CTA button, one with a red CTA button — connected by a glowing horizontal beam carrying small pixelated traffic packets split 50/50 between them" />
 
 If you run Google Ads for a living, you already know the drill. You want to test three headlines and two hero images, you open Unbounce or Instapage, and within twenty minutes you're deciding whether this experiment is worth bumping the plan tier for. A/B testing is the feature that actually moves CPA — and it's the feature every landing page builder puts behind their highest-priced plan.
@@ -212,20 +210,4 @@ If you want to go deeper, the [A/B testing recipe](/recipes/ab-testing) walks th
 
 Spin up an instance, point a client's landing page at it, and see what your experiment velocity looks like when variants are free.
 
-<div style={{
-  margin: '4rem 0 2rem',
-  padding: '2rem 1.75rem 1.25rem',
-  borderRadius: '4px',
-  background: 'var(--ifm-color-emphasis-100)',
-  border: '1px solid var(--ifm-color-emphasis-200)',
-}}>
-
-#### The button is part of the experiment
-
-The **Like** button below is the CTA for this post — and we're tracking clicks by variant in both the BFFless backend and Google Analytics. Same mechanism this post describes, pointed at the post itself. If it was useful, the button is how we hear it.
-
-Follow-up with the numbers in a couple of weeks — which variant won and by how much.
-
-<LikeButton slug="ab-testing-landing-pages" />
-
-</div>
+*The Like button below is part of the experiment — clicks are tracked by variant in both the BFFless backend and Google Analytics. Same mechanism this post describes, pointed at the post itself. If it was useful, the button is how we hear it.*
