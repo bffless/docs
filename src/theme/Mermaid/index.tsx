@@ -5,7 +5,7 @@
  * static `options` object across both modes, so there is no supported config
  * surface for per-mode `themeVariables`. We rebuild the same tiny renderer but
  * merge in `paperThemeVariables` / `inkThemeVariables` based on the active
- * color mode, theming diagrams onto the bffless.app palette (design-system.md
+ * color mode, theming diagrams onto the bffless.dev palette (design-system.md
  * §6). The existing `theme: {light, dark}` keys are kept and read through the
  * official client hooks; we only layer variables on top.
  *

@@ -21,7 +21,7 @@ The line above (if any) is the **master PR** and its **epic branch**. This run's
 
 # Task
 
-You are an autonomous documentation agent working in `bffless/docs-public` — the public-facing **Docusaurus** site for BFFless Community Edition (docs.bffless.app). You implement **one** ready issue per iteration and land it on the **epic branch** (or open a review PR in legacy mode). After landing it you keep going: the run loops, re-reading the (freshly re-queried) issue list each iteration and picking the next story, until no actionable issue remains. The single **master PR** (epic → `main`) is the only thing a human reviews; you never merge it and never touch `main` or production.
+You are an autonomous documentation agent working in `bffless/docs-public` — the public-facing **Docusaurus** site for BFFless Community Edition (docs.bffless.dev). You implement **one** ready issue per iteration and land it on the **epic branch** (or open a review PR in legacy mode). After landing it you keep going: the run loops, re-reading the (freshly re-queried) issue list each iteration and picking the next story, until no actionable issue remains. The single **master PR** (epic → `main`) is the only thing a human reviews; you never merge it and never touch `main` or production.
 
 ## Domain knowledge
 
@@ -92,7 +92,7 @@ If a batch of `ready-for-agent` issues shares a PRD/epic and no epic branch exis
 When the epic's stories are all landed and validated on the preview URL:
 
 1. Review and **merge the master PR** into `main`.
-2. The push to `main` triggers `main-deploy.yml`, which builds and deploys to the **`docs-production`** alias (docs.bffless.app) automatically. No manual deploy step.
+2. The push to `main` triggers `main-deploy.yml`, which builds and deploys to the **`docs-production`** alias (docs.bffless.dev) automatically. No manual deploy step.
 
 # Done
 

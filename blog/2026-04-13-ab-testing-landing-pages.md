@@ -152,9 +152,9 @@ Turn on **sticky sessions** so return visitors stay on the same variant, and add
 Now anyone can preview a specific variant by appending `?version=headline-outcome` to the URL — which is exactly the "share a preview with the client" workflow that enterprise builders charge extra for. Send the three links to your PM, let them pick, done.
 
 :::tip Skip the admin panel
-If you use Claude Code, the [BFFless plugin](/features/claude-code-plugin) ships a `traffic-splitting` skill that knows this whole configuration shape — weights, sticky sessions, query-param rules, alias naming. It pairs with the [BFFless MCP server](https://docs.bffless.app/features/mcp-server/), which is what actually executes the API calls — the plugin teaches Claude _how_ to configure things, the MCP server gives it the tools to do it. You'll need both.
+If you use Claude Code, the [BFFless plugin](/features/claude-code-plugin) ships a `traffic-splitting` skill that knows this whole configuration shape — weights, sticky sessions, query-param rules, alias naming. It pairs with the [BFFless MCP server](https://docs.bffless.dev/features/mcp-server/), which is what actually executes the API calls — the plugin teaches Claude _how_ to configure things, the MCP server gives it the tools to do it. You'll need both.
 
-Connect the MCP server once (see [MCP Server — Setup](https://docs.bffless.app/features/mcp-server/#setup) for the API key and config), then install the plugin:
+Connect the MCP server once (see [MCP Server — Setup](https://docs.bffless.dev/features/mcp-server/#setup) for the API key and config), then install the plugin:
 
 ```
 /plugin marketplace add bffless/skills
@@ -204,7 +204,7 @@ This isn't a full replacement for Unbounce or Instapage — BFFless is not a dra
 
 ## Try it
 
-There's a live traffic-splitting demo running at [demo.docs.bffless.app](https://demo.docs.bffless.app/) — open it in an incognito window a few times and watch the button color change. Our own homepage at [bffless.app](https://bffless.app) is currently running a four-way headline test using exactly the pattern above.
+There's a live traffic-splitting demo running at [demo.docs.bffless.dev](https://demo.docs.bffless.dev/) — open it in an incognito window a few times and watch the button color change. Our own homepage at [bffless.dev](https://bffless.dev) is currently running a four-way headline test using exactly the pattern above.
 
 If you want to go deeper, the [A/B testing recipe](/recipes/ab-testing) walks through the GitHub Actions setup, analytics integrations for GA4, Mixpanel, and Pendo, and the full cookie behavior. The [traffic splitting reference](/features/traffic-splitting) covers weights, rules, and canary rollouts in detail.
 

@@ -16,7 +16,7 @@ Split traffic across multiple deployment aliases for A/B testing, canary deploym
 
 ## Live Demo
 
-Try traffic splitting yourself at <a href="https://demo.docs.bffless.app/" target="_blank" rel="noopener noreferrer">demo.docs.bffless.app ↗</a>. This demo splits traffic 50/50 between two versions:
+Try traffic splitting yourself at <a href="https://demo.docs.bffless.dev/" target="_blank" rel="noopener noreferrer">demo.docs.bffless.dev ↗</a>. This demo splits traffic 50/50 between two versions:
 
 - **production** - Purple button (default)
 - **red** - Red button (<a href="https://github.com/bffless/demo/pull/1" target="_blank" rel="noopener noreferrer">see the PR ↗</a>)
@@ -27,8 +27,8 @@ Try traffic splitting yourself at <a href="https://demo.docs.bffless.app/" targe
 </div>
 
 Open in an incognito window to get randomly assigned, or use query parameters to force a specific variant:
-- <a href="https://demo.docs.bffless.app/?version=default" target="_blank" rel="noopener noreferrer">demo.docs.bffless.app/?version=default ↗</a> - Force production (purple)
-- <a href="https://demo.docs.bffless.app/?version=red" target="_blank" rel="noopener noreferrer">demo.docs.bffless.app/?version=red ↗</a> - Force red variant
+- <a href="https://demo.docs.bffless.dev/?version=default" target="_blank" rel="noopener noreferrer">demo.docs.bffless.dev/?version=default ↗</a> - Force production (purple)
+- <a href="https://demo.docs.bffless.dev/?version=red" target="_blank" rel="noopener noreferrer">demo.docs.bffless.dev/?version=red ↗</a> - Force red variant
 
 ## Overview
 
@@ -108,7 +108,7 @@ This is useful for:
 
 ### A/B Testing
 
-Test two versions of your site to see which performs better. The <a href="https://demo.docs.bffless.app/" target="_blank" rel="noopener noreferrer">live demo ↗</a> shows this in action:
+Test two versions of your site to see which performs better. The <a href="https://demo.docs.bffless.dev/" target="_blank" rel="noopener noreferrer">live demo ↗</a> shows this in action:
 
 ```
 production: 50%  (purple button - current design)

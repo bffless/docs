@@ -7,7 +7,7 @@ image: /img/authorization-01.jpg
 description: "A walkthrough of the BFFless authorization system covering global and project-level roles — Admin, Contributor, Viewer, and Guest — and how to assign them to users."
 ---
 
-Managing who can see and do what inside your BFFless backend is a critical part of running any project. BFFless ships with a two-level permission system that gives you fine-grained control over access: **global roles** for system-wide access and **project roles** for per-project permissions. This post walks through every tier of [authorization](https://docs.bffless.app/features/authorization/) — from full admin privileges down to guest-level website authentication — and shows how each one works in practice.
+Managing who can see and do what inside your BFFless backend is a critical part of running any project. BFFless ships with a two-level permission system that gives you fine-grained control over access: **global roles** for system-wide access and **project roles** for per-project permissions. This post walks through every tier of [authorization](https://docs.bffless.dev/features/authorization/) — from full admin privileges down to guest-level website authentication — and shows how each one works in practice.
 
 <YouTubeEmbed id="7llod4HV-Ec" title="BFFless Backend Authorization and Role Management" />
 

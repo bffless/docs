@@ -9,7 +9,7 @@ description: 'Use the BFFless Rules as Code feature to build, version-control, a
 
 ## What Are Rules as Code?
 
-[BFFless](https://bffless.app/) has a new feature called **Rules as Code**. The idea is simple: [pipeline](https://docs.bffless.app/features/pipelines/) rules — the backend logic that handles form submissions, queries records, and more — can now live as YAML files right inside your code repository, rather than only being configured through the admin UI dashboard or the [MCP server](https://docs.bffless.app/features/mcp-server/).
+[BFFless](https://bffless.dev/) has a new feature called **Rules as Code**. The idea is simple: [pipeline](https://docs.bffless.dev/features/pipelines/) rules — the backend logic that handles form submissions, queries records, and more — can now live as YAML files right inside your code repository, rather than only being configured through the admin UI dashboard or the [MCP server](https://docs.bffless.dev/features/mcp-server/).
 
 When you deploy a change to your front-end website and it has an accompanying rule — say, a backend pipeline that handles a form — that rule ships alongside your front-end code. This gives you proper version control, makes it easy to review backend behaviour in pull requests, and helps you understand exactly what your pipelines look like in the context of the rest of your codebase.
 
@@ -61,7 +61,7 @@ The AI asks a few clarifying questions:
 
 ## How the File Convention Works
 
-The [proxy rules](https://docs.bffless.app/features/proxy-rules/) as code follow a **Next.js-style file convention** for routes. Inside the `.bffless/proxy-rules` directory, folders map to URL path segments. Brackets denote dynamic segments (e.g., `[...path]` for a wildcard), and each HTTP method gets its own rule file — `get.rule.yaml`, `post.rule.yaml`, and so on.
+The [proxy rules](https://docs.bffless.dev/features/proxy-rules/) as code follow a **Next.js-style file convention** for routes. Inside the `.bffless/proxy-rules` directory, folders map to URL path segments. Brackets denote dynamic segments (e.g., `[...path]` for a wildcard), and each HTTP method gets its own rule file — `get.rule.yaml`, `post.rule.yaml`, and so on.
 
 ```
 .bffless/proxy-rules/api-backend/
@@ -188,7 +188,7 @@ fields:
 
 ## Deploying Rules via GitHub Actions
 
-Rules as Code are deployed to the BFFless backend through a reusable GitHub Action: [`bffless/deploy-proxy-rules`](https://github.com/bffless/deploy-proxy-rules). The deploy pipeline is configured to push all rules found under `.bffless/proxy-rules/api-backend` (and any other configured paths, such as chat pipelines) using the project's API URL and API key. It works much like the [upload artifact](https://docs.bffless.app/deployment/github-actions/upload-artifact/) action.
+Rules as Code are deployed to the BFFless backend through a reusable GitHub Action: [`bffless/deploy-proxy-rules`](https://github.com/bffless/deploy-proxy-rules). The deploy pipeline is configured to push all rules found under `.bffless/proxy-rules/api-backend` (and any other configured paths, such as chat pipelines) using the project's API URL and API key. It works much like the [upload artifact](https://docs.bffless.dev/deployment/github-actions/upload-artifact/) action.
 
 Here is the sync step from the example project's deploy workflow — it runs before `bffless/upload-artifact` so the API routes exist by the time the front end that calls them goes live:
 
@@ -291,7 +291,7 @@ The form is fully functional on the preview branch. Once the PR is merged, the d
 
 ## Recap
 
-BFFless [pipelines](https://docs.bffless.app/features/pipelines/) are a powerful way to add backend logic to a static front end without running your own server. With the new **Rules as Code** feature, those pipelines are defined as YAML files that live in your repository's `.bffless` folder, giving you:
+BFFless [pipelines](https://docs.bffless.dev/features/pipelines/) are a powerful way to add backend logic to a static front end without running your own server. With the new **Rules as Code** feature, those pipelines are defined as YAML files that live in your repository's `.bffless` folder, giving you:
 
 - **Version control** — every pipeline change is tracked in Git alongside the front-end code it supports.
 - **Code review** — backend rules show up in pull requests, making them easy to review and discuss.

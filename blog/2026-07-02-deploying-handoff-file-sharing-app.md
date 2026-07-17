@@ -7,7 +7,7 @@ image: /img/handoff-06.jpg
 description: "A detailed walkthrough of deploying Handoff, a Dropbox-like file-sharing app built on BFFless, covering GitHub setup, AWS S3 migration, MCP server configuration, and Claude-driven deployment."
 ---
 
-Handoff is a new Dropbox-like file-sharing application built on top of [BFFless](https://bffless.app). It lets you share files with other people — and even with Claude on VPS servers — through a clean web interface with folder management, drag-and-drop uploads, share links, and role-based access control. In this post, we'll walk through the entire process of deploying Handoff from scratch: forking the repo, configuring GitHub secrets, migrating storage to AWS S3, wiring up the [MCP server](https://docs.bffless.app/features/mcp-server/) so Claude can manage BFFless, and then letting Claude deploy the whole application to production.
+Handoff is a new Dropbox-like file-sharing application built on top of [BFFless](https://bffless.dev). It lets you share files with other people — and even with Claude on VPS servers — through a clean web interface with folder management, drag-and-drop uploads, share links, and role-based access control. In this post, we'll walk through the entire process of deploying Handoff from scratch: forking the repo, configuring GitHub secrets, migrating storage to AWS S3, wiring up the [MCP server](https://docs.bffless.dev/features/mcp-server/) so Claude can manage BFFless, and then letting Claude deploy the whole application to production.
 
 Handoff is one of several apps in the [BFFless apps repository](https://github.com/bffless/apps) — a collection of ready-to-deploy applications that sit on top of a BFFless instance. Another example is Studio, a post-production video editing tool. The idea is that with a little help from Claude (or by reading the instructions yourself), you can deploy any of these apps on top of your own BFFless server.
 
@@ -19,7 +19,7 @@ Handoff is one of several apps in the [BFFless apps repository](https://github.c
 
 The starting point is a fresh, empty BFFless server. Three things need to happen before we can deploy anything: set up GitHub environment variables, configure an MCP server for Claude, and migrate storage to AWS S3.
 
-The first step is to generate a global API key inside the BFFless admin dashboard. This key is named `GitHub/MCP` since it will be used both by the [GitHub Actions](https://docs.bffless.app/deployment/github-actions/) pipeline and by the MCP server. After copying the key, the next step is to fork the [BFFless apps repository](https://github.com/bffless/apps) on GitHub.
+The first step is to generate a global API key inside the BFFless admin dashboard. This key is named `GitHub/MCP` since it will be used both by the [GitHub Actions](https://docs.bffless.dev/deployment/github-actions/) pipeline and by the MCP server. After copying the key, the next step is to fork the [BFFless apps repository](https://github.com/bffless/apps) on GitHub.
 
 <img src="/img/handoff-01.jpg" alt="Creating a global API key in the BFFless admin dashboard" />
 
@@ -34,7 +34,7 @@ These values allow the GitHub Actions pipeline to authenticate against the BFFle
 
 ## Configuring the MCP Server for Claude
 
-The MCP server is what gives Claude direct access to the BFFless API — letting it list projects, create proxy rules, manage data tables, and more. The setup involves grabbing the MCP server configuration snippet from the [BFFless docs](https://docs.bffless.app/features/mcp-server/), pasting it into VS Code, and updating two values: the domain (e.g., `toshimoto.dev`) and the API key.
+The MCP server is what gives Claude direct access to the BFFless API — letting it list projects, create proxy rules, manage data tables, and more. The setup involves grabbing the MCP server configuration snippet from the [BFFless docs](https://docs.bffless.dev/features/mcp-server/), pasting it into VS Code, and updating two values: the domain (e.g., `toshimoto.dev`) and the API key.
 
 Once the configuration file is saved, the next step is to clone the forked repository locally and navigate into the project directory. This is an important detail: the MCP configuration file needs to be in the correct directory so that when Claude Code starts, it picks up the connection. Running `claude mcp` from the project root confirms the connection — in this case, 63 tools are loaded, meaning Claude has full access to the BFFless API.
 
@@ -44,7 +44,7 @@ A quick sanity check — asking Claude "what projects do you see set up on BFFle
 
 By default, BFFless uses local file system storage. For a file-sharing app like Handoff, that's not ideal — you want scalable cloud storage so you can upload as many files as you want without worrying about disk space. The BFFless admin dashboard makes this migration straightforward.
 
-Navigating to **Admin → Site Settings → Infrastructure** shows the current storage provider as "Local File System." Clicking **Migrate Storage** opens a form where you configure [AWS S3](https://docs.bffless.app/storage/aws-s3/) as the new backend. The BFFless docs have detailed instructions on the S3 setup, but here's the high-level process:
+Navigating to **Admin → Site Settings → Infrastructure** shows the current storage provider as "Local File System." Clicking **Migrate Storage** opens a form where you configure [AWS S3](https://docs.bffless.dev/storage/aws-s3/) as the new backend. The BFFless docs have detailed instructions on the S3 setup, but here's the high-level process:
 
 <img src="/img/handoff-03.jpg" alt="BFFless infrastructure settings showing the storage migration option" />
 
@@ -64,7 +64,7 @@ With the MCP server connected, the GitHub secrets configured, and AWS S3 storage
 
 > This repo is a BFFless apps repo. I want you to explore it and create a handoff app on toshimoto.dev. I've already configured your MCP connection, so you should be able to access all the project rules and all the information. I've set up the AWS bucket and I've set up the GitHub repo variable and secret, so the pipeline should be able to deploy to BFFless as well. Do some exploring and ask me any follow-up questions you have, and then I want you to deploy this new app — handoff app — to production on handoff.toshimoto.dev.
 
-Claude gets to work immediately. It invokes the "install app" skill that comes bundled with the repo — this skill contains instructions on how to install each app. It then lists the MCP connections, reads the getting-started documentation, and scans through the [proxy rules](https://docs.bffless.app/features/proxy-rules/) that are part of the Handoff repo.
+Claude gets to work immediately. It invokes the "install app" skill that comes bundled with the repo — this skill contains instructions on how to install each app. It then lists the MCP connections, reads the getting-started documentation, and scans through the [proxy rules](https://docs.bffless.dev/features/proxy-rules/) that are part of the Handoff repo.
 
 <img src="/img/handoff-05.jpg" alt="Claude Code reading the repo and invoking the install app skill" />
 
@@ -72,7 +72,7 @@ Claude identifies the repository as `bffless-apps-test` and checks the current s
 
 ### Applying CORS Rules
 
-Claude also flags a missing piece: CORS rules on the S3 bucket. Without CORS, the browser won't be able to upload files directly to S3. The BFFless docs for [AWS S3 storage](https://docs.bffless.app/storage/aws-s3/) include a CORS configuration snippet. Applying it is a single AWS CLI command:
+Claude also flags a missing piece: CORS rules on the S3 bucket. Without CORS, the browser won't be able to upload files directly to S3. The BFFless docs for [AWS S3 storage](https://docs.bffless.dev/storage/aws-s3/) include a CORS configuration snippet. Applying it is a single AWS CLI command:
 
 ```
 aws s3api put-bucket-cors --bucket <bucket-name> --cors-configuration file://cors.json
@@ -94,7 +94,7 @@ With the fix in place, creating a folder works perfectly — typing a name like 
 
 ### Sharing Files with Share Links
 
-One of the most useful features is [share links](https://docs.bffless.app/features/share-links/). From the Handoff interface, you can generate a share link for any file or folder. When someone opens that link — even in a completely different browser with no cookies or authentication — they can view and download the file. Under the hood, the share link triggers a 302 redirect to a signed S3 URL that's valid for five minutes.
+One of the most useful features is [share links](https://docs.bffless.dev/features/share-links/). From the Handoff interface, you can generate a share link for any file or folder. When someone opens that link — even in a completely different browser with no cookies or authentication — they can view and download the file. Under the hood, the share link triggers a 302 redirect to a signed S3 URL that's valid for five minutes.
 
 This is particularly handy when working with Claude on a VPS server. Instead of SSH-ing files around, you can simply share a link and say, "Hey Claude, take a look at this file."
 
@@ -102,7 +102,7 @@ This is particularly handy when working with Claude on a VPS server. Instead of 
 
 ### How It Works Under the Hood
 
-Looking at the BFFless admin dashboard reveals the infrastructure Claude set up. The domain `handoff.toshimoto.dev` points to the build files and is configured as public. However, "public" here doesn't mean anyone can upload files — [authorization](https://docs.bffless.app/features/authorization/) controls are in place.
+Looking at the BFFless admin dashboard reveals the infrastructure Claude set up. The domain `handoff.toshimoto.dev` points to the build files and is configured as public. However, "public" here doesn't mean anyone can upload files — [authorization](https://docs.bffless.dev/features/authorization/) controls are in place.
 
 The proxy rules tell the full story. Multiple rules handle different concerns: serving the app's static files, handling share link redirects, and serving content directly from the S3 bucket. Many of these rules point to functions that serve files straight out of the `content` subdirectory in the AWS bucket. Checking the bucket in the AWS console confirms the structure: `bffless-apps/uploads/content/` contains the uploaded files, and they're not publicly accessible through the bucket directly — access is only possible through BFFless's signed URLs.
 
@@ -134,4 +134,4 @@ The access control model is intentionally straightforward: non-admin users can v
 
 Handoff demonstrates the power of the BFFless apps ecosystem. Starting from a bare BFFless instance, the entire deployment — including AWS S3 storage migration, MCP server setup, and the actual application deployment — was handled largely by Claude through the MCP connection. The result is a fully functional file-sharing application with drag-and-drop uploads, share links with signed URLs, folder management, and role-based access control.
 
-The [BFFless apps GitHub repo](https://github.com/bffless/apps) contains the full source, including all the proxy rules and [pipeline](https://docs.bffless.app/features/pipelines/) configurations. Whether you use Claude to deploy or follow the instructions manually, you can have Handoff (or other apps like Studio) running on your own BFFless instance in minutes.
+The [BFFless apps GitHub repo](https://github.com/bffless/apps) contains the full source, including all the proxy rules and [pipeline](https://docs.bffless.dev/features/pipelines/) configurations. Whether you use Claude to deploy or follow the instructions manually, you can have Handoff (or other apps like Studio) running on your own BFFless instance in minutes.

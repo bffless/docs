@@ -8,7 +8,7 @@ description: Add AI chat to any site with full page or popup widget layouts, ski
 
 Add an AI-powered chat experience to any site — no backend code required. Choose between a full page chat interface or a popup widget, give your chatbot domain knowledge with skills, and let BFFless handle streaming, persistence, and deployment.
 
-<img src="/img/chat-bffless-app.png" alt="BFFless Chat popup widget on the bffless.app landing page" className="screenshot" />
+<img src="/img/chat-bffless-app.png" alt="BFFless Chat popup widget on the bffless.dev landing page" className="screenshot" />
 
 ## Overview
 
@@ -105,7 +105,7 @@ Best for: dedicated support pages, knowledge base assistants, internal tools.
 
 A floating chat bubble that opens a slide-up chat panel. Users can start a new conversation or close the widget without losing context. The widget stays accessible on any page.
 
-<img src="/img/chat-bffless-app.png" alt="Popup chat widget on the bffless.app landing page" className="screenshot" />
+<img src="/img/chat-bffless-app.png" alt="Popup chat widget on the bffless.dev landing page" className="screenshot" />
 
 Best for: landing pages, documentation sites, e-commerce — anywhere you want chat available without dedicating a full page.
 
@@ -202,8 +202,8 @@ See [AI Pipelines — Configuration Reference](/features/ai-pipelines#configurat
 
 Try the live demos:
 
-- <a href="https://chat.docs.bffless.app/" target="_blank" rel="noopener noreferrer">Full page chat ↗</a>
-- <a href="https://chat.docs.bffless.app/popup/" target="_blank" rel="noopener noreferrer">Popup widget ↗</a>
+- <a href="https://chat.docs.bffless.dev/" target="_blank" rel="noopener noreferrer">Full page chat ↗</a>
+- <a href="https://chat.docs.bffless.dev/popup/" target="_blank" rel="noopener noreferrer">Popup widget ↗</a>
 
 Source code: <a href="https://github.com/bffless/demo-chat" target="_blank" rel="noopener noreferrer">bffless/demo-chat ↗</a>
 

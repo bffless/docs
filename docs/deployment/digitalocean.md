@@ -54,7 +54,7 @@ SSH into your droplet and run the install script:
 ```bash
 ssh root@YOUR_DROPLET_IP
 
-sh -c "$(curl -fsSL https://bffless.app/install.sh)"
+sh -c "$(curl -fsSL https://bffless.dev/install.sh)"
 ```
 
 The installer will:

@@ -1,6 +1,6 @@
 # docs-public
 
-The public documentation site for BFFless Community Edition, served at `docs.bffless.app`. It is a Docusaurus site themed to share one visual identity with the marketing site at `bffless.app`. The terms below are the shared vocabulary for that identity — use them in issues, PRs, component names, and CSS so humans and agents describe the design the same way.
+The public documentation site for BFFless Community Edition, served at `docs.bffless.dev`. It is a Docusaurus site themed to share one visual identity with the marketing site at `bffless.dev`. The terms below are the shared vocabulary for that identity — use them in issues, PRs, component names, and CSS so humans and agents describe the design the same way.
 
 ## Language — brand identity
 
@@ -17,10 +17,10 @@ The single brand accent (`#D85A3D`) — links, active states, primary CTAs, code
 _Avoid_: orange, red, brand-color, primary (as a color name).
 
 **Paper theme**:
-The default light appearance: paper backgrounds, ink text, terracotta accent. Faithful to `bffless.app`.
+The default light appearance: paper backgrounds, ink text, terracotta accent. Faithful to `bffless.dev`.
 
 **Dark variant**:
-The dark appearance, newly designed for the docs (it does not exist on `bffless.app`): warm charcoal surfaces, paper-tone text, the same terracotta accent.
+The dark appearance, newly designed for the docs (it does not exist on `bffless.dev`): warm charcoal surfaces, paper-tone text, the same terracotta accent.
 _Avoid_: dark mode (acceptable casually, but "dark variant" is the canonical term for this designed palette).
 
 ## Language — design kit

@@ -107,7 +107,7 @@ You'll need this IP address for DNS configuration in the next steps.
 Run the BFFless installer:
 
 ```bash
-INSTALL_DIR=/opt/bffless sh -c "$(curl -fsSL https://bffless.app/install.sh)"
+INSTALL_DIR=/opt/bffless sh -c "$(curl -fsSL https://bffless.dev/install.sh)"
 ```
 
 The installer will automatically install Docker if needed and set up the BFFless platform.

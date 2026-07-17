@@ -21,7 +21,7 @@ This pattern is perfect for counters, feature flags, user preferences, and any s
 
 ## Live Example
 
-We have a click counter demo running on [demo.docs.bffless.app](https://demo.docs.bffless.app). The counter state is stored in a DB Record and accessed via Pipeline API endpoints:
+We have a click counter demo running on [demo.docs.bffless.dev](https://demo.docs.bffless.dev). The counter state is stored in a DB Record and accessed via Pipeline API endpoints:
 
 - **GET `/api/count`** - Returns the current count
 - **POST `/api/count`** - Increments and returns the updated count

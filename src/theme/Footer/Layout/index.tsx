@@ -1,6 +1,6 @@
 /**
  * Swizzled Footer/Layout — adds the boxed-"b" brand lockup from the landing
- * (bffless.app) so the docs footer reads as the same property. Mirrors the
+ * (bffless.dev) so the docs footer reads as the same property. Mirrors the
  * upstream layout (links + bottom row) and prepends the lockup to the bottom
  * row above the copyright. See docs/design-system.md §6 (Footer) and the
  * .footer__lockup / .footer__boxed-b rules in src/css/custom.css.

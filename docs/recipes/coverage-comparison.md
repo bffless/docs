@@ -383,7 +383,7 @@ This recipe is implemented in the [BFFless demo repository](https://github.com/b
 
 The HTML coverage report from the demo repository is hosted on BFFless and available at:
 
-**[demo-coverage.docs.bffless.app](https://demo-coverage.docs.bffless.app)**
+**[demo-coverage.docs.bffless.dev](https://demo-coverage.docs.bffless.dev)**
 
 ![Coverage Report](/img/github-actions-coverage.png)
 
