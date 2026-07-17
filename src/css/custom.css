@@ -696,11 +696,40 @@ html.nav-scrolled [data-theme='dark'] .navbar {
   border-width: 0 1px 1px 0;
 }
 
-/* LikeButton — a .pill-ghost that fills terracotta once liked (§6). */
+/* LikeButton — a quiet ghost pill (smaller than the CTA pills) whose
+   heart + fill go terracotta once liked (§6). Rendered on every blog
+   post via the BlogPostItem/Footer wrapper. */
 .like-button-wrap {
   display: flex;
   justify-content: center;
   margin: 1.5rem 0 0.5rem;
+}
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--paper-line);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  appearance: none;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+.like-button__heart {
+  flex: none;
+}
+.like-button:hover:not(:disabled) {
+  border-color: var(--terracotta);
+  color: var(--terracotta);
 }
 .like-button:disabled:not(.like-button--liked) {
   opacity: 0.7;
