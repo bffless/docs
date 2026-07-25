@@ -23,9 +23,11 @@ Marketplace review. Until it's live, use the manual install below.*
 
 With the 1-Click image, the droplet configures itself on first boot: swap (on
 small droplets), per-droplet secrets, and all services — then you finish setup
-in the browser at `https://<droplet-ip>/` using the claim link shown in the SSH
-welcome banner (also visible in the DigitalOcean Droplet Console). No SSH
-session is required for the happy path.
+in the browser at `https://<droplet-ip>/` using the claim token shown in the
+SSH welcome banner (also visible in the DigitalOcean Droplet Console — no SSH
+session required). Copy the token and paste it into the wizard's claim field;
+browsers can drop the `?token=` part of the banner's convenience link when you
+click through the self-signed-certificate warning.
 
 Everything below remains the manual alternative and works on any provider.
 
