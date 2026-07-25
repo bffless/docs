@@ -19,7 +19,7 @@ Point any static build at it: the HTML apps your AI agents produce, React SPAs, 
 
 Get BFFless running in under 5 minutes with our step-by-step guide.
 
-<a href="/getting-started/quickstart" class="pill-cta">Get Started →</a>
+<a href="/getting-started/quickstart/" class="pill-cta">Get Started →</a>
 
 ## Key Features
 

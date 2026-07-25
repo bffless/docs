@@ -57,7 +57,7 @@ flowchart LR
 - Easy DNS management
 - No certbot or port 80 required
 
-<a href="/getting-started/cloudflare-setup" class="pill-cta">Get Started with Cloudflare →</a>
+<a href="/getting-started/cloudflare-setup/" class="pill-cta">Get Started with Cloudflare →</a>
 
 ---
 
@@ -78,4 +78,4 @@ Use this if you need direct connections without a proxy, or if your organization
 - Requires port 80 open for verification
 - You manage SSL renewal (automated via cron)
 
-<a href="/getting-started/letsencrypt-setup" class="pill-ghost">Get Started with Let's Encrypt →</a>
+<a href="/getting-started/letsencrypt-setup/" class="pill-ghost">Get Started with Let's Encrypt →</a>
