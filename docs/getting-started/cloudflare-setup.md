@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 title: Cloudflare Setup
 description: Set up Cloudflare for free SSL, CDN, and DDoS protection
 pagination_next: getting-started/setup-wizard

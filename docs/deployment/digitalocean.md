@@ -79,10 +79,13 @@ Visit `https://admin.yourdomain.com` and complete the setup wizard.
 
 ## Updating
 
+`git pull` first, always — image-only updates run, but new features that live in the repo (compose mounts, the nginx image) silently stay dormant.
+
 ```bash
 cd /opt/bffless
 
-# Pull latest images and restart
+# Pull the latest repo, then pull latest images and restart
+git pull
 ./stop.sh
 docker compose pull
 ./start.sh --fresh

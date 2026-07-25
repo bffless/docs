@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 title: Let's Encrypt Setup
 description: Set up free SSL certificates with Let's Encrypt
 ---

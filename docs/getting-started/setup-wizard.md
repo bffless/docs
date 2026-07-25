@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 title: Setup Wizard
 description: Complete the setup wizard to configure your BFFless instance
 ---
