@@ -1,5 +1,5 @@
 ---
-sidebar_position: 7
+sidebar_position: 8
 title: Manual Setup
 description: Step-by-step guide for manually deploying BFFless
 ---
@@ -224,8 +224,13 @@ docker compose ps
 
 ## Updating
 
+`git pull` first, always — image-only updates run, but new features that live in the repo (compose mounts, the nginx image) silently stay dormant.
+
 ```bash
 cd /opt/bffless
+
+# Pull the latest repo (required — releases can add compose mounts and a rebuilt nginx image)
+git pull
 
 # Stop services
 ./stop.sh

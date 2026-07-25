@@ -6,9 +6,9 @@ description: Deploy BFFless to a DigitalOcean Droplet
 
 # DigitalOcean Deployment
 
-Watch the walkthrough (jumps to the "Creating Droplet on Digital Ocean" section):
+Watch the walkthrough — provisioning a droplet, running the installer, and completing the v0.3.0 web setup wizard:
 
-<YouTubeEmbed id="m1rtyt2fg_o" title="BFFless: Installing on DigitalOcean with Cloudflare" start={150} />
+<YouTubeEmbed id="zTGi5M0mcCo" title="BFFless: Installing on DigitalOcean with the Web UI Setup Wizard" />
 
 Deploy BFFless to a DigitalOcean Droplet.
 
@@ -60,14 +60,18 @@ sh -c "$(curl -fsSL https://bffless.dev/install.sh)"
 The installer will:
 1. Install Docker if needed
 2. Configure the firewall
-3. Prompt for your domain name and email
-4. Generate SSL certificates
-5. Create secure passwords and keys
-6. Start all services
+3. Create secure passwords and keys
+4. Start all services in [bootstrap mode](/getting-started/web-bootstrap-setup)
+5. Print a link to the web setup wizard at `https://YOUR_DROPLET_IP`
 
-## Step 4: Complete Setup
+Since **v0.3.0** the installer no longer prompts for your domain or SSL certificates in the terminal — all of that happens in the browser.
 
-Visit `https://admin.yourdomain.com` and complete the setup wizard.
+## Step 4: Complete Setup in the Browser
+
+Open the link the installer printed (`https://YOUR_DROPLET_IP`), accept the self-signed certificate warning, and complete the web setup wizard: claim token, admin account, domain, SSL, storage, and caching. When DNS has propagated, the wizard redirects you to `https://admin.yourdomain.com`.
+
+- 👉 **[Cloudflare Setup](/getting-started/cloudflare-setup)** - Full walkthrough with Cloudflare DNS and origin certificates (recommended)
+- 👉 **[Zero-SSH Web Bootstrap Setup](/getting-started/web-bootstrap-setup)** - Wizard steps, claim token details, and recovery
 
 ## Access Points
 
@@ -79,10 +83,13 @@ Visit `https://admin.yourdomain.com` and complete the setup wizard.
 
 ## Updating
 
+`git pull` first, always — image-only updates run, but new features that live in the repo (compose mounts, the nginx image) silently stay dormant.
+
 ```bash
 cd /opt/bffless
 
-# Pull latest images and restart
+# Pull the latest repo, then pull latest images and restart
+git pull
 ./stop.sh
 docker compose pull
 ./start.sh --fresh

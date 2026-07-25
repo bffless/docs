@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 title: Setup Wizard
 description: Complete the setup wizard to configure your BFFless instance
 ---
@@ -11,6 +11,10 @@ Watch the walkthrough (jumps to the "Onboarding setup" section):
 <YouTubeEmbed id="m1rtyt2fg_o" title="BFFless: Setup Wizard Walkthrough" start={504} />
 
 After installing BFFless, you'll complete a setup wizard to configure your instance. This guide walks you through each step.
+
+:::info Which Wizard Am I In?
+Since **v0.3.0** the one-line installer boots into [bootstrap mode](/getting-started/web-bootstrap-setup), whose wizard adds Claim, Admin Account, and Domain & SSL steps before the ones below — the Storage, Cache, and Email steps on this page appear there unchanged as steps 4–6. This page documents the classic wizard you get after `setup.sh`'s interactive terminal flow ([Manual Setup](/getting-started/manual-setup)).
+:::
 
 ## Accessing the Setup Wizard
 
