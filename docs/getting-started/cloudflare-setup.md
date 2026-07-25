@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
 title: Cloudflare Setup
 description: Set up Cloudflare for free SSL, CDN, and DDoS protection
 pagination_next: getting-started/first-deployment
@@ -10,7 +10,7 @@ pagination_next: getting-started/first-deployment
 <YouTubeEmbed id="zTGi5M0mcCo" title="BFFless Web UI Onboarding and Cloudflare Setup" />
 
 :::info Onboarding Moved to the Browser in v0.3.0
-Since **v0.3.0** the install script starts BFFless in [bootstrap mode](/getting-started/web-bootstrap-setup) and everything after the one-line install command — claim token, admin account, domain, Cloudflare origin certificate, storage, and caching — happens in a guided **web UI setup wizard**. This page (and the video above) walks through that flow.
+Since **v0.3.0** the install script starts BFFless in **bootstrap mode** and everything after the one-line install command — claim token, admin account, domain, Cloudflare origin certificate, storage, and caching — happens in a guided **web UI setup wizard**. This page (and the video above) walks through that flow. To enter bootstrap mode by hand on an existing checkout (for example a DigitalOcean 1-Click image), run `./setup.sh --bootstrap && ./start.sh`.
 :::
 
 **Cloudflare is the recommended approach for self-hosted deployments.** It provides:
@@ -116,10 +116,20 @@ Because the server is using a self-signed certificate at this point, your browse
 
 ### Claim the Instance
 
-The first page of the setup wizard is the **Platform Setup** screen. It displays a **claim token** — a one-time code that proves you are the person who provisioned the server. Copy the token, then click **Continue**. This prevents anyone else who discovers the IP from hijacking the setup.
+The first page of the setup wizard is the **Platform Setup** screen. It displays a **claim token** (`ONBOARDING_TOKEN`) — a one-time code that proves you are the person who provisioned the server; whoever supplies it becomes the instance's first admin. Copy the token, then click **Continue**. This prevents anyone else who discovers the IP from hijacking the setup.
+
+If you reached the wizard through a `?token=...` URL (for example a Platform-provisioned relay link), the Claim step is skipped automatically — the token was already supplied for you.
 
 :::tip Claim Token Lost?
-The claim token can get lost when the browser redirects through the SSL warning. If that happens, simply copy and paste it manually. See [Zero-SSH Web Bootstrap Setup](/getting-started/web-bootstrap-setup#what-is-the-claim-token) for where to find the token on your server.
+The claim token can get lost when the browser redirects through the SSL warning. If the Claim step comes up empty, copy it from your server and paste it in manually:
+
+- **Self-managed install:** printed by the installer when it finishes, and always readable afterward from `.env`:
+
+  ```bash
+  grep ONBOARDING_TOKEN .env
+  ```
+
+- **DigitalOcean droplet:** open the droplet's **Console** from the DigitalOcean control panel — the token is shown in the server's login banner.
 :::
 
 <img src="/img/web-ui-onboarding-04.jpg" alt="Platform Setup page showing the claim token" className="screenshot" />
@@ -132,7 +142,15 @@ Next, create the administrator account you'll use to manage the platform.
 
 ### Choose Cloudflare as the Serving Path
 
-The wizard asks how traffic reaches your server. Select **Through Cloudflare** — a free CDN with a web application firewall in front of your origin is the best practice, and Cloudflare's free tier makes it an easy choice. (The other options — another CDN/WAF, or serving directly with [Let's Encrypt](/getting-started/letsencrypt-setup) — are covered in the [bootstrap setup guide](/getting-started/web-bootstrap-setup#the-three-serving-paths).)
+The wizard asks how traffic reaches your server. This choice drives everything else in the Domain & SSL step — the DNS instructions, the certificate options offered, and how nginx gets configured:
+
+| Path | Choose it when… | Certificate |
+| --- | --- | --- |
+| **Through Cloudflare** | You want the easiest path to production: free SSL, DDoS protection, and CDN caching, with Cloudflare terminating TLS at its edge. | Paste a free Cloudflare Origin Certificate (this guide). Plain HTTP redirects to HTTPS by default (close port 80 instead if you enable Cloudflare's *Always Use HTTPS*). |
+| **Through another CDN or WAF** | You're behind Fastly, Bunny, a corporate WAF, or anything else that terminates TLS in front of this server. | Most of these don't validate the origin, so you can keep the server's built-in self-signed certificate with nothing to maintain — or issue Let's Encrypt / paste your own if your front door does validate. |
+| **Directly** | Your domain's A record points straight at this server with nothing in front of it. | The server needs a browser-trusted certificate itself: auto-issue with [Let's Encrypt](/getting-started/letsencrypt-setup) (recommended), or paste your own. |
+
+Select **Through Cloudflare** — a free CDN with a web application firewall in front of your origin is the best practice, and Cloudflare's free tier makes it an easy choice.
 
 Leave the wizard open and switch to Cloudflare for the next two steps.
 
@@ -299,9 +317,27 @@ dig yourdomain.com +short
 
 If DNS isn't propagated, wait 5-30 minutes and try again.
 
+### Start Over Before Finish Setup
+
+Any time before the final **Finish setup** click, you can reset the wizard's in-progress state and begin again:
+
+```bash
+rm -rf bootstrap/instance.json bootstrap/instance.env
+docker compose restart backend nginx
+```
+
 ### Applied the Wrong Domain?
 
-**Finish setup** is a one-way step — if you typo'd the domain or DNS wasn't pointed at the box yet, the server restarts under an identity you can't reach. See [Recovery](/getting-started/web-bootstrap-setup#recovery) for how to drop back into bootstrap mode and retry.
+**Finish setup** is a one-way step — if you typo'd the domain or DNS wasn't pointed at the box yet, the server restarts under an identity you can't reach. This is also the fix if **Finish setup** itself failed partway: run the same commands as in [Start Over Before Finish Setup](#start-over-before-finish-setup) over SSH to drop the server back into bootstrap mode, then retry in the browser.
+
+### Stuck Serving the Wizard on Your Real Domain
+
+If nginx ever serves the setup wizard on your **production** domain after certificate files went briefly missing (the durable self-signed bootstrap marker can outlive the situation that created it), recover with:
+
+```bash
+rm ssl/bootstrap-selfsigned.crt ssl/bootstrap-selfsigned.key
+docker compose restart nginx
+```
 
 ### Orange Cloud vs Gray Cloud
 
