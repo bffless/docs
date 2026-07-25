@@ -19,9 +19,14 @@ Watch the 4-minute [Anatomy of a Website explainer](#background-how-the-web-work
 ## Prerequisites
 
 - A Linux server (Ubuntu 22.04+ recommended)
-- Docker and Docker Compose installed
 - A domain name
 - Port 443 open (port 80 also needed if not using Cloudflare)
+
+Docker and Docker Compose are **not** prerequisites — the installer detects and installs them automatically on a fresh server.
+
+:::info Setup Happens in the Browser
+Since **v0.3.0**, the one-line installer only boots the container stack. Everything else — claim token, admin account, domain, SSL certificate, storage, and caching — is completed in a guided [web setup wizard](/getting-started/web-bootstrap-setup). You never have to return to the terminal.
+:::
 
 :::tip No Server Yet?
 You can deploy on any cloud provider. A basic $5-12/month VPS from DigitalOcean, Linode, or Hetzner works well. 1GB RAM is the minimum; 2GB+ lets you enable optional services like MinIO and Redis.

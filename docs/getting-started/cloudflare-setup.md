@@ -2,14 +2,16 @@
 sidebar_position: 3
 title: Cloudflare Setup
 description: Set up Cloudflare for free SSL, CDN, and DDoS protection
-pagination_next: getting-started/setup-wizard
+pagination_next: getting-started/first-deployment
 ---
 
 # Cloudflare Setup
 
-<YouTubeEmbed id="m1rtyt2fg_o" title="Cloudflare Setup Walkthrough" />
+<YouTubeEmbed id="zTGi5M0mcCo" title="BFFless Web UI Onboarding and Cloudflare Setup" />
 
-Chapters: [Domains on Cloudflare](https://youtu.be/m1rtyt2fg_o?t=22) · [Pointing name servers](https://youtu.be/m1rtyt2fg_o?t=60) · [Creating a Droplet](https://youtu.be/m1rtyt2fg_o?t=150) · [Installing BFFless](https://youtu.be/m1rtyt2fg_o?t=208) · [Origin certs](https://youtu.be/m1rtyt2fg_o?t=316) · [DNS A records](https://youtu.be/m1rtyt2fg_o?t=390) · [Onboarding](https://youtu.be/m1rtyt2fg_o?t=504)
+:::info Onboarding Moved to the Browser in v0.3.0
+Since **v0.3.0** the install script starts BFFless in [bootstrap mode](/getting-started/web-bootstrap-setup) and everything after the one-line install command — claim token, admin account, domain, Cloudflare origin certificate, storage, and caching — happens in a guided **web UI setup wizard**. This page (and the video above) walks through that flow.
+:::
 
 **Cloudflare is the recommended approach for self-hosted deployments.** It provides:
 
@@ -84,75 +86,57 @@ Any cloud provider works. Here are some budget-friendly options:
 
 1. Create a server with **Ubuntu 22.04+** (or your preferred Linux distro)
 2. Ensure **port 443** is open in your firewall
+3. Add your SSH key during creation so you can log in without a password
+
+<img src="/img/web-ui-onboarding-01.jpg" alt="Creating a DigitalOcean droplet with minimal specs" className="screenshot" />
+
+Once the server is ready, note its public IP address — you'll need it for DNS configuration.
 
 ## Step 2: Run the Installer
 
-Now SSH into your server and start the BFFless installer.
-
-### 2.1 Connect to Your Server
-
-From your local machine, SSH into your server and note your public IP address:
+SSH into your server and run the one-line installer:
 
 ```bash
 ssh root@YOUR_SERVER_IP
-curl -4 ifconfig.me && echo
-```
 
-<img src="/img/cloudflare-6.1.png" alt="Terminal showing SSH connection to Ubuntu server with system information" className="screenshot" />
-
-You'll need this IP address for DNS configuration in the next steps.
-
-### 2.2 Run the Install Script
-
-Run the BFFless installer:
-
-```bash
 INSTALL_DIR=/opt/bffless sh -c "$(curl -fsSL https://bffless.dev/install.sh)"
 ```
 
-The installer will automatically install Docker if needed and set up the BFFless platform.
+On a fresh server the script detects missing prerequisites — Docker, in particular — and installs them automatically. The installation takes a few minutes while Docker and the BFFless containers are pulled and started.
 
-<!-- TODO: Add screenshot of installer starting -->
+<img src="/img/web-ui-onboarding-02.jpg" alt="The BFFless docs page with the install command" className="screenshot" />
 
-### 2.3 Enter Your Domain
+When it finishes, the script prints a link containing your server's IP address. Copy or click that link to open it in your browser — that's the last thing you need the terminal for.
 
-When prompted, enter your domain name (e.g., `example.com`):
+## Step 3: Open the Web Setup Wizard
 
-<img src="/img/cloudflare-6.3.png" alt="BFFless setup script showing prerequisites check and domain prompt" className="screenshot" />
+Because the server is using a self-signed certificate at this point, your browser will show a privacy warning. This is expected — it is *your* certificate — so click **Proceed** to continue.
 
-### 2.4 Select Cloudflare
+<img src="/img/web-ui-onboarding-03.jpg" alt="Browser self-signed certificate warning" className="screenshot" />
 
-When asked about SSL certificate method, select **1** for Cloudflare (or just press Enter for the default):
+### Claim the Instance
 
-<img src="/img/cloudflare-6.4.png" alt="SSL Certificate Method selection showing Cloudflare as option 1 and Let's Encrypt as option 2" className="screenshot" />
+The first page of the setup wizard is the **Platform Setup** screen. It displays a **claim token** — a one-time code that proves you are the person who provisioned the server. Copy the token, then click **Continue**. This prevents anyone else who discovers the IP from hijacking the setup.
 
-### 2.5 Confirm Your Server IP
-
-The installer will detect your server's public IP address. Press Enter to confirm or enter a different IP.
-
-### 2.6 Accept Default Passwords
-
-Press Enter to accept the auto-generated defaults for:
-- **PostgreSQL password** - auto-generated secure password
-- **MinIO root user** - defaults to `minioadmin`
-- **MinIO root password** - auto-generated secure password
-- **Redis password** - auto-generated secure password
-
-For **Email Configuration**, enter `N` to skip. You can configure email later in Admin Settings.
-
-:::tip Email Provider Recommendation
-Most cloud providers block SMTP ports (25, 465, 587) for spam prevention, so direct SMTP usually won't work. Use a transactional email service like [Resend](https://resend.com), [SendGrid](https://sendgrid.com), or [Postmark](https://postmarkapp.com) instead - they use API-based delivery that works on any host.
+:::tip Claim Token Lost?
+The claim token can get lost when the browser redirects through the SSL warning. If that happens, simply copy and paste it manually. See [Zero-SSH Web Bootstrap Setup](/getting-started/web-bootstrap-setup#what-is-the-claim-token) for where to find the token on your server.
 :::
 
-<img src="/img/cloudflare-defaults.png" alt="Installer showing auto-generated passwords for PostgreSQL, MinIO, and Redis, with SMTP configuration prompt" className="screenshot" />
+<img src="/img/web-ui-onboarding-04.jpg" alt="Platform Setup page showing the claim token" className="screenshot" />
 
-### 2.7 Origin Certificate Prompt
+### Create Your Admin Account
 
-When prompted "Do you have your Origin Certificate ready?", **enter `y`**.
+Next, create the administrator account you'll use to manage the platform.
 
-The installer will wait for you to paste your certificate. **Leave the terminal open** and continue to the next steps to configure Cloudflare and generate your Origin Certificate. You'll return to this terminal after Step 5 to paste the certificates.
+<img src="/img/web-ui-onboarding-05.jpg" alt="Account creation step in the setup wizard" className="screenshot" />
 
-## Step 3: Add Your Domain to Cloudflare
+### Choose Cloudflare as the Serving Path
+
+The wizard asks how traffic reaches your server. Select **Through Cloudflare** — a free CDN with a web application firewall in front of your origin is the best practice, and Cloudflare's free tier makes it an easy choice. (The other options — another CDN/WAF, or serving directly with [Let's Encrypt](/getting-started/letsencrypt-setup) — are covered in the [bootstrap setup guide](/getting-started/web-bootstrap-setup#the-three-serving-paths).)
+
+Leave the wizard open and switch to Cloudflare for the next two steps.
+
+## Step 4: Add Your Domain to Cloudflare
 
 If your domain isn't already on Cloudflare:
 
@@ -175,11 +159,11 @@ dig NS yourdomain.com +short
 You should see Cloudflare nameservers in the output.
 :::
 
-## Step 4: Create DNS Records
+## Step 5: Create DNS Records
 
 In the Cloudflare Dashboard, go to **DNS > Records** and add these A records:
 
-<img src="/img/cloudflare-dns.png" alt="Cloudflare DNS Records showing A records for admin, wildcard, root domain, minio, and www all proxied" className="screenshot" />
+<img src="/img/web-ui-onboarding-06.jpg" alt="Adding DNS A records in Cloudflare" className="screenshot" />
 
 | Type | Name | Content          | Proxy Status           |
 | ---- | ---- | ---------------- | ---------------------- |
@@ -191,11 +175,13 @@ In the Cloudflare Dashboard, go to **DNS > Records** and add these A records:
 - `*` is a wildcard that covers all subdomains (`admin.yourdomain.com`, `www.yourdomain.com`, `mysite.yourdomain.com`, etc.)
 :::
 
-## Step 5: Generate an Origin Certificate
+Back in the BFFless wizard, enter your domain name.
+
+## Step 6: Generate an Origin Certificate
 
 Origin Certificates encrypt traffic between Cloudflare and your server.
 
-<img src="/img/cloudflare-origin-certs.png" alt="Cloudflare Origin Certificate creation showing RSA 2048 key type and hostname configuration" className="screenshot" />
+<img src="/img/web-ui-onboarding-07.jpg" alt="Cloudflare Origin Certificate creation dialog" className="screenshot" />
 
 1. In Cloudflare Dashboard, go to **SSL/TLS > Origin Server**
 2. Click **Create Certificate**
@@ -215,16 +201,16 @@ You'll see two text blocks:
 **Copy both the certificate and private key now.** The private key is only shown once and cannot be retrieved later.
 :::
 
-### Return to the Terminal
+### Paste Both into the Wizard
 
-Now go back to your terminal where the installer is waiting for you to paste the certificate:
+Back in the BFFless wizard:
 
-1. **Paste your Origin Certificate** (the full text including `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`), then press Enter on a blank line
-2. **Paste your Private Key** (the full text including `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----`), then press Enter on a blank line
+1. **Paste the Origin Certificate** (the full text including `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`) into the first text box
+2. **Paste the Private Key** (the full text including `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----`) into the second text box
 
-The installer will save the certificates and continue to the next step.
+<img src="/img/web-ui-onboarding-08.jpg" alt="Pasting the certificate and key into the BFFless wizard" className="screenshot" />
 
-## Step 6: Set SSL Mode to Full (Strict)
+## Step 7: Set SSL Mode to Full (Strict)
 
 This ensures end-to-end encryption:
 
@@ -237,22 +223,31 @@ This ensures end-to-end encryption:
 **Flexible** mode means traffic between Cloudflare and your server is unencrypted. Always use **Full (strict)** with Origin Certificates.
 :::
 
-## Step 7: Setup Complete
+## Step 8: Storage, Cache, and Email
 
-After pasting the certificates, the installer will show the "Setup Complete" screen:
+The wizard finishes with the remaining configuration steps:
 
-<img src="/img/cloudflare-setup-complete.png" alt="Setup Complete screen showing next steps including DNS configuration and start command" className="screenshot" />
+- **Storage** — where deployed assets are stored. **Local Filesystem** is fine for testing; for production use a cloud [storage backend](/configuration/storage-backends) such as S3 or GCS. Click **Test Connection** to verify.
+- **Cache** — enable the **In-Memory (LRU)** cache for better performance.
+- **Email** — can be skipped for now and configured later in Admin Settings.
 
-## Step 8: Start and Complete Setup
+<img src="/img/web-ui-onboarding-09.jpg" alt="Storage and caching configuration step" className="screenshot" />
 
-```bash
-cd /opt/bffless
-./start.sh
-```
+See the [Setup Wizard guide](/getting-started/setup-wizard) for a detailed walkthrough of each of these options.
 
-Visit `https://admin.yourdomain.com` to complete the setup wizard.
+## Step 9: Finish Setup and Log In
 
-👉 **[Setup Wizard Guide](/getting-started/setup-wizard)** - Detailed walkthrough of the setup wizard
+Click **Finish setup**. BFFless applies your configuration and begins polling the domain to check whether DNS has propagated.
+
+<img src="/img/web-ui-onboarding-10.jpg" alt="Waiting for DNS propagation" className="screenshot" />
+
+Propagation typically takes under a minute with Cloudflare. As soon as the domain is live, the wizard automatically redirects from the raw IP address to your real domain name, where you're greeted with the login screen.
+
+<img src="/img/web-ui-onboarding-11.jpg" alt="The BFFless login screen on the live domain" className="screenshot" />
+
+Log in with the credentials you created during setup, and you land on the BFFless dashboard — fully configured and ready to go.
+
+<img src="/img/web-ui-onboarding-12.jpg" alt="BFFless dashboard after first login" className="screenshot" />
 
 ## Recommended Cloudflare Settings
 
@@ -281,7 +276,7 @@ For optimal performance, configure these settings in Cloudflare:
 
 ## Next Steps
 
-👉 **[Setup Wizard](/getting-started/setup-wizard)** - Complete the setup wizard to configure storage and create your admin account
+👉 **[First Deployment](/getting-started/first-deployment)** - Create a repository, generate an API key, and deploy your first site
 
 ## Troubleshooting
 
@@ -303,6 +298,10 @@ dig yourdomain.com +short
 ```
 
 If DNS isn't propagated, wait 5-30 minutes and try again.
+
+### Applied the Wrong Domain?
+
+**Finish setup** is a one-way step — if you typo'd the domain or DNS wasn't pointed at the box yet, the server restarts under an identity you can't reach. See [Recovery](/getting-started/web-bootstrap-setup#recovery) for how to drop back into bootstrap mode and retry.
 
 ### Orange Cloud vs Gray Cloud
 
