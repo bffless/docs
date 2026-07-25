@@ -70,7 +70,7 @@ Since **v0.3.0** the installer no longer prompts for your domain or SSL certific
 
 Open the link the installer printed (`https://YOUR_DROPLET_IP`), accept the self-signed certificate warning, and complete the web setup wizard: claim token, admin account, domain, SSL, storage, and caching. When DNS has propagated, the wizard redirects you to `https://admin.yourdomain.com`.
 
-- 👉 **[Cloudflare Setup](/getting-started/cloudflare-setup)** - Full walkthrough: wizard steps, Cloudflare DNS and origin certificates, claim token details, and recovery
+- 👉 **[Cloudflare Setup](/getting-started/cloudflare-setup/)** - Full walkthrough: wizard steps, Cloudflare DNS and origin certificates, claim token details, and recovery
 
 ## Access Points
 
@@ -149,5 +149,5 @@ curl http://localhost:3000/api/health
 
 ## Next Steps
 
-- [GitHub Actions](/deployment/github-actions) - Set up automated deployments
-- [Environment Variables](/configuration/environment-variables) - All configuration options
+- [GitHub Actions](/deployment/github-actions/) - Set up automated deployments
+- [Environment Variables](/configuration/environment-variables/) - All configuration options

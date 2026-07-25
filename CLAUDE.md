@@ -6,6 +6,10 @@ The site's proxy rules (blog-post likes API) are managed as code in `.bffless/pr
 
 See `README.md` for site setup and the workspace-level `../../CLAUDE.md` for cross-repo context.
 
+## Internal links: always use a trailing slash
+
+`docusaurus.config.ts` sets `trailingSlash: true`, so canonical URLs end in `/`. **Always write internal links with the trailing slash** — `/getting-started/quickstart/`, not `/getting-started/quickstart`; for cross-page anchors put it before the hash: `/getting-started/setup-wizard/#step-2-configure-storage`. This is load-bearing for raw `<a href>` tags (e.g. the pill CTAs), which bypass Docusaurus link processing and ship verbatim; markdown links are canonicalized at build time but must still be written with the slash for consistency. When touching a page, fix any slash-less internal links you see in it.
+
 ## Agent skills
 
 ### Issue tracker

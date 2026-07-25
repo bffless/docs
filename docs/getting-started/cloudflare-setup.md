@@ -148,7 +148,7 @@ The wizard asks how traffic reaches your server. This choice drives everything e
 | --- | --- | --- |
 | **Through Cloudflare** | You want the easiest path to production: free SSL, DDoS protection, and CDN caching, with Cloudflare terminating TLS at its edge. | Paste a free Cloudflare Origin Certificate (this guide). Plain HTTP redirects to HTTPS by default (close port 80 instead if you enable Cloudflare's *Always Use HTTPS*). |
 | **Through another CDN or WAF** | You're behind Fastly, Bunny, a corporate WAF, or anything else that terminates TLS in front of this server. | Most of these don't validate the origin, so you can keep the server's built-in self-signed certificate with nothing to maintain — or issue Let's Encrypt / paste your own if your front door does validate. |
-| **Directly** | Your domain's A record points straight at this server with nothing in front of it. | The server needs a browser-trusted certificate itself: auto-issue with [Let's Encrypt](/getting-started/letsencrypt-setup) (recommended), or paste your own. |
+| **Directly** | Your domain's A record points straight at this server with nothing in front of it. | The server needs a browser-trusted certificate itself: auto-issue with [Let's Encrypt](/getting-started/letsencrypt-setup/) (recommended), or paste your own. |
 
 Select **Through Cloudflare** — a free CDN with a web application firewall in front of your origin is the best practice, and Cloudflare's free tier makes it an easy choice.
 
@@ -245,13 +245,13 @@ This ensures end-to-end encryption:
 
 The wizard finishes with the remaining configuration steps:
 
-- **Storage** — where deployed assets are stored. **Local Filesystem** is fine for testing; for production use a cloud [storage backend](/configuration/storage-backends) such as S3 or GCS. Click **Test Connection** to verify.
+- **Storage** — where deployed assets are stored. **Local Filesystem** is fine for testing; for production use a cloud [storage backend](/configuration/storage-backends/) such as S3 or GCS. Click **Test Connection** to verify.
 - **Cache** — enable the **In-Memory (LRU)** cache for better performance.
 - **Email** — can be skipped for now and configured later in Admin Settings.
 
 <img src="/img/web-ui-onboarding-09.jpg" alt="Storage and caching configuration step" className="screenshot" />
 
-See the [Setup Wizard guide](/getting-started/setup-wizard) for a detailed walkthrough of each of these options.
+See the [Setup Wizard guide](/getting-started/setup-wizard/) for a detailed walkthrough of each of these options.
 
 ## Step 9: Finish Setup and Log In
 
@@ -294,7 +294,7 @@ For optimal performance, configure these settings in Cloudflare:
 
 ## Next Steps
 
-👉 **[First Deployment](/getting-started/first-deployment)** - Create a repository, generate an API key, and deploy your first site
+👉 **[First Deployment](/getting-started/first-deployment/)** - Create a repository, generate an API key, and deploy your first site
 
 ## Troubleshooting
 
