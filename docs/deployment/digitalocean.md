@@ -61,7 +61,7 @@ The installer will:
 1. Install Docker if needed
 2. Configure the firewall
 3. Create secure passwords and keys
-4. Start all services in [bootstrap mode](/getting-started/web-bootstrap-setup)
+4. Start all services in bootstrap mode
 5. Print a link to the web setup wizard at `https://YOUR_DROPLET_IP`
 
 Since **v0.3.0** the installer no longer prompts for your domain or SSL certificates in the terminal — all of that happens in the browser.
@@ -70,8 +70,7 @@ Since **v0.3.0** the installer no longer prompts for your domain or SSL certific
 
 Open the link the installer printed (`https://YOUR_DROPLET_IP`), accept the self-signed certificate warning, and complete the web setup wizard: claim token, admin account, domain, SSL, storage, and caching. When DNS has propagated, the wizard redirects you to `https://admin.yourdomain.com`.
 
-- 👉 **[Cloudflare Setup](/getting-started/cloudflare-setup)** - Full walkthrough with Cloudflare DNS and origin certificates (recommended)
-- 👉 **[Zero-SSH Web Bootstrap Setup](/getting-started/web-bootstrap-setup)** - Wizard steps, claim token details, and recovery
+- 👉 **[Cloudflare Setup](/getting-started/cloudflare-setup/)** - Full walkthrough: wizard steps, Cloudflare DNS and origin certificates, claim token details, and recovery
 
 ## Access Points
 
@@ -150,5 +149,5 @@ curl http://localhost:3000/api/health
 
 ## Next Steps
 
-- [GitHub Actions](/deployment/github-actions) - Set up automated deployments
-- [Environment Variables](/configuration/environment-variables) - All configuration options
+- [GitHub Actions](/deployment/github-actions/) - Set up automated deployments
+- [Environment Variables](/configuration/environment-variables/) - All configuration options

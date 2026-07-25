@@ -25,7 +25,7 @@ Watch the 4-minute [Anatomy of a Website explainer](#background-how-the-web-work
 Docker and Docker Compose are **not** prerequisites — the installer detects and installs them automatically on a fresh server.
 
 :::info Setup Happens in the Browser
-Since **v0.3.0**, the one-line installer only boots the container stack. Everything else — claim token, admin account, domain, SSL certificate, storage, and caching — is completed in a guided [web setup wizard](/getting-started/web-bootstrap-setup). You never have to return to the terminal.
+Since **v0.3.0**, the one-line installer only boots the container stack. Everything else — claim token, admin account, domain, SSL certificate, storage, and caching — is completed in a guided [web setup wizard](/getting-started/cloudflare-setup/). You never have to return to the terminal.
 :::
 
 :::tip No Server Yet?

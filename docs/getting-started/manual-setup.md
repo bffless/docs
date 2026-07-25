@@ -1,5 +1,5 @@
 ---
-sidebar_position: 8
+sidebar_position: 7
 title: Manual Setup
 description: Step-by-step guide for manually deploying BFFless
 ---

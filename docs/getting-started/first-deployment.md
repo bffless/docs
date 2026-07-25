@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 5
 title: First Deployment
 description: Create your first repository, generate an API key, and deploy your first site
 ---

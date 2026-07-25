@@ -1,5 +1,5 @@
 ---
-sidebar_position: 7
+sidebar_position: 6
 title: Viewing Deployments
 description: Browse your deployments, set up aliases, and map domains
 ---

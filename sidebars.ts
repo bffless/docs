@@ -12,7 +12,6 @@ const sidebars: SidebarsConfig = {
       },
       items: [
         'getting-started/quickstart',
-        'getting-started/web-bootstrap-setup',
         'getting-started/cloudflare-setup',
         'getting-started/letsencrypt-setup',
         'getting-started/setup-wizard',
