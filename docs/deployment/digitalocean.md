@@ -14,6 +14,21 @@ Deploy BFFless to a DigitalOcean Droplet.
 
 **Cost:** $6-12/month
 
+## 1-Click Deploy (recommended)
+
+<!-- TODO(listing): once the DO Marketplace listing is live, replace the line
+below with the real listing URL + Deploy button image. -->
+*The BFFless CE DigitalOcean Marketplace 1-Click app is coming soon — it is in
+Marketplace review. Until it's live, use the manual install below.*
+
+With the 1-Click image, the droplet configures itself on first boot: swap (on
+small droplets), per-droplet secrets, and all services — then you finish setup
+in the browser at `https://<droplet-ip>/` using the claim link shown in the SSH
+welcome banner (also visible in the DigitalOcean Droplet Console). No SSH
+session is required for the happy path.
+
+Everything below remains the manual alternative and works on any provider.
+
 ## Prerequisites
 
 - DigitalOcean account
@@ -82,17 +97,13 @@ Open the link the installer printed (`https://YOUR_DROPLET_IP`), accept the self
 
 ## Updating
 
-`git pull` first, always — image-only updates run, but new features that live in the repo (compose mounts, the nginx image) silently stay dormant.
-
 ```bash
-cd /opt/bffless
-
-# Pull the latest repo, then pull latest images and restart
-git pull
-./stop.sh
-docker compose pull
-./start.sh --fresh
+cd /opt/bffless   # or wherever you cloned CE
+./update.sh       # aborts on local changes; git pull + image pull + restart
 ```
+
+`./status.sh` shows the running vs checked-out version and warns when a
+restart is pending.
 
 ## Maintenance
 
@@ -103,13 +114,39 @@ docker compose logs -f
 docker compose logs -f backend
 ```
 
-### Backup Database
+### Backup
 
 ```bash
-mkdir -p /opt/backups/postgres
-docker compose exec postgres pg_dump -U postgres bffless > \
-  /opt/backups/postgres/backup_$(date +%Y%m%d_%H%M%S).sql
+./backup.sh   # backups/bffless-backup-<timestamp>.tar.gz
 ```
+
+The archive contains the database dump, asset storage, `.env`, `bootstrap/`,
+and `ssl/` — everything a restore needs. It contains secrets; store it
+securely.
+
+### Restoring a backup
+
+Restore is manual (there is no `restore.sh` yet). On a fresh CE checkout:
+
+```bash
+# 1. Unpack
+tar xzf bffless-backup-<timestamp>.tar.gz -C /tmp/bffless-restore
+
+# 2. Restore config + identity + certs into the repo root
+cp /tmp/bffless-restore/.env .
+cp -r /tmp/bffless-restore/bootstrap /tmp/bffless-restore/ssl .
+
+# 3. Start only postgres, load the dump, then start everything
+./start.sh
+docker exec -i assethost-postgres psql -U postgres -d assethost < /tmp/bffless-restore/database.sql
+
+# 4. Restore assets (local storage installs)
+docker cp /tmp/bffless-restore/uploads/. assethost-backend:/app/apps/backend/uploads
+./restart.sh
+```
+
+For MinIO installs, copy `minio-data/` into the MinIO container's `/data`
+instead of step 4.
 
 ### Reset Application
 
