@@ -11,6 +11,8 @@ description: 'A complete walkthrough of the new BFFless v0.3.0 web UI onboarding
 
 In this post we walk through the full process end to end: provisioning a server on DigitalOcean, running the one-line installer, and completing the new [setup wizard](https://docs.bffless.dev/getting-started/setup-wizard/) with [Cloudflare](https://docs.bffless.dev/getting-started/cloudflare-setup/) as the CDN.
 
+<YouTubeEmbed id="zTGi5M0mcCo" title="BFFless Web UI Onboarding and Cloudflare Setup" />
+
 <!-- truncate -->
 
 ## Provisioning the Server
