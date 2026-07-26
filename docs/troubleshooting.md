@@ -301,6 +301,30 @@ docker compose down -v
 docker compose up -d
 ```
 
+## Upgrading a Pre-Wizard Install (Identity in `.env`)
+
+Since the web-bootstrap release, instance identity lives in
+`bootstrap/instance.json`. Installs set up earlier (interactive `setup.sh`,
+identity in `.env`) are **adopted automatically** on the first boot after
+upgrading: the backend writes `bootstrap/instance.json` marked as
+env-managed. Nothing changes for you:
+
+- Editing `PRIMARY_DOMAIN` (etc.) in `.env` and restarting keeps working —
+  the file is re-synced from `.env` on every boot.
+- Rolling back to an older image is safe; `.env` is never modified.
+
+What you gain:
+
+- **Let's Encrypt installs**: certificate renewal now happens in-app (the
+  old `certbot --standalone` renewal could not re-bind port 80 while nginx
+  held it). You can remove any host-side certbot cron for this domain.
+- **Pasted certificates** (Cloudflare Origin or bring-your-own): you now get
+  expiry-reminder emails.
+
+If you later change your domain through the admin UI, the install graduates
+to UI-managed identity and `.env` identity edits stop applying (the startup
+log warns if the two ever diverge).
+
 ## Common Error Messages
 
 | Error | Cause | Solution |
