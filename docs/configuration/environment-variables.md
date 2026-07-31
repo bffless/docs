@@ -266,6 +266,21 @@ Optional configuration for sending emails (password resets, notifications). If n
 
 ---
 
+## App Catalog
+
+Controls **Admin → Apps**, the 1-click install of first-party apps (CE 0.4.0+). See [App Catalog](/features/app-catalog).
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FEATURE_APP_CATALOG` | `true` | Set to `false` to hide the Apps page and refuse its endpoints |
+| `APPS_REGISTRY_URL` | `https://apps.bffless.dev/registry.json` | Where the catalog fetches its index of installable apps. Point at your own copy for air-gapped installs or a self-published catalog |
+
+:::note Docker deployments
+Both are already mapped through to the backend container in the shipped `docker-compose.yml`. If you run a customised compose file with its own `environment:` block, add them there too — a value set only in `.env` will not reach the backend.
+:::
+
+---
+
 ## Telemetry
 
 Anonymous, opt-out install telemetry. On by default; see [Telemetry](/reference/telemetry) for exactly what is sent.

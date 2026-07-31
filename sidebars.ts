@@ -39,6 +39,7 @@ const sidebars: SidebarsConfig = {
         'features/chat',
         'features/mcp-server',
         'features/claude-code-plugin',
+        'features/app-catalog',
       ],
     },
     {

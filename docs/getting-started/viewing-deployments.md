@@ -194,6 +194,9 @@ If your custom domain doesn't use Cloudflare:
 
 ## Next Steps
 
-- [Traffic Splitting](/features/traffic-splitting) - A/B test between deployments
-- [Share Links](/features/share-links) - Create personalized preview links
-- [Proxy Rules](/features/proxy-rules) - Forward API requests to backend services
+Want to see BFFless actually doing something before you build your own site? **Admin → Apps** lets you install a complete, working app — pipelines, data tables, deployment, and a domain — in one click, no GitHub Actions required. See [App Catalog](/features/app-catalog/) for how it works.
+
+- [App Catalog](/features/app-catalog/) - 1-click install first-party apps like Handoff
+- [Traffic Splitting](/features/traffic-splitting/) - A/B test between deployments
+- [Share Links](/features/share-links/) - Create personalized preview links
+- [Proxy Rules](/features/proxy-rules/) - Forward API requests to backend services
