@@ -87,6 +87,52 @@ pipeline:
 `headerConfig.add` values (e.g. `Authorization`) must be committed as **empty-string placeholders** — `rules build`/`validate` hard-error on a non-empty value with `secret values must not be committed; use empty-string placeholders`. A literal `{{secrets.NAME}}` placeholder is fine in other string fields (`targetUrl`, a pipeline step's `config`); the compiler only collects the referenced names, it never resolves them.
 :::
 
+## Pipeline Schemas
+
+A pipeline that stores data references a schema by **name**, never by id — there is no step where you pre-create one in the dashboard to copy a UUID out. Author `schemas/<name>.schema.yaml`, reference it from a rule as `$schema:<name>`, and `rules push` resolves it: a project schema with that name is reused, a missing one is created by the sync.
+
+```yaml
+# .bffless/proxy-rules/api/schemas/comments.schema.yaml
+name: comments
+fields:
+  - name: author
+    type: string
+    required: true
+  - name: body
+    type: text
+```
+
+Scaffold one with `npx bffless rules init --schema comments --field author:string:required --field body:text`. Field types are `string`, `number`, `boolean`, `email`, `text`, `datetime`, and `json`.
+
+:::caution Push never changes an existing schema's fields
+The live definition wins. A name-reused schema whose fields differ produces a warning — or a hard error under `rules push --strict-schemas`. Settle the fields before the first push; afterwards, change live fields in the dashboard. Note also that `--name-suffix` (used for PR previews) suffixes only the **rule set** name: schemas are project-level, so a preview set shares the same named schemas and data tables as production.
+:::
+
+### Declaring what a schema is for
+
+A schema may declare a `kind`, which tells the dashboard what it is instead of leaving it to infer from field names:
+
+```yaml
+name: avatars
+kind: upload      # upload | chat | state
+fields:
+  - name: storage_path
+    type: string
+```
+
+`kind` is optional and additive — omit it for a plain data schema. It states primary *intent*, not exclusivity: an upload schema may still hold rows that aren't files, and the Uploads views filter accordingly. Scaffold it with `rules init --schema avatars --kind upload`.
+
+Unlike fields, a declared kind **is** pushed onto an existing schema — but only to fill a gap:
+
+| Live schema | Your YAML | Result |
+|---|---|---|
+| no kind | `upload` | adopted; `rules push` prints `declared kind adopted by: avatars` |
+| `upload` | `upload` | unchanged |
+| `upload` | `chat` | warning — the live kind is kept; change it in the dashboard |
+| `upload` | omitted | unchanged |
+
+A conflict never rewrites the live value and never fails the push (`--strict-schemas` covers field drift only). A misspelled kind fails the local build, before anything is sent.
+
 ## TypeScript Handlers
 
 A `code:` reference ending `.ts` is compiled with esbuild into a self-contained bundle, so you can write `function_handler` bodies as real TypeScript with relative imports instead of one flat `.fn.js` file:
