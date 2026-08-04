@@ -63,9 +63,9 @@ The app will be available at `http://umbrel.local:5537`, but you'll see a setup 
 
 If you don't already have a tunnel, create one:
 
-1. Go to [Cloudflare Zero Trust Dashboard](https://one.dash.cloudflare.com/)
-2. Navigate to **Networks** → **Connectors**
-3. Click **Create a tunnel**
+1. Go to the [Cloudflare dashboard](https://dash.cloudflare.com/)
+2. In the sidebar, navigate to **Networking** → **Tunnels**
+3. Click **Create Tunnel**
 4. Select **Cloudflared** as the tunnel type
 
 <img src="/img/umbrel-cloudflare-d.png" alt="Cloudflare tunnel type selection showing Cloudflared and WARP options" className="screenshot" />
@@ -82,34 +82,43 @@ If you don't already have a tunnel, create one:
 
 <img src="/img/umbrel-cloudflare-token.png" alt="Umbrel Cloudflare Tunnel settings showing Connector token field" className="screenshot" />
 
-Once connected, you'll see your tunnel with a **HEALTHY** status:
+Once connected, **Networking** → **Tunnels** shows your tunnel with a **Healthy** status:
 
-<img src="/img/umbrel-cloudflare-connectors.png" alt="Cloudflare Tunnels Dashboard showing Umbrel connector with HEALTHY status" className="screenshot" />
+<img src="/img/umbrel-cloudflare-tunnels.png" alt="Cloudflare Networking Tunnels list showing the Umbrel tunnel with Healthy status" className="screenshot" />
 
 ### Step 4: Add Routes to the BFFless App
 
-1. In the Cloudflare Zero Trust dashboard, go to **Networks** → **Connectors**
+1. In the Cloudflare dashboard, go to **Networking** → **Tunnels**
 2. Click on your tunnel name (e.g., "Umbrel")
 3. Go to the **Published application routes** tab
-4. Click **Add a published application route** and create the following 3 routes:
+4. Click **Add a published application route** and create the following 2 routes:
 
-| Subdomain | Domain           | Service                    |
-| --------- | ---------------- | -------------------------- |
-| `admin`   | `yourdomain.com` | `http://umbrel.local:5537` |
-| `*`       | `yourdomain.com` | `http://umbrel.local:5537` |
-| `www`     | `yourdomain.com` | `http://umbrel.local:5537` |
+| Subdomain          | Domain           | Service                    |
+| ------------------ | ---------------- | -------------------------- |
+| `*`                | `yourdomain.com` | `http://umbrel.local:5537` |
+| _(leave it blank)_ | `yourdomain.com` | `http://umbrel.local:5537` |
 
-<img src="/img/umbrel-cloudflare-public-hostname.png" alt="Cloudflare Published application routes showing wildcard, admin, and www routes pointing to umbrel.local:5537" className="screenshot" />
+<img src="/img/umbrel-cloudflare-routes.png" alt="Cloudflare Published application routes showing the apex and wildcard routes pointing to umbrel.local:5537" className="screenshot" />
 
-:::tip Wildcard Routes
-Using `*` as the subdomain allows BFFless to host sites on any subdomain (e.g., `mysite.yourdomain.com`, `blog.yourdomain.com`). This is recommended for maximum flexibility.
+These two routes are all you need:
+
+- **`*`** — the wildcard covers every subdomain, so `admin.yourdomain.com`, `www.yourdomain.com`, and any site you deploy later (`blog.yourdomain.com`, `mysite.yourdomain.com`) all reach BFFless. You don't need separate `admin` or `www` routes.
+- **_(blank)_** — an empty subdomain is the apex, or root, of the domain (`@` in DNS terms): plain `yourdomain.com`, with no subdomain at all. A wildcard does **not** match the apex, which is why it needs its own route.
+
+:::warning This hands the whole domain to BFFless
+Between them, these routes claim **every hostname on `yourdomain.com`** — the root and every subdomain. Point BFFless at a domain you're happy to dedicate to it, and don't plan on using the same domain for anything else:
+
+- The apex route puts a CNAME on the root of the zone, so you can't also point `yourdomain.com` at another host with an `A` record.
+- Any subdomain you haven't explicitly created a record for resolves to BFFless via the wildcard — including ones you later expect to point somewhere else.
+
+Already using `yourdomain.com` for a website or mail? Give BFFless a subdomain of its own instead: create routes for `*.apps` and `apps`, and use `apps.yourdomain.com` as your domain in [Step 6](#step-6-set-your-domain).
 :::
 
 ### Step 5: Configure Wildcard DNS
 
 Cloudflare doesn't automatically create DNS records for wildcard routes, so you need to add one manually:
 
-1. Go to your domain's DNS settings in Cloudflare (not Zero Trust)
+1. Go to your domain's DNS settings in Cloudflare (**Domains** → your domain → **DNS**, not the Tunnels page)
 2. Click **Add record**
 3. Configure:
 
@@ -121,7 +130,7 @@ Cloudflare doesn't automatically create DNS records for wildcard routes, so you 
 | **Proxy status** | Proxied (orange cloud)         |
 
 :::tip
-The `admin` and `www` routes from Step 4 automatically created CNAME records. You can copy the target value (e.g., `abc123.cfargotunnel.com`) from one of those DNS records.
+The apex route from Step 4 automatically created a CNAME record for `yourdomain.com`. You can copy the target value (e.g., `abc123.cfargotunnel.com`) from that DNS record.
 :::
 
 <img src="/img/umbrel-cloudflare-dns.png" alt="Cloudflare DNS settings showing wildcard CNAME record pointing to tunnel" className="screenshot" />
@@ -157,7 +166,7 @@ Restart the app to apply the domain configuration:
 
 ## Access Your App
 
-Visit your admin subdomain (e.g., `https://admin.yourdomain.com`) to access BFFless and complete the [setup wizard](/getting-started/setup-wizard).
+Visit your admin subdomain (e.g., `https://admin.yourdomain.com`) to access BFFless and complete the [setup wizard](/getting-started/setup-wizard/).
 
 ## Troubleshooting
 
@@ -166,7 +175,7 @@ Visit your admin subdomain (e.g., `https://admin.yourdomain.com`) to access BFFl
 If you see this page when accessing via your domain:
 
 - Verify your Cloudflare Tunnel route is correctly configured
-- Check that the tunnel is showing "HEALTHY" status
+- Check that the tunnel is showing "Healthy" status
 - Ensure DNS is properly pointing to the tunnel
 
 ### 502 Bad Gateway
@@ -208,5 +217,5 @@ Unlike the standard CE deployment, Umbrel requires a manual app restart after ad
 
 Once BFFless is running:
 
-- [Upload your first site](/getting-started/quickstart)
-- [Set up GitHub Actions](/deployment/github-actions) for CI/CD deployments
+- [Upload your first site](/getting-started/quickstart/)
+- [Set up GitHub Actions](/deployment/github-actions/) for CI/CD deployments
