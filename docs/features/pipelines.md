@@ -170,6 +170,14 @@ Every DB Record automatically includes:
 - **createdAt** - Creation timestamp
 - **updatedAt** - Last modification timestamp
 
+### What a DB Record Is For
+
+A DB Record can also declare a **kind** — `upload`, `chat`, or `state` — recording what it's for rather than leaving the dashboard to infer it from field names. The generators set it for you: a record created by **Generate Upload Schema** is tagged `upload`, and the chat and state generators tag theirs likewise. That's what puts an upload record under **Upload Schemas** in the Uploads tab and gives it a file count there.
+
+A kind is optional: records you create by hand simply don't declare one, and the dashboard falls back to recognising an upload record by its fields. It states primary intent, not exclusivity — an upload record may legitimately hold rows that aren't files (a file tree stores its folders alongside its files), and the Uploads views filter rows rather than assuming.
+
+To declare a kind on a record you author yourself, manage it with [rules as code](/recipes/proxy-rules-as-code#declaring-what-a-schema-is-for).
+
 ## Creating Your First Pipeline
 
 Let's build a contact form that validates input, stores the submission, and sends a notification email.
