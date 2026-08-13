@@ -40,6 +40,7 @@ const sidebars: SidebarsConfig = {
         'features/mcp-server',
         'features/claude-code-plugin',
         'features/app-catalog',
+        'features/server-video-ops',
       ],
     },
     {
