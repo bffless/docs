@@ -11,6 +11,8 @@ Every time you type a URL into your browser and press Enter, a remarkable chain 
 
 ![The anatomy of a modern website — DNS, CDN, WAF, server, BFF, and back again](/img/web-architecture-01.jpg)
 
+<YouTubeEmbed id="luQMEUYzsUQ" title="Web Architecture Explained: DNS, The Edge, and BFF Servers" />
+
 <!-- truncate -->
 
 ## A Brief History of Communication
