@@ -1,0 +1,42 @@
+{
+  "skill_name": "blog-post",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "here's the blog zip for the new video: https://handoff.bffless.dev/r/2b37632a-a8ed-4361-bf3c-0b79e9b07e64/building-an-automated-ai-video-editing-pipeline-with-claude.zip?token=7f854c66-2f99-46ba-86df-1b80f15c9fc6 \u2014 youtube is https://youtu.be/TFKGedjVbtE. Get it ready but do not commit.",
+      "expected_output": "blog/2026-08-15-building-an-automated-ai-video-editing-pipeline-with-claude.md matching site conventions: full frontmatter, YouTubeEmbed + truncate after intro, images under static/img/<prefix>-NN.jpg, internal cross-links with trailing slashes, typos fixed, pnpm build green.",
+      "files": [],
+      "assertions": {
+        "scripted (grade.py)": [
+          "frontmatter complete",
+          "no H1",
+          "embed+truncate after intro",
+          "no images/frame refs",
+          "no absolute docs links",
+          "trailing slashes on internal links",
+          "\u22653 internal cross-links",
+          "bfflist typo fixed",
+          "intro is concise (40\u2013150 words above truncate)",
+          "no em dashes in prose",
+          "no filler/slop words",
+          "no boilerplate closers",
+          "\u22643 choppy fragments (\u22644 words)",
+          "\u22644 rhetorical questions",
+          "concrete specifics (code, steps or inline code)",
+          "closing section has a call to action (verb + link)"
+        ],
+        "judged (rubric.md)": [
+          "Intro earns attention",
+          "Voice sounds like a person",
+          "No AI-slop rhythm",
+          "Practical insight",
+          "Helpful, genuine tone",
+          "Clear call to action at the end"
+        ],
+        "other": [
+          "pnpm build passes"
+        ]
+      }
+    }
+  ]
+}
