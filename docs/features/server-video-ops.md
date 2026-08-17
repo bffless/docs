@@ -73,7 +73,7 @@ The script is idempotent — it no-ops when swap already exists or the host has 
 
 ## Tuning
 
-All optional, via `.env` (Local server; see *Remote executor* below for the Worker's own variables) (see `.env.example` for the full reference):
+All optional, via `.env` — these tune the Local server; the Remote executor's own variables are listed below, and `.env.example` has the full reference:
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
@@ -134,6 +134,7 @@ The same settings can be pinned with env vars (they then win over the admin valu
 | `FFMPEG_REMOTE_MAX_INFLIGHT` | Max concurrent remote jobs from this instance (default 8; more → `FFMPEG_BUSY`) |
 | `FFMPEG_WORKER_MIN_VERSION` | Refuse Workers older than this version (unset = any) |
 | `FFMPEG_MAX_OUTPUT_BYTES` | Cap on one output object (default 2 GiB — a signed PUT is a single request) |
+| `FFMPEG_JOB_MAX_SECONDS` | Ceiling for a whole job incl. transfers (default 2 × `FFMPEG_MAX_SECONDS`); keep Cloud Run `--timeout` at or above it |
 
 Nested deadlines: Cloud Run `--timeout` ≥ `FFMPEG_JOB_MAX_SECONDS` (default 2 × `FFMPEG_MAX_SECONDS` = 3600 s) > the per-job ceiling CE sends the Worker. Keep `--timeout 3600` unless you raise the CE values.
 
