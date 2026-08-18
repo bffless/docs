@@ -99,10 +99,10 @@ CE authenticates to the Worker with a **Google ID token** (Cloud Run IAM), minte
 
 ### Deploy the Worker on Cloud Run (one command + IAM)
 
-Replace `PROJECT` with your GCP project id and `0.4.31` with your CE version (the Worker image is versioned with CE; `:latest` follows the newest release).
+Replace `PROJECT` with your GCP project id and `0.4.31` with your CE version (the Worker image is versioned with CE; `:latest` follows the newest release). Pick the **same region as your bucket** — transfer time is billed and cross-region egress costs more (see *What it costs*).
 
 ```bash
-gcloud run deploy bffless-ffmpeg --project PROJECT --image ghcr.io/bffless/ce-ffmpeg-worker:0.4.31 --region us-central1 --no-allow-unauthenticated --cpu 8 --memory 16Gi --concurrency 1 --timeout 3600 --max-instances 10 --cpu-boost --port 8080
+gcloud run deploy bffless-ffmpeg --project PROJECT --image ghcr.io/bffless/ce-ffmpeg-worker:0.4.31 --region us-central1 --no-allow-unauthenticated --cpu 4 --memory 4Gi --concurrency 1 --timeout 3600 --min-instances 0 --max-instances 10 --port 8080
 ```
 
 Then create a caller identity CE will use, allow it to invoke the service, and download its key:
@@ -140,22 +140,25 @@ Nested deadlines: Cloud Run `--timeout` ≥ `FFMPEG_JOB_MAX_SECONDS` (default 2 
 
 ### Sizing the Worker
 
-`--concurrency 1` means one job per instance; parallelism = `--max-instances`. Size an instance for your **largest** input:
+`--concurrency 1` means one job per instance; parallelism = `--max-instances`. Two rules decide the shape:
+
+- **Memory sizes the largest input.** Cloud Run's filesystem is in-memory, and the Worker's scratch dir lives on it — so every job's downloaded input **plus** its outputs sit in RAM alongside ffmpeg (~0.5–1 GB of its own). `--memory` must be ≥ your biggest source file + outputs + that headroom. When you outgrow a shape, **raise memory first**.
+- **CPU only speeds up re-encodes.** `slice` always re-encodes (x264 ultrafast, all cores); `concat` stream-copies unless it must fall back; `extract_audio` is trivial. Going 4 → 8 vCPU makes the encode part ~1.6–1.8× faster and doubles the per-second price — including the seconds spent downloading and uploading, when the CPUs sit idle.
 
 | Typical input | `--cpu` | `--memory` | Notes |
 | --- | --- | --- | --- |
-| 1 h 720p | 4 | 4Gi | Slice/concat mostly stream-copy; extract_audio is cheap |
-| 2 h 1080p | 8 | 16Gi | Re-encode fallback for concat and audio-alongside slices need the headroom |
-| Short clips (< 10 min) | 2 | 2Gi | Fine for demos and CI |
+| Up to ~2 GB sources (most Studio work: ≤ 1 h 1080p, ≤ 2 h 720p) | 4 | 4Gi | **Recommended default.** An 11-min 1080p slice+audio (167 MB in) measured ~10 s ffmpeg + ~11 s transfer |
+| Multi-GB sources (2 h 1080p) | 4–8 | 16Gi | The 16Gi is for the scratch input, not for ffmpeg |
+| Short clips (< 10 min), demos, CI | 2 | 2Gi | Cloud Run needs ≥ 2Gi for 4 vCPU and ≥ 4Gi for 8 |
 
-`--cpu-boost` shortens cold starts; the first job after idle still pays a few seconds of container start plus the input download.
+Leave `min-instances` at 0 (request-based billing: idle instances are free, you pay only while a job runs plus a second or two of startup). `--cpu-boost` shortens cold starts slightly but bills startup CPU at the boosted rate; skip it unless cold-start latency matters more than cost.
 
 ### What it costs (example)
 
-Cloud Run bills vCPU-seconds and GiB-seconds while a request is running, plus egress. Ballpark for one **10-minute slice of a 2 GB 1080p file** on the 8 vCPU / 16 Gi shape, ~90 s wall time: about **$0.02–0.03** of compute (2026 list prices for tier-1 regions, no committed use), plus **network egress**:
+Cloud Run bills vCPU-seconds and GiB-seconds only while an instance is handling a request (plus startup/shutdown), plus egress. At tier-1 list prices (2026), the 4 vCPU / 4 Gi shape costs about **0.011¢ per second**; 8 vCPU / 16 Gi about 0.023¢. Measured: one **11-minute 1080p slice + WAV** (167 MB in, 12.5 MB out) took ~21 s wall on 8/16 Gi → **≈ ½¢**, and ≈ ¼¢ on 4/4 Gi. A 10-minute slice out of a 2 GB 1080p file on 8/16 Gi (~90 s) is roughly **$0.02–0.03**. Cloud Run's monthly free tier (180,000 vCPU-s + 360,000 GiB-s) covers thousands of such cuts. Then **network egress**:
 
 - Bucket in the **same GCP region** as the Worker (GCS): input download is free, output upload is free.
-- Bucket on **another cloud or region** (S3, DigitalOcean Spaces, MinIO elsewhere): the Worker's download is that provider's egress (S3 ≈ $0.09/GB → ~$0.18 for the 2 GB input) and the upload back is Cloud Run egress. **Cross-cloud egress usually dwarfs the compute** — put the Worker next to the bucket when you can.
+- Bucket on **another cloud or region** (S3, DigitalOcean Spaces, MinIO elsewhere): the Worker's download is that provider's egress (S3 ≈ $0.09/GB → ~$0.18 for the 2 GB input) and the upload back is Cloud Run egress. **Cross-cloud egress usually dwarfs the compute** — put the Worker next to the bucket when you can. Transfer seconds are also billed compute (idle CPUs), so co-location cuts both lines.
 
 There is no cost dashboard in CE; use GCP Billing (label the service, e.g. `--labels app=bffless-ffmpeg`).
 
@@ -179,6 +182,7 @@ Start from the error code the app or pipeline log shows:
   2. Is the executor the step asked for **enabled**? A step with `executor: "remote"` fails with `not enabled on this instance` until Remote is on with a Worker URL; `executor: "local"` fails when ffmpeg isn't installed on the box or Local is switched off.
   3. **Test connection** in the Executor panel: it tells you *why* the Worker isn't ready —
      - `worker unreachable: …` → URL typo, service not deployed, or CE cannot reach `oauth2.googleapis.com` to mint the ID token (droplets need outbound HTTPS).
+     - `worker health responded 404: {"ok":false,"code":"BAD_REQUEST","message":"no route for GET /health"}` → the Worker itself answered, so auth and networking are fine — it is an **older Worker image** (before CE moved the probe from `/healthz` to `/health`, which Cloud Run's front door intercepts). Redeploy the service with the current image tag.
      - `worker 0.4.28 is older than FFMPEG_WORKER_MIN_VERSION 0.4.31` → redeploy the Worker with the newer image (or clear the min-version).
      - `local filesystem storage cannot be reached by a worker` / `storage adapter cannot presign` → Remote needs bucket storage; switch storage or use Local.
      - `remote auth google_id_token requires an https worker URL` → Cloud Run URLs are https; `http://` is only allowed with auth `none`.
