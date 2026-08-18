@@ -117,21 +117,24 @@ gcloud iam service-accounts keys create key.json --iam-account bffless-ffmpeg-ca
 
 ### Enable it in CE
 
-1. **Admin Settings → Features → Server video ops** — turn the feature on if it isn't already.
-2. In the **Executor** panel below it: switch **Remote** on, paste the **Worker URL**, keep **Auth: Google ID token**, paste the contents of `key.json` into **Service-account key** (skip it if CE runs on GCP with a service account that has `run.invoker` — ADC is used).
-3. Click **Test connection** — you should see the Worker version, its ffmpeg build, the four ops and the round-trip latency, plus "Ready".
+The Worker's URL, auth and credential are a **[remote connection](./remote-connections.md)** (since the release after v0.4.31); the Executor panel just points at one.
+
+1. **Admin Settings → Infrastructure → Remote connections → Add**: name `ffmpeg`, the Worker URL, **Auth: Google ID token**, paste the contents of `key.json` into **Credential** (skip it if CE runs on GCP with a service account that has `run.invoker` — ADC is used), **Test connection**, Save.
+2. **Admin Settings → Features → Server video ops** — turn the feature on if it isn't already.
+3. In the **Executor** panel below it: switch **Remote** on and pick the `ffmpeg` connection. **Test connection** should show the Worker version, its ffmpeg build, the four ops, the round-trip latency, plus "Ready".
 4. Pick **Default executor: Remote** (or leave Local as default and opt individual pipeline steps in with `executor: "remote"`), then **Save**.
 5. Optionally turn **Local server** off — on a 1 GB host that is the whole point: `server: true` with no ffmpeg on the box.
+
+Instances that configured the Worker before this release are migrated automatically: the URL/auth/key become a connection named `ffmpeg`, already selected.
 
 The same settings can be pinned with env vars (they then win over the admin values and the UI shows the field as env-managed):
 
 | Variable | Purpose |
 | --- | --- |
 | `FFMPEG_EXECUTOR` | Default executor: `local` or `remote` |
-| `FFMPEG_REMOTE_URL` | Worker base URL (setting it enables Remote) |
-| `FFMPEG_REMOTE_AUTH` | `google_id_token` (default) or `none` |
-| `FFMPEG_REMOTE_SA_KEY_JSON` | Service-account key JSON (alternative to pasting it in the UI) |
-| `FFMPEG_REMOTE_MAX_INFLIGHT` | Max concurrent remote jobs from this instance (default 8; more → `FFMPEG_BUSY`) |
+| `FFMPEG_REMOTE_CONNECTION` | Name of the remote connection the Remote executor uses |
+| `REMOTE_CONNECTION_FFMPEG_URL` / `_AUTH` / `_CREDENTIAL_JSON` / `_MAX_INFLIGHT` | The `ffmpeg` connection's fields (see [Remote connections](./remote-connections.md)) |
+| `FFMPEG_REMOTE_URL` / `FFMPEG_REMOTE_AUTH` / `FFMPEG_REMOTE_SA_KEY_JSON` / `FFMPEG_REMOTE_MAX_INFLIGHT` | **Legacy aliases** of the row above — still work; setting `FFMPEG_REMOTE_URL` selects the `ffmpeg` connection |
 | `FFMPEG_WORKER_MIN_VERSION` | Refuse Workers older than this version (unset = any) |
 | `FFMPEG_MAX_OUTPUT_BYTES` | Cap on one output object (default 2 GiB — a signed PUT is a single request) |
 | `FFMPEG_JOB_MAX_SECONDS` | Ceiling for a whole job incl. transfers (default 2 × `FFMPEG_MAX_SECONDS`); keep Cloud Run `--timeout` at or above it |
@@ -171,7 +174,7 @@ For a Worker that is only reachable on a private network — the docker-compose 
 docker compose --profile ffmpeg-worker up -d
 ```
 
-This starts `assethost-ffmpeg-worker` on the compose network (plain http, `WORKER_ALLOW_HTTP=1` so it accepts MinIO's http presigned URLs). Then in Admin Settings → Executor: **Worker URL** `http://ffmpeg-worker:8080`, **Auth: None**, Test connection, Save — or set `FFMPEG_EXECUTOR=remote FFMPEG_REMOTE_URL=http://ffmpeg-worker:8080 FFMPEG_REMOTE_AUTH=none` in `.env`.
+This starts `assethost-ffmpeg-worker` on the compose network (plain http, `WORKER_ALLOW_HTTP=1` so it accepts MinIO's http presigned URLs). Then add a remote connection `ffmpeg` with URL `http://ffmpeg-worker:8080`, **Auth: None**, and pick it in the Executor panel — or set `FFMPEG_EXECUTOR=remote FFMPEG_REMOTE_URL=http://ffmpeg-worker:8080 FFMPEG_REMOTE_AUTH=none` in `.env`.
 
 ### Troubleshooting
 
@@ -187,7 +190,7 @@ Start from the error code the app or pipeline log shows:
      - `local filesystem storage cannot be reached by a worker` / `storage adapter cannot presign` → Remote needs bucket storage; switch storage or use Local.
      - `remote auth google_id_token requires an https worker URL` → Cloud Run URLs are https; `http://` is only allowed with auth `none`.
 - **HTTP 403 from the Worker** (shows as `worker unreachable: … 403`) — the caller identity lacks **`roles/run.invoker`** on the service, or you pasted the key of a *different* service account. Re-run the `add-iam-policy-binding` command above for the account whose key CE has. A 401 means no/invalid ID token: auth is set to `none` against an IAM-protected service, or the key JSON is not a `service_account` key.
-- **`FFMPEG_BUSY`** — more than `FFMPEG_REMOTE_MAX_INFLIGHT` jobs in flight from this CE, or the Worker returned 429/503 (all `--max-instances` busy). Raise one or both, or let the app retry.
+- **`FFMPEG_BUSY`** — more than the connection's **max in-flight** (`REMOTE_CONNECTION_FFMPEG_MAX_INFLIGHT` / legacy `FFMPEG_REMOTE_MAX_INFLIGHT`, default 8) jobs in flight from this CE, or the Worker returned 429/503 (all `--max-instances` busy). Raise one or both, or let the app retry.
 - **`FFMPEG_TIMEOUT`** — the job exceeded CE's per-job ceiling; raise `FFMPEG_MAX_SECONDS` (and keep Cloud Run `--timeout` ≥ `FFMPEG_JOB_MAX_SECONDS`).
 - **Job succeeded on the Worker but CE reports `FFMPEG_FAILED: output upload …`** — the signed PUT was refused: output larger than `FFMPEG_MAX_OUTPUT_BYTES`, or the bucket rejects unsigned `Content-Type` on presigned PUTs (rare; MinIO/S3/GCS accept it).
 - **Everything says Ready but jobs run locally** — the default executor is still Local; either pick Remote as default or set `executor: "remote"` on the step. The step output's `executor` field tells you which one ran.

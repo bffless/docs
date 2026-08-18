@@ -41,6 +41,7 @@ const sidebars: SidebarsConfig = {
         'features/claude-code-plugin',
         'features/app-catalog',
         'features/server-video-ops',
+        'features/remote-connections',
       ],
     },
     {
