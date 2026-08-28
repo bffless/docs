@@ -1,7 +1,7 @@
 ---
 sidebar_position: 12
 title: Server Video Ops
-description: Opt-in server-side video processing (slice, stitch, audio extract) via the ffmpeg_handler pipeline step — with sizing guidance for small hosts
+description: Opt-in server-side video processing (slice, stitch, audio extract, stills, contact sheets) via the ffmpeg_handler pipeline step — with sizing guidance for small hosts
 ---
 
 # Server Video Ops
@@ -18,7 +18,7 @@ Server video ops are **off by default** and entirely opt-in per instance (since 
 | **Local server** | Native ffmpeg inside the CE backend container | 2 GB+ hosts; simplest, no extra moving parts |
 | **Remote** (since v0.4.31) | A separate **Worker** CE calls over HTTPS — Cloud Run is the reference deployment | Small hosts (1 GB droplets), bursty encodes, or when you don't want encodes competing with the API |
 
-"Server video ops" = Local server + Remote together: the app only sees `server: true` and the same four operations; **which executor runs a job** is chosen in Admin Settings (Local, Remote, or both, plus a default) and can be overridden per pipeline step (`executor: "remote"`).
+"Server video ops" = Local server + Remote together: the app only sees `server: true` and the same six operations; **which executor runs a job** is chosen in Admin Settings (Local, Remote, or both, plus a default) and can be overridden per pipeline step (`executor: "remote"`).
 
 ## Enabling
 
@@ -81,12 +81,73 @@ All optional, via `.env` — these tune the Local server; the Remote executor's 
 | `FFMPEG_THREADS` | cores − 1 | Encoder threads |
 | `FFMPEG_QUEUE_MAX` | `8` | Queued jobs beyond the one running; excess fail fast as "busy" |
 | `FFMPEG_MAX_SECONDS` | `1800` | Watchdog: kill any run exceeding this |
+| `FFMPEG_JOB_MAX_SECONDS` | `2 × FFMPEG_MAX_SECONDS` (so `3600`) | Ceiling for a whole job — queue wait, transfers and every ffmpeg command in it. **Derived**: lowering `FFMPEG_MAX_SECONDS` halves this too unless you set it explicitly |
+| `FFMPEG_IO_MAX_SECONDS` | `900` | Ceiling for one storage transfer |
 
 ## For app and pipeline authors
 
-`ffmpeg_handler` is a pipeline step with four curated operations (never raw ffmpeg arguments): `probe` (capability check / media info), `extract_audio` (16 kHz mono WAV), `slice` (cut kept spans into one clip, optional WAV alongside), and `concat` (stitch clips; stream-copy with automatic re-encode fallback). Inputs and outputs are storage paths — bytes never enter a request body. Long operations belong in a pipeline's `postSteps` with a job row the client polls.
+`ffmpeg_handler` is a pipeline step with six curated operations (never raw ffmpeg arguments): `probe` (capability check / media info), `extract_audio` (16 kHz mono WAV), `slice` (cut kept spans into one clip, optional WAV alongside), `concat` (stitch clips; stream-copy with automatic re-encode fallback), `frames` (one still per requested time), and `contact_sheet` (sample the whole clip and tile the samples into clock-labelled grids). Inputs and outputs are storage paths — bytes never enter a request body. Long operations belong in a pipeline's `postSteps` with a job row the client polls.
 
 A `probe` step with no input never fails and returns `{ server, ops, version }` — the standard capability endpoint an app should call before choosing the server path, falling back to client-side processing on `server: false`.
+
+### Stills: `frames` and `contact_sheet`
+
+<!-- TODO: add "(since vX.Y.Z)" here once the release these ops ship in is cut — the manifest read v0.4.34 when this page was written. -->
+
+Two operations write **images** rather than a clip, and both are **path-in / path-out under an output prefix**: they take an `outputPrefix` (an uploads-relative *directory*) instead of a single `output`, and write numbered JPEGs into it. That is what lets a later step pick a moment off a sheet and then **re-capture that exact second as a clean still**, rather than cropping it out of a grid.
+
+`ffmpeg_handler`'s string fields do **not** all take the same syntax, and mixing them up fails at run time (this table covers every operation, not only the two below):
+
+| Field | Syntax | Example |
+| --- | --- | --- |
+| Every path/name field — `input`, `output`, `audioOutput`, `outputPrefix`, `executor` | **Template** — `{{…}}` is substituted, anything else is used verbatim | `{{steps.upload.storage_path}}`, `studio/sheets/{{request.body.jobId}}` |
+| `times`, `duration`, `spans`, `inputs` | **Bare expression** — no braces. A value starting `{{` does not match the evaluator's root pattern and comes back as a literal string, which then fails | `steps.pick.times`, `steps.probe.duration` |
+| `height`, `quality`, `interval`, `columns`, `cellsPerSheet`, `maxSheets` | **Literal number only** — neither form is resolved | `720` |
+
+So `duration: "{{steps.probe.duration}}"` fails with `INVALID_TIMES` and `times: "{{…}}"` fails with "expected a non-empty array", while a bare `input: "steps.upload.storage_path"` is quietly used as a *literal storage key*.
+
+**`frames`** — one still per entry in `times`, written to `<outputPrefix>/frame-NN.jpg` (1-based, zero-padded to two digits and wider once a batch passes 99, so the names stay sortable). The stills carry no burned-in label, deliberately.
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `input` | *(required)* | Source object. Template |
+| `outputPrefix` | *(required)* | Destination directory, uploads-relative. Template |
+| `times` | *(required)* | Capture times in source seconds — a JSON array (entries may be bare expressions) or a bare expression resolving to one |
+| `height` | `720` | Output height in px; width follows the aspect ratio |
+| `quality` | `3` | ffmpeg `-q:v` (2 = best, 31 = worst) |
+
+Output: `{ frames: [{ time, storage_path, content_type, size }], count }`. Each `storage_path` is the **full resolved key** — `{owner}/{repo}/uploads/<prefix>/frame-01.jpg`, not the `outputPrefix` you wrote — the same convention `slice` and `extract_audio` already use. A `time` past the end of the source writes no file and **fails the step** (the error names the frame). That is the one case that leaves a partial batch in storage: ffmpeg exits 0 having written nothing, so the failure only surfaces while the results are being uploaded, after the earlier stills have already landed. Treat each run's prefix as disposable rather than as a directory you append to.
+
+**`contact_sheet`** — sample the whole clip and tile the samples into `<outputPrefix>/sheet-NN.jpg` grids an LLM can read as visual context. Each cell burns in an `m:ss` clock.
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `input` | *(required)* | Source object. Template |
+| `outputPrefix` | *(required)* | Destination directory, uploads-relative. Template |
+| `duration` | *(probed)* | Source length in seconds. Omitted ⇒ CE runs an ffprobe job first (see below). A number or a bare expression |
+| `interval` | `5` | Finest sampling interval in seconds — the density floor on short clips |
+| `columns` | `3` | Grid columns per sheet |
+| `cellsPerSheet` | `12` | Cap on cells per sheet (the planner prefers 9 and only packs to the cap when the sheet budget forces it) |
+| `maxSheets` | `10` | Cap on the number of sheets |
+| `height` | `720` | Cell height in px |
+| `label` | `true` | Burn the `m:ss` clock into each cell. A boolean; the strings `"false"`, `"0"`, `"no"` and `"off"` also mean off |
+
+Output: `{ sheets: [{ storage_path, content_type, size, times, index, total, cols, rows }], interval, count, labelled }` — `storage_path` is the full resolved key as for `frames`, `interval` is the *actual* spacing the plan used, `count` the total cells across every sheet, and `sheets[].index` is 0-based while the filename is 1-based and zero-padded (widening past 99). `interval` only moves the dense end of the range: long clips are still sampled at least every 30 s until the `maxSheets × cellsPerSheet` budget forces wider.
+
+The clock is burned in with ffmpeg's `drawtext` filter, which needs **an ffmpeg built with libfreetype** — CE's own image has it. An ffmpeg without it does not fail the step: the sheet comes back un-labelled and the output reports `labelled: false`.
+
+`labelled` is the **outcome, not a diagnosis**. It is `false` whenever the cells carry no clock — including when the step simply set `label: false` — so it does not on its own tell you the ffmpeg lacked the filter.
+
+Both operations also report `executor`, `timings`, `bytesIn` and `bytesOut`, like every other ffmpeg step.
+
+### Limits and gotchas for the stills operations
+
+- **At most 200 stills per step** — `times.length` for `frames`, `maxSheets × cellsPerSheet` for `contact_sheet`. **Both are run-time checks.** CE validates handler config immediately before executing a step, never when you save one, so an over-budget step saves without complaint and fails on its first request. (`contact_sheet`'s budget is static, so it surfaces as a configuration error; `frames`' `times` is expression-resolved, so its length is only knowable once the step runs.) The planner's own natural maximum is 120 cells, so the ceiling exists to stop a runaway expression, not to shape normal use.
+- **The numeric knobs are resolved not at all.** Per the syntax table above, `height`, `quality`, `interval`, `columns`, `cellsPerSheet` and `maxSheets` are literal numbers (a string `'720'` is coerced). Neither form works: `height: "{{steps.probe.h}}"` is a configuration error, and a bare `height: "steps.probe.h"` is not resolved either. Compute the value in a prior step and you still cannot pass it here — pick it at authoring time.
+- **`quality` and `height` have no upper bound.** They are only checked for being positive integers, so `quality: 500` reaches `-q:v 500` and `height: 20000` scales every cell to 20 000 px. Sane ranges: `quality` 2–31 (2 = best; default 3), `height` 360–1080 (default 720). `quality` applies to `frames` only — contact-sheet cells are always `-q:v 3`.
+- **Omitting `duration` downloads the source twice.** The ffprobe that measures the clip is its own job with its own input transfer, so the source is fetched once to probe it and again to capture the cells — on both executors. Pass a `duration` you already know for large sources.
+- **A contact sheet is up to 131 ffmpeg/ffprobe commands at the default caps** — 1 ffprobe + up to 120 cells + up to 10 tiles. Raising the caps raises that: `cellsPerSheet: 20` with `maxSheets: 10` is a legal 200-still budget and plans **211** commands. CE's local runner acquires its single concurrency slot **per command**, not per job, so a long sheet has that many chances to hit `FFMPEG_BUSY`, and a failure part-way through discards every cell computed so far — cells are scratch-only, and both executors upload only after *every* command has succeeded, so a non-zero ffmpeg exit uploads nothing at all. That, not merely "it is heavy", is why `contact_sheet` belongs in `postSteps` behind a job row. Both jobs share one `FFMPEG_JOB_MAX_SECONDS` budget (default 3600 s — see [Tuning](#tuning)).
+- **A missing `drawtext` only sometimes costs a second pass.** On a *local* executor whose `-filters` probe already reported the filter missing, CE suppresses labels up front: zero extra commands. The un-labelled retry — a second full pass over every cell and sheet — is for a remote Worker, or a local ffmpeg whose probe never ran. Budget 260 commands only for those.
 
 ## Remote executor
 
@@ -121,7 +182,7 @@ The Worker's URL, auth and credential are a **[remote connection](./remote-conne
 
 1. **Admin Settings → Infrastructure → Remote connections → Add**: name `ffmpeg`, the Worker URL, **Auth: Google ID token**, paste the contents of `key.json` into **Credential** (skip it if CE runs on GCP with a service account that has `run.invoker` — ADC is used), **Test connection**, Save.
 2. **Admin Settings → Features → Server video ops** — turn the feature on if it isn't already.
-3. In the **Executor** panel below it: switch **Remote** on and pick the `ffmpeg` connection. **Test connection** should show the Worker version, its ffmpeg build, the four ops, the round-trip latency, plus "Ready".
+3. In the **Executor** panel below it: switch **Remote** on and pick the `ffmpeg` connection. **Test connection** should show the Worker version, its ffmpeg build, its ops, the round-trip latency, plus "Ready".
 4. Pick **Default executor: Remote** (or leave Local as default and opt individual pipeline steps in with `executor: "remote"`), then **Save**.
 5. Optionally turn **Local server** off — on a 1 GB host that is the whole point: `server: true` with no ffmpeg on the box.
 
