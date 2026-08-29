@@ -175,7 +175,7 @@ Every `storage_path` is the **full resolved key** — `{owner}/{repo}/uploads/<p
 Two things worth knowing before you draw:
 
 - `draw.text` goes through the same evaluator as every other expression, `secrets.*` included. `draw.text: "secrets.API_KEY"` burns a decrypted secret into a JPEG that is then uploaded to storage, where nothing downstream will redact it.
-- The text is burned in with ffmpeg's `drawtext` filter, which needs **an ffmpeg built with libfreetype** (plus fontconfig and an installed font) — CE's own image has them. An ffmpeg without it does **not** fail the step: the stills come back plain and the output reports `drawn: false`.
+- The text is burned in with ffmpeg's `drawtext` filter, which needs **an ffmpeg built with libfreetype**, plus fontconfig and **an installed font** — `drawtext` takes no explicit `fontfile=`, so it resolves a family by name. CE's images carry a font from v0.4.36; on an earlier image, or any ffmpeg missing the filter, the step does **not** fail: the stills come back plain and the output reports `drawn: false`. If your sheets are unlabelled and `drawn` is `false` on an ffmpeg that *does* have `drawtext`, a missing font is the reason — the failure reads `Cannot find a valid font for the family Sans`.
 
 `drawn` is the **outcome, not a diagnosis**. It is `false` whenever nothing was drawn — including when the step simply asked for no `draw` — so it does not on its own tell you the ffmpeg lacked the filter.
 
