@@ -92,7 +92,7 @@ A `probe` step with no input never fails and returns `{ server, ops, version }` 
 
 ### Stills and contact sheets: `frames`
 
-<!-- TODO: add "(since vX.Y.Z)" here once the release these ops ship in is cut — the manifest read v0.4.34 when this page was written. -->
+Since CE **v0.4.35**.
 
 One operation writes **images** rather than a clip, and it is **path-in / path-out under an output prefix**: it takes an `outputPrefix` (an uploads-relative *directory*) instead of a single `output`, and writes numbered JPEGs into it. That is what lets a later step pick a moment off a sheet and then **re-capture that exact second as a clean still**, rather than cropping it out of a grid.
 
