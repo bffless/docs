@@ -1,7 +1,7 @@
 ---
 sidebar_position: 12
 title: Server Video Ops
-description: Opt-in server-side video processing (slice, stitch, audio extract) via the ffmpeg_handler pipeline step — with sizing guidance for small hosts
+description: Opt-in server-side video processing (slice, stitch, audio extract, stills, contact sheets) via the ffmpeg_handler pipeline step — with sizing guidance for small hosts
 ---
 
 # Server Video Ops
@@ -18,7 +18,7 @@ Server video ops are **off by default** and entirely opt-in per instance (since 
 | **Local server** | Native ffmpeg inside the CE backend container | 2 GB+ hosts; simplest, no extra moving parts |
 | **Remote** (since v0.4.31) | A separate **Worker** CE calls over HTTPS — Cloud Run is the reference deployment | Small hosts (1 GB droplets), bursty encodes, or when you don't want encodes competing with the API |
 
-"Server video ops" = Local server + Remote together: the app only sees `server: true` and the same four operations; **which executor runs a job** is chosen in Admin Settings (Local, Remote, or both, plus a default) and can be overridden per pipeline step (`executor: "remote"`).
+"Server video ops" = Local server + Remote together: the app only sees `server: true` and the same five operations; **which executor runs a job** is chosen in Admin Settings (Local, Remote, or both, plus a default) and can be overridden per pipeline step (`executor: "remote"`).
 
 ## Enabling
 
@@ -81,12 +81,114 @@ All optional, via `.env` — these tune the Local server; the Remote executor's 
 | `FFMPEG_THREADS` | cores − 1 | Encoder threads |
 | `FFMPEG_QUEUE_MAX` | `8` | Queued jobs beyond the one running; excess fail fast as "busy" |
 | `FFMPEG_MAX_SECONDS` | `1800` | Watchdog: kill any run exceeding this |
+| `FFMPEG_JOB_MAX_SECONDS` | `2 × FFMPEG_MAX_SECONDS` (so `3600`) | Ceiling for a whole job — queue wait, transfers and every ffmpeg command in it. **Derived**: lowering `FFMPEG_MAX_SECONDS` halves this too unless you set it explicitly |
+| `FFMPEG_IO_MAX_SECONDS` | `900` | Ceiling for one storage transfer |
 
 ## For app and pipeline authors
 
-`ffmpeg_handler` is a pipeline step with four curated operations (never raw ffmpeg arguments): `probe` (capability check / media info), `extract_audio` (16 kHz mono WAV), `slice` (cut kept spans into one clip, optional WAV alongside), and `concat` (stitch clips; stream-copy with automatic re-encode fallback). Inputs and outputs are storage paths — bytes never enter a request body. Long operations belong in a pipeline's `postSteps` with a job row the client polls.
+`ffmpeg_handler` is a pipeline step with five curated operations (never raw ffmpeg arguments): `probe` (capability check / media info), `extract_audio` (16 kHz mono WAV), `slice` (cut kept spans into one clip, optional WAV alongside), `concat` (stitch clips; stream-copy with automatic re-encode fallback), and `frames` (stills at times you supply — optionally with a line of text drawn on them, optionally tiled into contact sheets). Inputs and outputs are storage paths — bytes never enter a request body. Long operations belong in a pipeline's `postSteps` with a job row the client polls.
 
 A `probe` step with no input never fails and returns `{ server, ops, version }` — the standard capability endpoint an app should call before choosing the server path, falling back to client-side processing on `server: false`.
+
+### Stills and contact sheets: `frames`
+
+Since CE **v0.4.35**.
+
+One operation writes **images** rather than a clip, and it is **path-in / path-out under an output prefix**: it takes an `outputPrefix` (an uploads-relative *directory*) instead of a single `output`, and writes numbered JPEGs into it. That is what lets a later step pick a moment off a sheet and then **re-capture that exact second as a clean still**, rather than cropping it out of a grid.
+
+**There is no `contact_sheet` operation.** `frames` captures one still per entry in `times`, and two optional blocks change what comes out:
+
+| What you want | Config |
+| --- | --- |
+| Plain stills | `times` |
+| A title card on a screenshot | `times: [12.5]` plus `draw` |
+| A contact sheet | `times` plus `draw` and `tile` |
+
+**CE does not plan the sampling.** You supply `times`; where they fall — and what the drawn text says — is your app's policy. CE only captures, draws and tiles.
+
+`ffmpeg_handler`'s string fields do **not** all take the same syntax, and mixing them up fails at run time (this table covers every operation, not only `frames`):
+
+| Field | Syntax | Example |
+| --- | --- | --- |
+| Every path/name field — `input`, `output`, `audioOutput`, `outputPrefix`, `executor` | **Template** — `{{…}}` is substituted, anything else is used verbatim | `{{steps.upload.storage_path}}`, `studio/sheets/{{request.body.jobId}}` |
+| `times`, `spans`, and the *whole-value string* form of `inputs` | **Bare expression** — no braces. A value starting `{{` does not match the evaluator's root pattern and comes back as a literal string, which then fails | `steps.pick.times` |
+| The **entries** of an `inputs` array | **Template**, the other way round from the field itself — each entry goes through the same path resolution as `input` | `["{{steps.a.path}}", "studio/s2.mp4"]` |
+| `draw.text` | **Bare expression *only when it looks like one*** — otherwise literal text. See [Drawing text](#drawing-text-on-every-still) | `steps.plan.titles`, `Chapter one` |
+| `height`, `quality`, `draw.size`, `tile.perSheet`, `tile.columns` | **Literal number only** — neither form is resolved | `720` |
+
+So `times: "{{…}}"` fails with "expected a non-empty array", while a bare `input: "steps.upload.storage_path"` is quietly used as a *literal storage key* — and `inputs` is the one field where both halves apply: `inputs: "steps.a.parts"` resolves, but inside a literal array it is `inputs: ["{{steps.a.path}}"]` that resolves and `inputs: ["steps.a.path"]` that becomes a literal key.
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `input` | *(required)* | Source object. Template |
+| `outputPrefix` | *(required)* | Destination directory, uploads-relative. Template |
+| `times` | *(required)* | Capture times in source seconds — a JSON array (entries may be bare expressions) or a bare expression resolving to one |
+| `height` | `720` | Output height in px; width follows the aspect ratio |
+| `quality` | `3` | ffmpeg `-q:v` on each still (2 = best, 31 = worst). A tiled **sheet** is always `-q:v 3` |
+| `draw` | *(off)* | Burn one line of text into every still |
+| `tile` | *(off)* | Lay the stills out into contact sheets instead of uploading them one by one |
+
+`draw`:
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `text` | *(required)* | The line to draw. One string draws the same line on every still; an array draws its own line on each and must be **exactly as long as `times`** |
+| `position` | `bottom-right` | One of `top-left`, `top-center`, `top-right`, `center`, `bottom-left`, `bottom-center`, `bottom-right`. A closed enum — you never write an x/y expression |
+| `size` | `1/12` (≈`0.0833`) | Font height as a **fraction of the frame height**, `0.005`–`1`. Out of range is a configuration error, never a clamp |
+| `color` | `white` | An ffmpeg colour **name** or `0xRRGGBB`/`#RRGGBB`. No `@alpha` suffix — translucency comes from `background`, not the colour |
+| `background` | `true` | The dark box behind the text. The strings `"false"`, `"0"`, `"no"`, `"off"` also mean off |
+
+`tile`:
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `perSheet` | *(required whenever `tile` is present)* | Stills per sheet |
+| `columns` | `3` | Grid columns. A short final sheet lays out at its own narrower width |
+
+**Without `tile`**, each still is written to `<outputPrefix>/frame-NN.jpg` (1-based, zero-padded to two digits and wider once a batch passes 99, so the names stay sortable), and the output is:
+
+```json
+{ "frames": [{ "time": 12.5, "storage_path": "…", "content_type": "image/jpeg", "size": 48213 }], "count": 1, "drawn": false }
+```
+
+`time` is the **requested** second, unchanged, so a later step can re-capture it.
+
+**With `tile`**, the stills stay in scratch and are **never uploaded** — only the sheets are declared as outputs, so no executor can ship a loose still — and the sheets are written to `<outputPrefix>/sheet-NN.jpg`:
+
+```json
+{ "sheets": [{ "storage_path": "…", "content_type": "image/jpeg", "size": 301884, "times": [0, 10, 20], "index": 0, "total": 4, "cols": 3, "rows": 1 }], "count": 12, "drawn": true }
+```
+
+`times` are chunked by `tile.perSheet`; each sheet's `cols` is `min(cells on this sheet, tile.columns)` — so a short final sheet is narrower — and `rows` grows to fit. `sheets[].index` is 0-based while the **filename** is 1-based. **`count` is the number of stills in both modes**, not the number of sheets.
+
+Every `storage_path` is the **full resolved key** — `{owner}/{repo}/uploads/<prefix>/frame-01.jpg`, not the `outputPrefix` you wrote — the same convention `slice` and `extract_audio` already use. Treat each run's prefix as disposable rather than as a directory you append to. Both shapes also report `executor`, `timings`, `bytesIn` and `bytesOut`, like every other ffmpeg step.
+
+#### Drawing text on every still
+
+`draw.text` is read one of two ways, and the difference is what makes either usable:
+
+- **A string** is resolved as an expression **only when it has the shape of a whole path** — `steps.chapters.titles`, `request.body.title`, `steps['my step'].label`. Prose that merely begins with an expression root (`user guide`) is drawn as written. A resolved path may come back as one string (the same line on every still) or as an array (one line each).
+- **An array you author is always literal text** — one entry per time. That is the escape hatch for strings the shape test cannot tell from a path: `text: ["metadata.json"]` draws that filename, where `text: "metadata.json"` would try to look it up and fail with "…resolved to nothing".
+
+`{{…}}` is **rejected outright** rather than drawn, so a braced template never ends up burned into the picture.
+
+Two things worth knowing before you draw:
+
+- `draw.text` goes through the same evaluator as every other expression, `secrets.*` included. `draw.text: "secrets.API_KEY"` burns a decrypted secret into a JPEG that is then uploaded to storage, where nothing downstream will redact it.
+- The text is burned in with ffmpeg's `drawtext` filter, which needs **an ffmpeg built with libfreetype**, plus fontconfig and **an installed font** — `drawtext` takes no explicit `fontfile=`, so it resolves a family by name. CE's images carry a font from v0.4.36; on an earlier image, or any ffmpeg missing the filter, the step does **not** fail: the stills come back plain and the output reports `drawn: false`. If your sheets are unlabelled and `drawn` is `false` on an ffmpeg that *does* have `drawtext`, a missing font is the reason — the failure reads `Cannot find a valid font for the family Sans`.
+
+`drawn` is the **outcome, not a diagnosis**. It is `false` whenever nothing was drawn — including when the step simply asked for no `draw` — so it does not on its own tell you the ffmpeg lacked the filter.
+
+### Limits and gotchas for `frames`
+
+- **At most 200 stills per step**, measured on `times.length` — which bounds the sheets too, since sheets are `times.length / perSheet`. **It is a run-time check.** CE validates handler config immediately before executing a step, never when you save one, so an over-budget step saves without complaint and fails on its first request.
+- **A time past the end of the source fails the step, loudly.** The still command carries `-abort_on empty_output`, so ffmpeg exits 234 instead of exiting 0 having written no file. Its stderr carries no filename, so the error usually cannot say *which* time was too late — it names the cause, not the frame.
+- **A time can be too late while still being inside `duration`.** The reported duration is not the last frame's timestamp. Measured on a 5.000 s clip at 10 fps, the last frame's PTS is 4.9: `-ss 4.9` captures and `-ss 4.99` aborts, even though both are "within" a 5-second clip. A sampler that spreads times across a clip and clamps the last one to the end will meet this on low-fps sources. **Keep the final sample at least one frame interval clear of the end** — `duration - 1/fps`, or simply a few tenths of a second.
+- **The numeric knobs are resolved not at all.** Per the syntax table above, `height`, `quality`, `draw.size`, `tile.perSheet` and `tile.columns` are literal numbers (a string `'720'` is coerced). Neither form works: `height: "{{steps.probe.h}}"` is a configuration error, and a bare `height: "steps.probe.h"` is not resolved either. Compute the value in a prior step and you still cannot pass it here — pick it at authoring time.
+- **`quality` and `height` have no upper bound.** They are only checked for being positive integers, so `quality: 500` reaches `-q:v 500` and `height: 20000` scales every still to 20 000 px. Sane ranges: `quality` 2–31 (2 = best; default 3), `height` 360–1080 (default 720). `quality` applies to the **stills** — a tiled sheet is always `-q:v 3`.
+- **A tiled step is up to twice as many commands as it has stills.** A 200-still step with `tile: { perSheet: 1 }` is 400 ffmpeg commands — 200 stills plus 200 tiles. CE's local runner acquires its single concurrency slot **per command**, not per job, so a long step has that many chances to hit `FFMPEG_BUSY`, and a failure part-way through discards every still computed so far. That, not merely "it is heavy", is why a big `frames` step belongs in `postSteps` behind a job row. The whole step shares one `FFMPEG_JOB_MAX_SECONDS` budget (default 3600 s — see [Tuning](#tuning)).
+- **Uploads are all-or-nothing per command, not per batch.** Both executors upload only after every command has succeeded, so a non-zero ffmpeg exit ships nothing at all. But if a declared output turns out to be missing when its turn comes in the upload loop — an ffmpeg that exited 0 having written no file, which `-abort_on empty_output` makes unlikely rather than impossible — the images before it have already landed.
+- **A missing `drawtext` only sometimes costs a second pass.** On a *local* executor whose `-filters` probe already reported the filter missing, CE suppresses the draw up front: zero extra commands. The undrawn retry — one more full pass over every still and sheet — is for a remote Worker, or a local ffmpeg whose probe never ran.
 
 ## Remote executor
 
@@ -121,7 +223,7 @@ The Worker's URL, auth and credential are a **[remote connection](./remote-conne
 
 1. **Admin Settings → Infrastructure → Remote connections → Add**: name `ffmpeg`, the Worker URL, **Auth: Google ID token**, paste the contents of `key.json` into **Credential** (skip it if CE runs on GCP with a service account that has `run.invoker` — ADC is used), **Test connection**, Save.
 2. **Admin Settings → Features → Server video ops** — turn the feature on if it isn't already.
-3. In the **Executor** panel below it: switch **Remote** on and pick the `ffmpeg` connection. **Test connection** should show the Worker version, its ffmpeg build, the four ops, the round-trip latency, plus "Ready".
+3. In the **Executor** panel below it: switch **Remote** on and pick the `ffmpeg` connection. **Test connection** should show the Worker version, its ffmpeg build, its ops, the round-trip latency, plus "Ready".
 4. Pick **Default executor: Remote** (or leave Local as default and opt individual pipeline steps in with `executor: "remote"`), then **Save**.
 5. Optionally turn **Local server** off — on a 1 GB host that is the whole point: `server: true` with no ffmpeg on the box.
 
