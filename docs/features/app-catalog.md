@@ -24,15 +24,35 @@ flowchart LR
     Bundle --> Result
 ```
 
-Each catalog entry is a **manifest-driven bundle**: a registry index (currently just [Handoff](https://apps.bffless.dev)) points at a versioned zip containing the app's built `dist/`, its proxy rule set(s) in their already-built form, and a manifest describing where everything goes. CE fetches the bundle, verifies its checksum, and applies it through the same endpoints an operator would use by hand — the sync endpoint behind `bffless rules push`, the zip-deploy endpoint behind `upload-artifact`, and the domains API.
+Each catalog entry is a **manifest-driven bundle**: a registry index (see [what's in the catalog](#whats-in-the-catalog)) points at a versioned zip containing the app's built `dist/`, its proxy rule set(s) in their already-built form, and a manifest describing where everything goes. CE fetches the bundle, verifies its checksum, and applies it through the same endpoints an operator would use by hand — the sync endpoint behind `bffless rules push`, the zip-deploy endpoint behind `upload-artifact`, and the domains API.
 
 Nothing is written until you click **Install**. Every check the wizard can run against your instance and target project runs first, and you see the results — including a dry-run of exactly what the rule-set sync would create or reuse — before anything happens.
 
+## What's in the catalog
+
+Every catalog app has the same shape: a static frontend on its own alias, with its entire backend running as a proxy rule set (pipelines and data tables) on your project — no separate server to deploy or maintain.
+
+| App | What it does | Needs |
+|---|---|---|
+| **Handoff** | Internal, permissioned file server — share files, folders, and live static Sites with per-folder access control, share links, and comments | CE ≥ 0.4.13 · presigned storage |
+| **Rivulet** | Quiet, multi-user RSS/Atom reader with folders, starring, keyboard-first reading, and background refresh schedules | CE ≥ 0.4.13 |
+| **Recall** | Video-transcript RAG search and chat, with answers that cite (and seek to) the exact second they came from | CE ≥ 0.4.24 · presigned storage · Replicate + Anthropic keys |
+| **Studio** | Cuts a long screen recording into a short video in your own voice — AI proposes the scenes and cuts, you tune them, nothing is re-voiced | CE ≥ 0.4.19 · presigned storage · Replicate + Anthropic keys |
+| **Workflow** | Browser-driven, GitHub-Actions-inspired workflow runner over your project's pipelines — declarative YAML, interactive steps, resumable recorded runs, headless in CI | CE ≥ 0.4.37 |
+
+### Workflow
+
+Workflow runs workflows declared in YAML: jobs and steps chain your project's pipelines together, with expressions wiring one step's outputs into the next. **Form steps and custom HTML islands pause the run for a person** — review, edits, approval — then resume exactly where they left off; every transition is recorded server-side, so runs are durable, listable, and re-runnable. The same run page also drives unattended: a headless (Playwright) driver follows the run and writes artifacts plus an exit code CI can read. The frontend is static; the entire backend is a proxy rule set under `/api/workflow/*`.
+
+Installing it deploys the frontend to a `workflow` alias and attaches the rule set; the app is **private by default**, behind your instance's sign-in. The harness discovers its serving project at runtime, so the prebuilt bundle works on any instance with zero configuration.
+
+It **starts empty by design** — the harness owns the UI, the runner, run history, and file storage, and carries no workflows of its own. Publish implementations into the same project with the [`bffless/publish-workflow`](https://github.com/bffless/publish-workflow) GitHub Action (`@v1`); the `hello` package in [bffless/workflow-implementations](https://github.com/bffless/workflow-implementations) is the reference, and [writing an implementation](https://github.com/bffless/apps/blob/main/apps/workflow/docs/writing-an-implementation.md) is the full how-to. Two caveats, both surfaced by the post-install checklist where they apply: on **local filesystem storage**, set `PUBLIC_ORIGIN` on the backend or island media (presigned URLs) can't resolve; and [server video ops](/features/server-video-ops/) (ffmpeg) are only needed by implementations that use them — never by the harness itself.
+
 ## Requirements
 
-- **CE ≥ 0.4.0.** The catalog itself shipped in 0.4.0; individual apps may declare their own higher minimum (Handoff currently needs CE ≥ 0.2.0, well below the catalog's own floor).
+- **CE ≥ 0.4.0.** The catalog itself shipped in 0.4.0; individual apps may declare their own higher minimum (see the table above — Workflow currently needs CE ≥ 0.4.37).
 - **The `ENABLE_APP_CATALOG` feature flag** (`FEATURE_APP_CATALOG` in `.env`) — **on by default**. Disabling it hides the **Apps** nav item and refuses the install endpoints outright.
-- **Presigned-capable storage, if the app needs it.** Handoff requires presigned upload URLs. This does **not** mean you need a bucket: since CE v0.3.15, local filesystem storage supports presigned uploads (and, since 0.4.0, signed downloads too) as long as `ENCRYPTION_KEY` is set — which CE already requires at setup — and the `FEATURE_LOCAL_PRESIGNED_UPLOADS` flag hasn't been turned off (it also defaults to on). A stock local-storage install passes this check with no extra configuration. MinIO and real S3-compatible buckets work too, of course.
+- **Presigned-capable storage, if the app needs it.** Handoff, Recall, and Studio require presigned upload URLs. This does **not** mean you need a bucket: since CE v0.3.15, local filesystem storage supports presigned uploads (and, since 0.4.0, signed downloads too) as long as `ENCRYPTION_KEY` is set — which CE already requires at setup — and the `FEATURE_LOCAL_PRESIGNED_UPLOADS` flag hasn't been turned off (it also defaults to on). A stock local-storage install passes this check with no extra configuration. MinIO and real S3-compatible buckets work too, of course.
 - **A resolvable domain**, if the app declares one (most do) — the install maps a subdomain under your `PRIMARY_DOMAIN`.
 
 :::tip Platform mode
