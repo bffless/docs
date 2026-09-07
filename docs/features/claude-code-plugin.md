@@ -24,7 +24,7 @@ flowchart LR
 
 ## Why Use the Skills?
 
-The [MCP Server](/features/mcp-server) gives your agent access to BFFless tools (create projects, manage deployments, etc.), but the tools alone don't teach _how_ to use them effectively. The skills add:
+The [Admin MCP Server](/features/mcp-server/) gives your agent access to BFFless tools (create projects, manage deployments, etc.), but the tools alone don't teach _how_ to use them effectively. The skills add:
 
 - **Domain knowledge** — Concepts like aliases, pipeline handlers, proxy rule sets, and traffic splitting
 - **Guided workflows** — Ask for "a contact form with email notifications" and the agent knows the exact handler chain to build
@@ -34,10 +34,10 @@ The [MCP Server](/features/mcp-server) gives your agent access to BFFless tools 
 ## Prerequisites
 
 - An AI coding agent (Claude Code, or any agent that supports the `skills` CLI format)
-- A BFFless instance with an API key (see [MCP Server — Setup](/features/mcp-server#setup))
+- A BFFless instance with an API key (see [Admin MCP Server — Setup](/features/mcp-server/#setup))
 - The BFFless MCP server connected to your agent
 
-If you haven't set up the MCP server yet, see the [MCP Server](/features/mcp-server) page first.
+If you haven't set up the MCP server yet, see the [Admin MCP Server](/features/mcp-server/) page first.
 
 ## Installation
 
@@ -175,14 +175,14 @@ Skills provide knowledge but rely on the MCP server for tool execution. Verify y
 
 1. Check that the `bffless` MCP server is configured in your agent
 2. Ensure your API key is valid and has appropriate permissions
-3. See [MCP Server — Setup](/features/mcp-server#setup) for connection details
+3. See [Admin MCP Server — Setup](/features/mcp-server/#setup) for connection details
 
 **Domain knowledge not loading?**
 In Claude Code, make sure you invoke `/bffless` at the start of your conversation — the plugin loads context on demand, not automatically. With the `npx skills` CLI, confirm the skill files were copied into your project directory.
 
 ## Related Features
 
-- [MCP Server](/features/mcp-server) — Raw MCP tool access for programmatic BFFless management
+- [Admin MCP Server](/features/mcp-server/) — Raw MCP tool access for programmatic BFFless management
 - [Pipelines](/features/pipelines) — Backend automation with chained handlers
 - [Chat](/features/chat) — AI-powered chat with streaming and persistence
 - [Proxy Rules](/features/proxy-rules) — API endpoints and request routing
