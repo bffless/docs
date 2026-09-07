@@ -19,8 +19,8 @@ Needs CE **v0.4.44** for `mcp_handler`, **v0.4.49** for the admin-UI form editor
 ```mermaid
 flowchart LR
     C[claude.ai / Claude Code] -->|POST /api/mcp<br/>Bearer app token| M[mcp_handler rule]
-    M -->|tools/call → in-process<br/>as the caller| T1[/api/mcp-tools/generate<br/>auth_required · scope]
-    M -->|tools/call| T2[/api/mcp-tools/other<br/>auth_required · role]
+    M -->|tools/call → in-process<br/>as the caller| T1["/api/mcp-tools/generate<br/>auth_required · scope"]
+    M -->|tools/call| T2["/api/mcp-tools/other<br/>auth_required · role"]
     C -.->|GET /.well-known/<br/>oauth-protected-resource| W[oauth_protected_resource<br/>rule]
     W -.->|authorization_servers| A[admin.host<br/>CE OAuth server]
 
