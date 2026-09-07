@@ -283,15 +283,15 @@ Both are already mapped through to the backend container in the shipped `docker-
 
 ## Outbound URL Guard
 
-Defence in depth against SSRF for URLs the backend fetches on someone's behalf (CE 0.4.53+): **proxy-rule targets** (checked when a rule is created or updated) and **app bundle URLs** (checked at install preflight). The hostname is resolved and every address it maps to must be public. Hosts that are internal by declaration — `localhost`, `127.0.0.1`, `*.svc`, `*.svc.cluster.local` — are exempt, so sidecar and in-cluster targets keep working.
+Defence in depth against SSRF for URLs the backend fetches on someone's behalf (CE 0.4.53+): **proxy-rule targets** (checked whenever a rule set is written — dashboard create/update, `bffless rules push` and the `deploy-proxy-rules` action, import, copy, and revision rollback) and **app bundle URLs** (checked at install preflight). The hostname is resolved and every address it maps to must be public. Hosts that are internal by declaration — `localhost`, `127.0.0.1`, `*.svc`, `*.svc.cluster.local` — are exempt, so sidecar and in-cluster targets keep working.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `OUTBOUND_URL_GUARD` | `warn` | `warn` logs a warning and allows the URL. `reject` refuses it: HTTP 400 on rule create/update, a failed preflight step on app install. A name that does not resolve is refused too. Any other value is treated as `warn` (warned about once at startup) |
+| `OUTBOUND_URL_GUARD` | `warn` | `warn` logs a warning and allows the URL; on `rules push` each flagged rule is one `warning:` line in the CLI output and the push still succeeds. `reject` refuses it: HTTP 400 on rule create/update, one 400 listing every offending rule on push/import/copy (nothing is written), a failed preflight step on app install. A name that does not resolve, or whose lookup exceeds 3 seconds, is refused too. Any other value is treated as `warn` (warned about once at startup) |
 
 The default is `warn` so that split-horizon or private targets that worked before an upgrade keep working. Switch to `reject` once you have checked the backend log for warnings from your existing rules.
 
-This guard does not apply to OAuth [Client ID Metadata Documents](/features/build-an-mcp-server/), which always refuse non-public hosts. Rule sets that arrive through `bffless rules push`, import, or copy are not validated at all today — see [bffless/ce#766](https://github.com/bffless/ce/issues/766).
+This guard does not apply to OAuth [Client ID Metadata Documents](/features/build-an-mcp-server/), which always refuse non-public hosts. Plain `http://` to a non-internal host is refused on every path regardless of mode, as it always was. Rule sets that arrive as code are covered since [bffless/ce#780](https://github.com/bffless/ce/issues/780); on older releases push, import and copy skipped this check. See [Proxy Rules as Code](/recipes/proxy-rules-as-code#troubleshooting) for what the push output looks like.
 
 :::note Docker deployments
 `OUTBOUND_URL_GUARD` is mapped through to the backend container in the shipped `docker-compose.yml`. If you run a customised compose file with its own `environment:` block, add it there too.
