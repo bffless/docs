@@ -281,6 +281,24 @@ Both are already mapped through to the backend container in the shipped `docker-
 
 ---
 
+## Outbound URL Guard
+
+Defence in depth against SSRF for URLs the backend fetches on someone's behalf (CE 0.4.53+): **proxy-rule targets** (checked when a rule is created or updated) and **app bundle URLs** (checked at install preflight). The hostname is resolved and every address it maps to must be public. Hosts that are internal by declaration — `localhost`, `127.0.0.1`, `*.svc`, `*.svc.cluster.local` — are exempt, so sidecar and in-cluster targets keep working.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `OUTBOUND_URL_GUARD` | `warn` | `warn` logs a warning and allows the URL. `reject` refuses it: HTTP 400 on rule create/update, a failed preflight step on app install. A name that does not resolve is refused too. Any other value is treated as `warn` (warned about once at startup) |
+
+The default is `warn` so that split-horizon or private targets that worked before an upgrade keep working. Switch to `reject` once you have checked the backend log for warnings from your existing rules.
+
+This guard does not apply to OAuth [Client ID Metadata Documents](/features/build-an-mcp-server/), which always refuse non-public hosts. Rule sets that arrive through `bffless rules push`, import, or copy are not validated at all today — see [bffless/ce#766](https://github.com/bffless/ce/issues/766).
+
+:::note Docker deployments
+`OUTBOUND_URL_GUARD` is mapped through to the backend container in the shipped `docker-compose.yml`. If you run a customised compose file with its own `environment:` block, add it there too.
+:::
+
+---
+
 ## Telemetry
 
 Anonymous, opt-out install telemetry. On by default; see [Telemetry](/reference/telemetry) for exactly what is sent.
