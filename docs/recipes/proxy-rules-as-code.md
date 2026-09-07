@@ -374,6 +374,7 @@ One caveat carries over from restoring any previously deleted rule: secret heade
 
 ## Related
 
-- [Proxy Rules](/features/proxy-rules) — the underlying feature these files compile into
+- [Proxy Rules](/features/proxy-rules/) — the underlying feature these files compile into
+- [Build an MCP Server](/features/build-an-mcp-server/) — a rule set that is an MCP server, kept in git this way
 - [`bffless/upload-artifact`](/deployment/github-actions/upload-artifact) — deploys the app itself, run alongside `deploy-proxy-rules`
 - Full CLI reference: [`packages/cli/docs/reference.md`](https://github.com/bffless/ce/blob/main/packages/cli/docs/reference.md)

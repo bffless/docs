@@ -54,7 +54,7 @@ If any handler fails, the pipeline stops and returns an error response.
 
 ## Handler Library
 
-Pipelines support 8 handler types that you can combine to build any workflow:
+The core handler types you can combine to build a workflow (the editor lists more, such as AI, file, Stripe and ffmpeg steps):
 
 | Handler               | Description                                     |
 | --------------------- | ----------------------------------------------- |
@@ -67,6 +67,7 @@ Pipelines support 8 handler types that you can combine to build any workflow:
 | **Response Handler**  | Returns a custom JSON response                  |
 | **Function Handler**  | Runs custom JavaScript for transformations      |
 | **Aggregate Handler** | Performs aggregations (count, sum, avg) on data |
+| **MCP Server**        | Answers as an MCP server whose tools are sibling rules — see [Build an MCP Server](/features/build-an-mcp-server/) |
 
 <img src="/img/pipelines-form-validation.png" alt="Form Handler configuration showing field validation rules" className="screenshot" />
 
@@ -457,5 +458,6 @@ Pipelines stop execution when a handler fails. Plan for failure scenarios:
 
 ## Related Features
 
-- [Proxy Rules](/features/proxy-rules) - Forward requests to external APIs
+- [Proxy Rules](/features/proxy-rules/) - Forward requests to external APIs
+- [Build an MCP Server](/features/build-an-mcp-server/) - Expose pipelines as MCP tools with the MCP Server step
 - [Authorization](/features/authorization) - Control access to pipelines

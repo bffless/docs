@@ -1,20 +1,24 @@
 ---
 sidebar_position: 9
-title: MCP Server
-description: Manage your BFFless instance programmatically from AI coding assistants like Claude Code using the Model Context Protocol (MCP).
+title: Admin MCP Server
+description: Let an AI coding assistant drive the BFFless admin panel — projects, deployments, aliases, domains, pipelines, proxy rules — through the built-in MCP server at admin.<host>/mcp, authenticated with an API key.
 ---
 
-# MCP Server
+# Admin MCP Server
 
 Watch the walkthrough (jumps to the Install MCP Server section):
 
 <YouTubeEmbed id="SgUtqbSge6o" title="BFFless: Using Skills and MCP to Update Pipelines" start={140} />
 
-Manage your BFFless instance directly from AI coding assistants using the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). The built-in MCP server exposes all admin operations as tools — projects, deployments, aliases, domains, pipelines, proxy rules, cache rules, and more — so your AI assistant can create, update, and query resources on your behalf.
+Every BFFless instance ships an [MCP](https://modelcontextprotocol.io/) server for its **admin panel**. It exposes the admin operations as tools — projects, deployments, aliases, domains, pipelines, proxy rules, cache rules, users, API keys — so an AI assistant such as Claude Code can create, update and query them on your behalf. It lives at `admin.<host>/mcp` and authenticates with an API key.
+
+:::info Not this one?
+This server manages **BFFless itself**. If you want to give an agent tools that run **your own app's backend** — an MCP server you build on a project, with tools that are pipelines, connected from claude.ai or Claude Code over OAuth — that is the `mcp_handler` pipeline step. See [Build an MCP Server](/features/build-an-mcp-server/).
+:::
 
 ```mermaid
 flowchart LR
-    A[AI Assistant] -->|MCP Protocol| B[BFFless MCP Server]
+    A[AI Assistant] -->|MCP Protocol| B[Admin MCP Server]
     B --> C[Projects]
     B --> D[Deployments]
     B --> E[Pipelines]
@@ -24,29 +28,9 @@ flowchart LR
     style B fill:#e0f2fe,stroke:#333,stroke-width:2px
 ```
 
-## Overview
-
-The MCP server is available at `/mcp` on every BFFless instance. It uses the **Streamable HTTP** transport and authenticates via API key. Any MCP-compatible client can connect — including Claude Code, Cursor, Windsurf, and custom integrations.
-
-**What you can do:**
-
-- Create projects and manage deployments
-- Promote and roll back aliases
-- Configure custom domains and subdomains
-- Build data-backed APIs with pipeline schemas and proxy rules
-- Set up file uploads, cache rules, and AI chat pipelines
-- Query and manage pipeline data records
-- Debug pipeline execution with logs
-- Manage users, roles, and API keys
-
 ## Setup
 
-### Prerequisites
-
-- A running BFFless instance (self-hosted or managed)
-- An API key with appropriate permissions
-
-### 1. Create an API Key
+### 1. Create an API key
 
 Navigate to **Settings → API Keys** in your BFFless admin panel and create a new key. Copy it — you'll need it for the next step.
 
@@ -54,13 +38,12 @@ Navigate to **Settings → API Keys** in your BFFless admin panel and create a n
 API keys can be scoped to a specific project or granted global access. For AI assistants, a global key is usually most convenient.
 :::
 
-### 2. Connect Your MCP Client
+### 2. Connect your MCP client
 
 #### Claude Code
 
 ```bash
-claude mcp add --transport http bffless https://admin.yourdomain.com/mcp \
-  --header "X-API-Key: YOUR_API_KEY"
+claude mcp add --transport http bffless https://admin.yourdomain.com/mcp --header "X-API-Key: YOUR_API_KEY"
 ```
 
 This adds the server to your `~/.claude.json` configuration:
@@ -79,7 +62,7 @@ This adds the server to your `~/.claude.json` configuration:
 }
 ```
 
-#### Cursor / Other MCP Clients
+#### Cursor / other MCP clients
 
 Add the following to your MCP client configuration:
 
@@ -87,7 +70,7 @@ Add the following to your MCP client configuration:
 - **URL:** `https://admin.yourdomain.com/mcp`
 - **Header:** `X-API-Key: YOUR_API_KEY`
 
-### 3. Verify the Connection
+### 3. Verify the connection
 
 Ask your AI assistant to list your projects:
 
@@ -95,21 +78,29 @@ Ask your AI assistant to list your projects:
 
 The assistant will call the `list_projects` tool and return your project list.
 
-### Connecting Multiple Instances
+### Connecting multiple instances
 
-You can connect to multiple BFFless instances simultaneously by giving each a unique name:
+Connect to several BFFless instances at once by giving each a unique name:
 
 ```bash
-claude mcp add --transport http bffless-production https://admin.production.yourdomain.com/mcp \
-  --header "X-API-Key: PROD_KEY"
-
-claude mcp add --transport http bffless-staging https://admin.staging.yourdomain.com/mcp \
-  --header "X-API-Key: STAGING_KEY"
+claude mcp add --transport http bffless-production https://admin.production.yourdomain.com/mcp --header "X-API-Key: PROD_KEY"
+claude mcp add --transport http bffless-staging https://admin.staging.yourdomain.com/mcp --header "X-API-Key: STAGING_KEY"
 ```
 
 Each instance is fully isolated — tools are scoped to the workspace they're connected to.
 
-## Available Tools
+### How it connects
+
+| | |
+| --- | --- |
+| **Endpoint** | `https://admin.<your-domain>/mcp` (for self-hosted instances, `admin.<PRIMARY_DOMAIN>`) |
+| **Auth** | `X-API-Key` header — the same keys as the REST API; a key created in the admin panel works for both |
+| **Transport** | Streamable HTTP, stateless, JSON responses: no persistent connection, each request independent, proxy- and load-balancer-friendly |
+| **Rate limits** | Same as the REST API. For high-volume automation, call the REST API directly. |
+
+Pair it with the [Claude Code plugin](/features/claude-code-plugin/): the MCP server gives the assistant the tools, the plugin's skills teach it how to use them.
+
+## Available tools
 
 ### Projects
 
@@ -121,7 +112,7 @@ Each instance is fully isolated — tools are scoped to the workspace they're co
 | `update_project` | Update project settings (display name, description, visibility) |
 | `delete_project` | Delete a project and all its deployments, aliases, and storage files |
 
-### Deployments & Aliases
+### Deployments & aliases
 
 | Tool | Description |
 |------|-------------|
@@ -143,7 +134,7 @@ Each instance is fully isolated — tools are scoped to the workspace they're co
 | `update_domain` | Update domain settings |
 | `delete_domain` | Remove a domain mapping |
 
-### Pipeline Schemas & Data
+### Pipeline schemas & data
 
 | Tool | Description |
 |------|-------------|
@@ -159,7 +150,7 @@ Each instance is fully isolated — tools are scoped to the workspace they're co
 | `update_pipeline_record` | Update an existing record |
 | `delete_pipeline_record` | Delete a record |
 
-### Proxy Rules
+### Proxy rules
 
 | Tool | Description |
 |------|-------------|
@@ -172,7 +163,7 @@ Each instance is fully isolated — tools are scoped to the workspace they're co
 | `update_proxy_rule` | Update a proxy rule |
 | `delete_proxy_rule` | Delete a proxy rule |
 
-### Cache Rules
+### Cache rules
 
 | Tool | Description |
 |------|-------------|
@@ -181,7 +172,7 @@ Each instance is fully isolated — tools are scoped to the workspace they're co
 | `create_cache_rule` | Create a cache policy for a path pattern |
 | `delete_cache_rule` | Delete a cache rule |
 
-### Pipeline Debugging
+### Pipeline debugging
 
 | Tool | Description |
 |------|-------------|
@@ -190,7 +181,7 @@ Each instance is fully isolated — tools are scoped to the workspace they're co
 | `get_pipeline_log` | Get full execution log with step details |
 | `get_pipeline_log_step` | Get input/output for a specific pipeline step |
 
-### Users & API Keys
+### Users & API keys
 
 | Tool | Description |
 |------|-------------|
@@ -208,87 +199,20 @@ Each instance is fully isolated — tools are scoped to the workspace they're co
 | `get_primary_content_config` | Get which project/alias serves on the root domain |
 | `update_primary_content_config` | Update the primary content configuration |
 
-## Common Workflows
+## Things to ask
 
-### Deploy a Static Site
+A few prompts that exercise the tools end to end; the assistant chains the calls itself.
 
-Ask your AI assistant:
+- **Deploy a site:** "Create a project called `my-org/landing-page`, set up a production alias and map it to `landing.example.com`" — `create_project` → `create_alias` → `create_domain`.
+- **Build a data-backed API:** "Create a contacts schema with name, email and company fields, then GET and POST endpoints at `/api/contacts`" — `create_pipeline_schema` → `create_proxy_rule_set` → `create_proxy_rule` ×2 (`data_query`, `data_create`).
+- **Promote or roll back:** "Promote the latest `my-org/app` deployment to production" / "Roll production back to the previous deployment" — `list_deployments` → `update_alias`.
+- **Debug a pipeline:** "Enable debug logging on `/api/contacts` and show me the last few runs" — `enable_pipeline_debug` → `list_pipeline_logs` → `get_pipeline_log`.
 
-> "Create a new project called `my-org/landing-page`, then set up a production alias and map it to `landing.example.com`"
+## Related features
 
-Behind the scenes, the assistant will:
-
-1. `create_project` — Create the project
-2. `create_alias` — Point "production" to the latest deployment
-3. `create_domain` — Map the subdomain to the project
-
-### Build a Data-Backed API
-
-> "Create a contacts schema with name, email, and company fields, then set up GET and POST endpoints at `/api/contacts`"
-
-The assistant will:
-
-1. `create_pipeline_schema` — Define the data model
-2. `create_proxy_rule_set` — Group the API rules
-3. `create_proxy_rule` — Create GET endpoint with `data_query` handler
-4. `create_proxy_rule` — Create POST endpoint with `data_create` handler
-
-### Promote a Deployment
-
-> "Show me the latest deployments for `my-org/app` and promote the most recent one to production"
-
-1. `list_deployments` — Find the latest commit SHA
-2. `update_alias` — Point the production alias to the new SHA
-
-### Roll Back
-
-> "Roll back the production alias for `my-org/app` to the previous deployment"
-
-1. `list_deployments` — Find the previous commit SHA
-2. `update_alias` — Point production back to the old SHA
-
-### Debug a Pipeline
-
-> "Enable debug logging on my `/api/contacts` endpoint and show me the last few execution logs"
-
-1. `enable_pipeline_debug` — Turn on logging for the rule
-2. `list_pipeline_logs` — View recent executions
-3. `get_pipeline_log` — Inspect a specific execution's step-by-step data
-
-## Technical Details
-
-### Authentication
-
-All MCP requests are authenticated via the `X-API-Key` header. The server uses the same API key system as the REST API — keys created in the admin panel work for both.
-
-### Transport
-
-The MCP server uses **Streamable HTTP** transport in stateless mode with JSON responses enabled. This means:
-
-- No persistent WebSocket connections required
-- Each request is independent (no session state)
-- Compatible with HTTP proxies and load balancers
-
-### Endpoint
-
-The MCP endpoint is always available at:
-
-```
-https://admin.<your-domain>/mcp
-```
-
-For self-hosted instances, this is typically:
-
-```
-https://admin.<PRIMARY_DOMAIN>/mcp
-```
-
-### Rate Limiting
-
-MCP requests are subject to the same rate limits as the REST API. For high-volume automation, consider using the REST API directly.
-
-## Related Features
-
-- [Pipelines](/features/pipelines) — Learn about pipeline schemas, field types, and handler configurations
-- [Proxy Rules](/features/proxy-rules) — Detailed guide on setting up API endpoints with proxy rules
-- [AI Pipelines](/features/ai-pipelines) — Configure AI-powered chat and content generation
+- [Build an MCP Server](/features/build-an-mcp-server/) — ship your own MCP server on a project with the `mcp_handler` step
+- [Claude Code Plugin](/features/claude-code-plugin/) — skills that teach the assistant how to use these tools
+- [Pipelines](/features/pipelines/) — pipeline schemas, field types, and handler configurations
+- [Proxy Rules](/features/proxy-rules/) — setting up API endpoints with proxy rules
+- [Proxy Rules as Code](/recipes/proxy-rules-as-code/) — keep the rule sets these tools edit in git instead
+- [AI Pipelines](/features/ai-pipelines/) — AI-powered chat and content generation
