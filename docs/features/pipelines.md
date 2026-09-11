@@ -385,7 +385,9 @@ When enabled, the `{{user}}` context is available with:
 
 - `user.id` - User's unique identifier
 - `user.email` - User's email address
-- `user.roles` - User's assigned roles
+- `user.role` - User's global role (admin/user/member)
+- `user.projectRole` - User's role on this project (CE ≥ 0.4.57)
+- `user.groups` - User's assigned groups
 
 ### Rate Limiting
 
