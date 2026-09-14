@@ -243,6 +243,16 @@ The same settings can be pinned with env vars (they then win over the admin valu
 
 Nested deadlines: Cloud Run `--timeout` ≥ `FFMPEG_JOB_MAX_SECONDS` (default 2 × `FFMPEG_MAX_SECONDS` = 3600 s) > the per-job ceiling CE sends the Worker. Keep `--timeout 3600` unless you raise the CE values.
 
+### Streamed inputs (Worker protocol 2)
+
+Since CE **v0.4.60** and a Worker whose `/health` reports `protocol: 2`, the Remote executor no longer downloads the source before `slice`, `extract_audio` and `frames`: ffmpeg reads it **straight from the signed URL** (with reconnect flags), so a multi-gigabyte input never lands on the Worker's disk. `concat` and `probe` still download, and the Local executor is unchanged. An older Worker, or one whose `/health` is unreachable, silently gets the previous download behaviour. The job log gains `bytesStreamed`; a URL that expires mid-read surfaces as `FILE_NOT_FOUND`.
+
+Cloud Run's scratch space is RAM: if you keep an older Worker or run `concat` on large inputs, point `WORKER_SCRATCH_DIR` at a mounted volume (GCS FUSE, NFS) or size the container's memory for the biggest input.
+
+:::caution Clips stitched before v0.4.60
+`slice` and `concat` outputs made on earlier releases can report a **days-long duration** on variable-frame-rate sources (a 32-bit timescale overflow: ~12 minutes of content read as 104 hours), and a span that starts on a held still frame opened on black. Both are fixed in v0.4.60, but stored clips keep their bad container: re-run the pipeline to regenerate them.
+:::
+
 ### Sizing the Worker
 
 `--concurrency 1` means one job per instance; parallelism = `--max-instances`. Two rules decide the shape:

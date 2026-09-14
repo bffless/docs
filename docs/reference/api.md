@@ -56,6 +56,7 @@ X-API-Key: your-api-key
 | POST | `/api/auth/signin` | None | Login user |
 | POST | `/api/auth/signout` | Session | Logout user |
 | GET | `/api/auth/session` | Session | Get session info |
+| POST | `/api/auth/session/from-app-token` | App token (`auth:session`) | Exchange an app token for a session |
 
 ### Assets
 
@@ -100,6 +101,28 @@ X-API-Key: your-api-key
 | GET | `/api/api-keys` | Session | List API keys |
 | POST | `/api/api-keys` | Session | Create API key |
 | DELETE | `/api/api-keys/:id` | Session | Revoke API key |
+
+### App Tokens
+
+Project-bound bearer credentials with scopes — see [App Tokens](/features/app-tokens/).
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/app-tokens` | Session | List your tokens (paged, active only unless `includeInactive=true`) |
+| POST | `/api/app-tokens` | Session | Mint a token (`name`, `project`, `scopes`, `expiresAt` or `neverExpires`) |
+| DELETE | `/api/app-tokens/:id` | Session | Revoke a token |
+
+### OAuth 2.1 (admin host)
+
+The built-in authorization server — see [Authentication](/configuration/authentication/#built-in-oauth-21-authorization-server).
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/.well-known/oauth-authorization-server` | None | Server metadata (RFC 8414) |
+| POST | `/api/oauth/register` | None | Dynamic client registration (RFC 7591) |
+| GET | `/api/oauth/authorize` | Session (consent) | Authorization request (PKCE S256 + `resource` required) |
+| POST | `/api/oauth/token` | None | `authorization_code` / `refresh_token` grants |
+| POST | `/api/oauth/revoke` | None | Revoke a token (RFC 7009) |
 
 ### Public Access
 
