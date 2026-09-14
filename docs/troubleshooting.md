@@ -98,6 +98,14 @@ API_DOMAIN=http://localhost
 docker compose restart backend
 ```
 
+### A `fetch()` gets 401 where it used to be redirected
+
+Since CE v0.4.55 only navigations (`Sec-Fetch-Mode: navigate` or `Accept: text/html`) are redirected to the login page. A `fetch()`, curl or bearer request with an expired or missing session gets a JSON `401` (`try refresh token` or `unauthorised`), and an unverified email gets `403 EMAIL_NOT_VERIFIED`. Handle the status in the client: refresh, then send the user to the login URL yourself. See [Authentication](/configuration/authentication/#api-requests-get-json-navigations-get-a-redirect).
+
+### `403 TOKEN_PROJECT_MISMATCH`
+
+An [app token](/features/app-tokens/) minted for one project was sent to a host that maps to another. Tokens are bound to exactly one project; mint one for the project the host belongs to. Since v0.4.58 this is checked on public deployments too, not only private ones.
+
 ### Can't Login After Setup
 
 ```bash
@@ -169,6 +177,10 @@ docker compose down
 docker compose -f docker-compose.build.yml build
 docker compose up -d
 ```
+
+### A site file is quarantined as `.invalid`
+
+Since CE v0.4.48 the nginx container runs a boot guard: a file in `sites-enabled` that fails `nginx -t` is renamed to `<name>.invalid` and nginx starts without it, instead of the whole container crash-looping on one bad domain. Look at the file, fix the cause (usually a missing certificate path for that domain), and the backend regenerates it on its next config write. A broken *main* config still stops the container. Reloads are coalesced: a burst of writes becomes one reload after `NGINX_WATCH_QUIET_SECONDS` (default 2 s) of quiet.
 
 ### Container Keeps Restarting
 

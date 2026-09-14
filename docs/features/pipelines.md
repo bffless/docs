@@ -67,7 +67,9 @@ The core handler types you can combine to build a workflow (the editor lists mor
 | **Response Handler**  | Returns a custom JSON response                  |
 | **Function Handler**  | Runs custom JavaScript for transformations      |
 | **Aggregate Handler** | Performs aggregations (count, sum, avg) on data |
+| **File Delete**       | Deletes objects under the project's uploads root by prefix, key, key list or prefix list — see [below](#file-delete) |
 | **MCP Server**        | Answers as an MCP server whose tools are sibling rules — see [Build an MCP Server](/features/build-an-mcp-server/) |
+| **OAuth Discovery (MCP)** | Serves the RFC 9728 document an OAuth client reads before connecting to your MCP server — see [Build an MCP Server](/features/build-an-mcp-server/#the-discovery-document-rfc-9728) |
 
 <img src="/img/pipelines-form-validation.png" alt="Form Handler configuration showing field validation rules" className="screenshot" />
 
@@ -129,6 +131,25 @@ Run custom JavaScript for data transformations. Has access to the full context o
 const fullName = `${input.firstName} ${input.lastName}`;
 return { fullName, submittedAt: new Date().toISOString() };
 ```
+
+### File Delete
+
+Deletes objects from the project's storage. Every path is relative to the project's **uploads root**; the handler refuses a blank path, `/` and `..`, so a rule can never reach outside its own project. Idempotent: a target that matches nothing answers `{ "deleted": 0 }`, not an error. `dryRun: true` reports what would be deleted without deleting it.
+
+Exactly **one** of four modes:
+
+| Field | Type | Deletes |
+| --- | --- | --- |
+| `prefix` | string template | everything under one folder |
+| `key` | string template | one object |
+| `keys` | string[] of templates, **or** one expression string resolving to an array | an explicit set of objects |
+| `prefixes` | string[] of templates, **or** one expression string resolving to an array (CE ≥ 0.4.58) | everything under **each** of several folders in one step |
+
+The expression-string form of `keys` and `prefixes` is for lists only known at runtime, for example a query step's records mapped to their paths: `prefixes: "steps.cutoff.prefixes"`. A resolved empty array is a no-op. All entries are resolved and guarded **before** the first storage call; if some prefixes then fail the step still attempts every one and reports `Deleted N object(s) across M prefix(es) but K failed`.
+
+Output: `{ "deleted": <count>, "dryRun": <bool> }`, plus `"prefixes": [...]` (the resolved list) in `prefixes` mode. Two or zero modes fail validation with `Provide exactly one of "prefix", "key", "keys", or "prefixes"`.
+
+In the editor the step has three mode buttons: **Prefix**, **Key** and **Prefixes (list)** (a static-list textarea, or an expression input).
 
 ### Aggregate Handler
 
@@ -386,8 +407,12 @@ When enabled, the `{{user}}` context is available with:
 - `user.id` - User's unique identifier
 - `user.email` - User's email address
 - `user.role` - User's global role (admin/user/member)
-- `user.projectRole` - User's role on this project (CE ≥ 0.4.57)
+- `user.projectRole` - User's role on this project, `owner | admin | contributor | viewer | guest` (CE ≥ 0.4.57). The key is **absent** when the caller holds no role on the project, so compare with `== null` rather than a string. A global `admin` resolves to `owner` on every project.
 - `user.groups` - User's assigned groups
+- `user.credential` - How the caller authenticated: `"session"`, `"custom_domain"`, `"api_key"` or `"app_token"` (CE ≥ 0.4.43)
+- `user.scopes` - The scopes an [app token](/features/app-tokens/) was delegated (array; absent for sessions and API keys)
+
+**`requiredScopes`** (array) makes the validator demand every listed scope from an app-token caller and answer `403 insufficient_scope: missing <scope>` otherwise. Sessions and API keys pass regardless — they are the person, not a delegation. Scopes are `namespace:verb`, your app's own vocabulary; see [Build an MCP Server](/features/build-an-mcp-server/) for how tools use them.
 
 ### Rate Limiting
 

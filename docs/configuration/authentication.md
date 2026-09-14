@@ -38,6 +38,29 @@ API keys authenticate GitHub Actions and other CI/CD integrations.
 - **Method**: `X-API-Key` header
 - **Scope**: Project-level or global
 
+### 3. App Tokens (agents, MCP connectors)
+
+App tokens are bearer credentials bound to **one project** and delegated a set of scopes (CE ≥ 0.4.43). They are what an MCP connector holds after OAuth consent, and what you mint by hand for an agent or headless client that should act as you on one project only.
+
+- **Use case**: MCP servers, agents, headless browsers, per-project automation
+- **Method**: `Authorization: Bearer bfat_…`
+- **Scope**: One project, plus `requiredScopes` checked per pipeline rule
+- **Exchange**: `POST /api/auth/session/from-app-token` turns a token with the `auth:session` scope into a normal cookie session
+
+When several credentials are present CE resolves `X-API-Key` first, then the app token, then the session cookie. See [App Tokens](/features/app-tokens/).
+
+### API requests get JSON, navigations get a redirect
+
+Since CE **v0.4.55** one classifier decides whether a request is an *API request* or a *navigation*, and every guard uses it. A request is a navigation when it carries `Sec-Fetch-Mode: navigate` or `Accept: text/html`; **everything else is an API request** — including a browser `fetch()` with no `Accept` header (or `*/*`), which older releases sometimes answered with a `302` to the login page.
+
+| Situation | Navigation | API request (`fetch`, curl, bearer) |
+| --- | --- | --- |
+| Expired session cookie | redirect to admin login with `tryRefresh=true` | `401 { "message": "try refresh token" }` — call the refresh endpoint and retry |
+| No session on a private deployment or `auth_required` rule | redirect to admin login | `401 { "message": "unauthorised" }` with a `WWW-Authenticate: Bearer resource_metadata="…"` hint on domain hosts |
+| Email not verified | redirect to `/verify-email` | `403 { "error": "EMAIL_NOT_VERIFIED" }` |
+
+An SPA that relied on following a `302` from a `fetch()` should handle the `401` instead: refresh, then send the user to the login URL yourself. The [login relay](#logging-in-from-a-localhost-dev-server) flow is unchanged.
+
 ---
 
 ## SuperTokens Configuration
@@ -155,8 +178,9 @@ All authentication goes through custom endpoints (native SuperTokens endpoints a
 | `/api/auth/signup` | POST | Register new user |
 | `/api/auth/signin` | POST | Login user |
 | `/api/auth/signout` | POST | Logout user |
-| `/api/auth/session` | GET | Get current session info |
+| `/api/auth/session` | GET | Get current session info (`session.via` is `"app_token"` for exchanged sessions) |
 | `/api/auth/refresh` | POST | Refresh token (automatic) |
+| `/api/auth/session/from-app-token` | POST | Exchange an app token carrying `auth:session` for a session — see [App Tokens](/features/app-tokens/#exchanging-a-token-for-a-session) |
 
 ### Example: Sign Up
 
@@ -227,6 +251,29 @@ curl -X POST https://admin.yourdomain.com/api/assets/upload \
 - Optional expiration dates
 - Last-used tracking
 - Revocation support
+
+---
+
+## Built-in OAuth 2.1 authorization server
+
+Since CE **v0.4.45** the admin host is an OAuth 2.1 authorization server, so any OAuth-capable client — claude.ai custom connectors, Claude Code's `/mcp` — can connect to an MCP server you build on a project without you running anything extra. The access tokens it issues are [app tokens](/features/app-tokens/).
+
+| Endpoint (on the issuer, normally `https://admin.<domain>`) | Purpose |
+| --- | --- |
+| `GET /.well-known/oauth-authorization-server` | Server metadata (RFC 8414). Advertises `client_id_metadata_document_supported: true` |
+| `POST /api/oauth/register` | Dynamic client registration (RFC 7591). **Public clients only**: redirect URIs must be `https://`, or `http://` on localhost. Unmodelled metadata fields are stripped rather than refused; any `token_endpoint_auth_method` is accepted and answered as `none` |
+| `GET /api/oauth/authorize` | Authorization request. **PKCE `S256` is required**, and so is the RFC 8707 `resource` parameter, which must resolve through a domain mapping to a project. `client_id` may be a registered uuid **or an `https://` Client ID Metadata Document URL** (CE ≥ 0.4.53); the document is fetched with a strict SSRF guard and must name its own URL as `client_id` |
+| `GET`/`POST /api/oauth/consent` | The consent page (session-gated). The member may narrow the requested scopes |
+| `POST /api/oauth/token` | `authorization_code` and `refresh_token` grants. Refresh tokens (`bfrt_…`, 30 days) rotate on every use; reusing an old one revokes the whole family |
+| `POST /api/oauth/revoke` | Token revocation (RFC 7009), always `200` |
+
+What the server needs from you:
+
+- **The issuer must be the admin host.** `OAUTH_ISSUER` → `https://<ADMIN_DOMAIN>` → `FRONTEND_URL`; see [`OAUTH_ISSUER`](/configuration/environment-variables/#oauth_issuer). Only set it when the admin panel is reached through some other origin.
+- **A discovery document on the resource.** The project's rule set serves `GET /.well-known/oauth-protected-resource` with the `oauth_protected_resource` handler; that is where the client learns which issuer and scopes to ask for. Every API-shaped `401` already points there with `WWW-Authenticate: Bearer resource_metadata="…"`. Walkthrough: [Build an MCP Server](/features/build-an-mcp-server/#the-discovery-document-rfc-9728).
+- **The nginx `/.well-known` location on the admin vhost.** Shipped in the nginx image and compose templates from v0.4.45. If you run a customised nginx config or an older image, add a `location /.well-known/` that proxies to the backend on the admin server block, or metadata discovery answers `404`.
+
+Two migrations back this (`app_tokens`, and the three `oauth_*` tables); both run automatically on upgrade.
 
 ---
 

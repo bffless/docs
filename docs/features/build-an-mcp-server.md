@@ -143,9 +143,9 @@ The endpoint accepts the same credentials as every other proxied pipeline. Which
 | --- | --- | --- | --- |
 | **Session cookie** | Browser session on the alias host | Pass every check | A browser-embedded client on the same host |
 | **API key** | `X-API-Key` header | Pass every check | Your own Claude Code, scripts, CI. No discovery rule needed. |
-| **OAuth app token** | `Authorization: Bearer bfat_…` | Enforced per tool | claude.ai connectors, or any client that should get **only** the scopes a person consented to |
+| **OAuth app token** | `Authorization: Bearer bfat_…` | Enforced per tool | claude.ai connectors, or any client that should get **only** the scopes a person consented to. You can also [mint one by hand](/features/app-tokens/) for an agent |
 
-An API key gets you running in one line (see [Connect a client](#connect-a-client)). claude.ai has no header field and expects the server to be an OAuth **protected resource**, which CE already is: the instance's admin host runs a built-in OAuth 2.1 authorization server with dynamic client registration (RFC 7591), PKCE, and the metadata documents clients look for (RFC 8414, RFC 9728, RFC 8707). What the server needs from you is one more rule with one step.
+An API key gets you running in one line (see [Connect a client](#connect-a-client)). claude.ai has no header field and expects the server to be an OAuth **protected resource**, which CE already is: the instance's admin host runs a built-in OAuth 2.1 authorization server with dynamic client registration (RFC 7591), PKCE, and the metadata documents clients look for (RFC 8414, RFC 9728, RFC 8707). What the server needs from you is one more rule with one step. Clients may also identify themselves with a Client ID Metadata Document instead of registering: an `https://` URL as `client_id` (CE ≥ 0.4.53), fetched under a strict SSRF guard. The full endpoint list is in [Authentication → Built-in OAuth server](/configuration/authentication/#built-in-oauth-21-authorization-server).
 
 ### The discovery document (RFC 9728)
 
@@ -273,6 +273,7 @@ A tool can carry `_meta.ui.resourceUri` to name the resource that renders it, an
 - **A tool answers `insufficient_scope: missing …`.** The token was consented with fewer scopes than the tool's `requiredScopes`. Reconnect and grant the scope. Sessions and API keys never hit this.
 - **`<tool> is declared but no rule answers <path>`.** The tool's `rule.path` matches no rule in any set attached to this alias. Check the path and method, and that the tool's set is attached.
 - **`MCP_RECURSION`.** A tool's sibling is itself an `mcp_handler` rule. Tools must be ordinary pipelines.
+- **A forwarding tool reaches its upstream with no credential.** A tool whose sibling is an `external_proxy` rule (`targetUrl: https://…`) is forwarded with the headers **that rule's own** `forwardCookies`, `authTransform` and `headerConfig` build — cookies off and `authorization` stripped by default — not the caller's headers. If the upstream needs the bearer app token, list `authorization` in the sibling's `headerConfig.forward`. Only `internal_rewrite` siblings are unsupported (`unsupported rule type`).
 - **`405` on `GET`.** Expected. The endpoint is stateless; clients must `POST`.
 
 ## Related

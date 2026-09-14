@@ -111,6 +111,15 @@ Used for CORS, authentication cookies, and SuperTokens configuration.
 
 In Docker/production with nginx, the API is proxied through the same domain, so this typically isn't needed.
 
+### OAUTH_ISSUER
+
+- **Required**: No
+- **Default**: `https://<ADMIN_DOMAIN>`, else `FRONTEND_URL`
+- **Example**: `https://admin.yourdomain.com`
+- **Description**: The issuer URL of CE's built-in OAuth 2.1 authorization server (CE ≥ 0.4.46). It is the origin that `/.well-known/oauth-authorization-server`, `/api/oauth/register`, `/api/oauth/authorize` and `/api/oauth/token` are published on, and the value an MCP server's discovery document names in `authorization_servers`.
+
+Resolution order: `OAUTH_ISSUER` → `https://<ADMIN_DOMAIN>` (unless it is localhost) → `FRONTEND_URL`. On an installed instance the admin host is the right answer and needs no setting; set this only when the admin panel is reached through a different origin than `ADMIN_DOMAIN` (a reverse proxy in front, a non-standard port). Getting it wrong shows up as claude.ai failing to register: the metadata document points at `www.` and `/api/oauth/register` answers `404` there. See [Build an MCP Server](/features/build-an-mcp-server/#auth-session-api-key-or-oauth).
+
 ---
 
 ## Cookie & Session Settings
@@ -220,6 +229,14 @@ See [Storage Backends](/configuration/storage-backends) for detailed configurati
 - **Required**: No
 - **Default**: `3000`
 - **Description**: Wait time (ms) for nginx file watcher to process config changes
+
+### NGINX_WATCH_QUIET_SECONDS
+
+- **Required**: No
+- **Default**: `2`
+- **Description**: Quiet window the nginx container's reload watcher waits after the last site-config write before reloading (CE ≥ 0.4.48). A burst of writes — an app install, a rule-set push touching many domains — becomes **one** reload after the burst, instead of one per file.
+
+This is read by the **nginx image**, not the backend, so it belongs in the nginx service's `environment:` if you override it. The same release made config writes atomic (a `.tmp` file renamed into place, never half-written) and added a boot guard: a site file that fails `nginx -t` is quarantined as `<name>.invalid` and nginx still starts. A broken *main* config still stops the container. Both need the nginx image from v0.4.48 or later; the backend half works with an older image but reloads once per write.
 
 ---
 
