@@ -127,23 +127,40 @@ const config: Config = {
     },
     {
       tagName: 'script',
-      attributes: {
-        async: 'true',
-        src: 'https://www.googletagmanager.com/gtag/js?id=G-T20LHNBRK6',
-      },
-    },
-    {
-      tagName: 'script',
       attributes: {},
-      innerHTML: `window.dataLayer = window.dataLayer || [];
+      innerHTML: `// Only load analytics on the canonical public docs hostnames. BFFless
+// preview deploys (<sha>-docs-<hash>.bffless.dev) and localhost were firing
+// page_view and conversion events into the production property.
+//
+// A/B traffic splitting serves every arm from the same host and signals the
+// arm via the __bffless_variant cookie, so gating on hostname does NOT affect
+// the split.
+var ANALYTICS_HOSTS = [
+  'docs.bffless.dev', 'docs.bffless.app', 'docs.bffless.com'
+];
+window.__ANALYTICS_ENABLED =
+  ANALYTICS_HOSTS.indexOf(window.location.hostname) !== -1;
+
+// gtag() is always defined so gtag-stub.ts and the route-change handler never
+// have to null-check it. When analytics is disabled the calls just queue in
+// dataLayer and go nowhere.
+window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
-try {
-  var m = document.cookie.match(/(?:^|; )__bffless_variant=([^;]*)/);
-  var v = m ? decodeURIComponent(m[1]) : new URLSearchParams(window.location.search).get('version');
-  if (v) gtag('set', 'user_properties', { variant: v });
-} catch (e) {}
-gtag('js', new Date());
-gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });`,
+
+if (window.__ANALYTICS_ENABLED) {
+  var gaScript = document.createElement('script');
+  gaScript.async = true;
+  gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-T20LHNBRK6';
+  document.head.appendChild(gaScript);
+
+  try {
+    var m = document.cookie.match(/(?:^|; )__bffless_variant=([^;]*)/);
+    var v = m ? decodeURIComponent(m[1]) : new URLSearchParams(window.location.search).get('version');
+    if (v) gtag('set', 'user_properties', { variant: v });
+  } catch (e) {}
+  gtag('js', new Date());
+  gtag('config', 'G-T20LHNBRK6', { 'anonymize_ip': true });
+}`,
     },
   ],
 

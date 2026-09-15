@@ -32,6 +32,13 @@ export function onRouteDidUpdate({
   location: Location;
   previousLocation: Location | null;
 }) {
+  // Analytics is gated to the canonical public hostnames by the head script in
+  // docusaurus.config.ts. On preview deploys and localhost gtag() exists but
+  // GA was never loaded, so bail out instead of queueing into dataLayer.
+  if (typeof window !== 'undefined' && !(window as any).__ANALYTICS_ENABLED) {
+    return;
+  }
+
   if (typeof window === 'undefined' || typeof (window as any).gtag !== 'function') {
     return;
   }
