@@ -1,7 +1,7 @@
 ---
 sidebar_position: 12
 title: Server Video Ops
-description: Opt-in server-side video processing (slice, stitch, audio extract, stills, contact sheets) via the ffmpeg_handler pipeline step — with sizing guidance for small hosts
+description: Opt-in server-side video processing (slice, narrated cuts, stitch, audio extract, stills, contact sheets, cards) via the ffmpeg_handler pipeline step — with sizing guidance for small hosts
 ---
 
 # Server Video Ops
@@ -86,9 +86,56 @@ All optional, via `.env` — these tune the Local server; the Remote executor's 
 
 ## For app and pipeline authors
 
-`ffmpeg_handler` is a pipeline step with five curated operations (never raw ffmpeg arguments): `probe` (capability check / media info), `extract_audio` (16 kHz mono WAV), `slice` (cut kept spans into one clip, optional WAV alongside), `concat` (stitch clips; stream-copy with automatic re-encode fallback), and `frames` (stills at times you supply — optionally with a line of text drawn on them, optionally tiled into contact sheets). Inputs and outputs are storage paths — bytes never enter a request body. Long operations belong in a pipeline's `postSteps` with a job row the client polls.
+`ffmpeg_handler` is a pipeline step with six curated operations (never raw ffmpeg arguments): `probe` (capability check / media info), `extract_audio` (16 kHz mono WAV), `slice` (cut kept spans into one clip, optional WAV alongside — or one span with a voice laid over it and a line drawn on it), `concat` (stitch clips; stream-copy with automatic re-encode fallback), `frames` (stills at times you supply — optionally with a line of text drawn on them, optionally tiled into contact sheets), and `card` (hold an image as a video segment, under a voice or silence). Inputs and outputs are storage paths — bytes never enter a request body. Long operations belong in a pipeline's `postSteps` with a job row the client polls.
 
 A `probe` step with no input never fails and returns `{ server, ops, version }` — the standard capability endpoint an app should call before choosing the server path, falling back to client-side processing on `server: false`.
+
+### Narrated cuts: `slice` with `audio` and `draw`
+
+Since CE **v0.4.62**. A `slice` of **one span** can carry a voice over it and one line of text on it — the shape of a coached moment in a feedback video: the footage of the moment, the coach's line spoken over it, a lower-third naming what happened.
+
+```yaml
+- id: cut
+  handler: ffmpeg_handler
+  config:
+    operation: slice
+    input: "{{steps.prep.source}}"
+    spans: steps.prep.spans            # exactly one span when audio is set
+    audio: "{{steps.prep.voice}}"      # an uploads-relative audio object, TEMPLATE
+    original: 0.25                     # the cut's own audio under the voice, 0 to 1 (default 0.25)
+    draw: { text: "1:20 · rolled the stop at 4 mph", position: bottom-left, size: 0.055 }
+    output: "{{steps.prep.outPrefix}}/cut.mp4"
+```
+
+What CE does with it:
+
+- **It probes the voice first**, so every length in the ffmpeg command is a number CE was told rather than one ffmpeg has to discover. The cut runs **`max(span, voice)`**: when the line runs past the span, the picture **holds its last frame** under the rest of it; when the span is longer, the voice ends and the cut's own audio carries on.
+- The cut's own audio is mixed **under** the voice at `original` (`0` silences it, `1` leaves it as recorded), both streams padded to the same length. Nothing is sped up.
+- `draw` is the same block `frames` takes, with **one `text` string** (an array is a config error here: a cut carries one line). It is drawn for the cut's whole length through the same fence, and an ffmpeg without `drawtext` costs one undrawn retry, never the step, reported as `drawn: false`.
+- The output gains `narrated` (a voice was laid over the cut) and `drawn`, and `duration` is the length actually written.
+- **Narrated cuts write 48 kHz stereo AAC**, the same layout as a `card`, so a video made of narrated cuts and cards **stream-copies** through `concat`. A plain cut keeps its source's audio layout; mixing plain cuts into that list works too, through the re-encode fallback.
+
+### Held images: `card`
+
+Since CE **v0.4.62**. One image becomes a video segment at the shared encode profile — a score card at the start of a video, a closing card at the end, a still held under a line of narration.
+
+```yaml
+- id: card
+  handler: ffmpeg_handler
+  config:
+    operation: card
+    image: "{{steps.plan.scoreCard}}"   # uploads-relative, TEMPLATE
+    audio: "{{steps.narrate.path}}"     # optional: the card lasts the voice + 0.5 s
+    seconds: 4                          # without audio: how long to hold (default 4)
+    width: 1280                         # optional; with height, fitted and letterboxed
+    height: 720                         # optional; alone, the other side follows the aspect ratio
+    output: "{{steps.prep.outPrefix}}/card.mp4"
+```
+
+- With `audio` the card lasts **the voice plus half a second** (probed first, as for a narrated cut); without it, `seconds`. `seconds`, `width` and `height` are literal numbers, like `frames`' knobs.
+- With both `width` and `height` the image is fitted and letterboxed to that size; with one, the other follows the aspect ratio; with neither, the image's own size (made even for the encoder).
+- **A silent card still carries an audio track** (48 kHz stereo silence), so `concat` sees uniform parts whether or not a card was narrated.
+- The output is `{ storage_path, content_type, size, duration, narrated }`.
 
 ### Stills and contact sheets: `frames`
 
