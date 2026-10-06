@@ -104,6 +104,16 @@ fields:
 
 Scaffold one with `npx bffless rules init --schema comments --field author:string:required --field body:text`. Field types are `string`, `number`, `boolean`, `email`, `text`, `datetime`, and `json`.
 
+A field your rules **filter on** (a `data_query` with `filters: { author: { op: eq, … } }`) can be marked `indexed: true`. Every schema's records live in one table as JSON, so without it a filter reads every record of the schema; with it, CE keeps an index on that field for the schema and the filter is a lookup. Mark the fields you filter on in tables that grow — a status, a job or run id, an owner — and leave the rest: an index costs a little on every write. For `string`, `number`, `boolean`, `email` and `datetime` fields; `text` and `json` are not indexed. `rules push` adds or removes the index when the flag changes on a schema the rule set owns.
+
+```yaml
+fields:
+  - name: author
+    type: string
+    required: true
+    indexed: true
+```
+
 :::caution Push never changes an existing schema's fields
 The live definition wins. A name-reused schema whose fields differ produces a warning — or a hard error under `rules push --strict-schemas`. Settle the fields before the first push; afterwards, change live fields in the dashboard. Note also that `--name-suffix` (used for PR previews) suffixes only the **rule set** name: schemas are project-level, so a preview set shares the same named schemas and data tables as production.
 :::
